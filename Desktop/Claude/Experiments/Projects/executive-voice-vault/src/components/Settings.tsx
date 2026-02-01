@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Save, Eye, EyeOff, Loader2, CheckCircle, Key, Palette, FolderOpen } from 'lucide-react';
+import { open } from '@tauri-apps/plugin-dialog';
 import { useExecutive } from '../contexts/ExecutiveContext';
 
 interface SettingsProps {
@@ -211,6 +212,11 @@ function VaultSettings({ vaultPath, onUpdate }: VaultSettingsProps) {
   const [success, setSuccess] = useState(false);
   const [path, setPath] = useState(vaultPath || '');
 
+  const handleBrowse = async () => {
+    const selected = await open({ directory: true, title: 'Select Obsidian Vault Folder' });
+    if (selected) setPath(selected);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -231,13 +237,23 @@ function VaultSettings({ vaultPath, onUpdate }: VaultSettingsProps) {
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Obsidian Vault Path
         </label>
-        <input
-          type="text"
-          value={path}
-          onChange={(e) => setPath(e.target.value)}
-          placeholder="/Users/you/obsidian-workspace/vault"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={path}
+            onChange={(e) => setPath(e.target.value)}
+            placeholder="/Users/you/obsidian-workspace/vault"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+          <button
+            type="button"
+            onClick={handleBrowse}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
+          >
+            <FolderOpen className="w-4 h-4" />
+            Browse
+          </button>
+        </div>
         <p className="mt-2 text-sm text-gray-500">
           Absolute path to your Obsidian vault folder. The app will scan for Voice folders within
           this vault.
