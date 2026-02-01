@@ -56,6 +56,21 @@ pub fn gather_all_derived(voice_path: &Path) -> Result<String, String> {
     Ok(output)
 }
 
+/// Gather all anti-voice files for an executive and format as constraints
+pub fn gather_anti_voice(voice_path: &Path) -> Result<String, String> {
+    let av_files = list_voice_files(voice_path, Some(&VoiceFileType::VoiceAntivoice))?;
+    if av_files.is_empty() {
+        return Ok(String::new());
+    }
+
+    let mut output = String::from("=== ANTI-VOICE CONSTRAINTS ===\nThe following patterns have been explicitly flagged as NOT matching this speaker's voice. NEVER use these patterns:\n\n");
+    for f in &av_files {
+        let id = f.frontmatter.get_string("id");
+        output.push_str(&format!("--- {} ---\n{}\n\n", id, f.body));
+    }
+    Ok(output)
+}
+
 /// Get the system prompt for a derivation type
 pub fn get_derivation_prompt(derivation_type: &str, speaker: &str) -> String {
     match derivation_type {

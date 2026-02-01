@@ -6,6 +6,9 @@ import {
   FolderOpen,
   Sparkles,
   PenTool,
+  Newspaper,
+  ClipboardList,
+  Mic,
 } from 'lucide-react';
 import * as api from './lib/api';
 import type { CreateQuoteInput } from './lib/types';
@@ -16,6 +19,9 @@ import { ExecutiveDashboard } from './components/ExecutiveDashboard';
 import { VoiceBrowser } from './components/VoiceBrowser';
 import { DerivationPanel } from './components/DerivationPanel';
 import { DraftGenerator } from './components/DraftGenerator';
+import { TrendIngestion } from './components/TrendIngestion';
+import { ContentTracker } from './components/ContentTracker';
+import { VoiceIntake } from './components/VoiceIntake';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExecutiveProvider, useExecutive } from './contexts/ExecutiveContext';
 
@@ -25,19 +31,23 @@ type View =
   | 'voice-browser'
   | 'derivation'
   | 'draft-generator'
+  | 'trends'
+  | 'content-tracker'
+  | 'voice-intake'
   | 'settings';
 
 function AppContent() {
   const [apiKey, setApiKey] = useState<string | null>(null);
+  const [openaiApiKey, setOpenaiApiKey] = useState<string | null>(null);
   const [theme, setTheme] = useState<string>('light');
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<View>('exec-dashboard');
+  const [draftPrefill, setDraftPrefill] = useState<{ topic: string; articleText: string; notes: string } | null>(null);
 
   const {
     executives,
     selectedExecutive,
     setSelectedExecutive,
-    refreshExecutives,
     updateVaultPath,
     vaultConfigured,
     vaultError,
@@ -47,11 +57,13 @@ function AppContent() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [apiKeyValue, themeValue] = await Promise.all([
+        const [apiKeyValue, openaiKeyValue, themeValue] = await Promise.all([
           api.getSetting('api_key'),
+          api.getSetting('openai_api_key'),
           api.getSetting('theme'),
         ]);
         setApiKey(apiKeyValue);
+        setOpenaiApiKey(openaiKeyValue);
         setTheme(themeValue || 'light');
       } finally {
         setLoading(false);
@@ -67,6 +79,11 @@ function AppContent() {
   const handleUpdateApiKey = async (key: string) => {
     await api.setSetting('api_key', key);
     setApiKey(key);
+  };
+
+  const handleUpdateOpenaiApiKey = async (key: string) => {
+    await api.setSetting('openai_api_key', key);
+    setOpenaiApiKey(key);
   };
 
   const handleUpdateTheme = async (newTheme: string) => {
@@ -115,6 +132,9 @@ function AppContent() {
     { id: 'voice-browser' as View, label: 'Browse', icon: FolderOpen },
     { id: 'derivation' as View, label: 'Derive', icon: Sparkles },
     { id: 'draft-generator' as View, label: 'Draft', icon: PenTool },
+    { id: 'trends' as View, label: 'Trends', icon: Newspaper },
+    { id: 'content-tracker' as View, label: 'Content', icon: ClipboardList },
+    { id: 'voice-intake' as View, label: 'Intake', icon: Mic },
   ];
 
   const renderView = () => {
@@ -135,6 +155,7 @@ function AppContent() {
             selectedExecutive={selectedExecutive}
             onSelectExecutive={setSelectedExecutive}
             onSubmit={handleCreateQuote}
+            apiKey={apiKey}
           />
         );
       case 'voice-browser':
@@ -163,14 +184,41 @@ function AppContent() {
             onSelectExecutive={setSelectedExecutive}
             apiKey={apiKey}
             onNavigateToSettings={() => navigate('settings')}
+            prefill={draftPrefill}
+            onClearPrefill={() => setDraftPrefill(null)}
           />
         );
+      case 'trends':
+        return (
+          <TrendIngestion
+            executives={executives}
+            selectedExecutive={selectedExecutive}
+            onSelectExecutive={setSelectedExecutive}
+            onDraftFromTrend={(prefill) => {
+              setDraftPrefill(prefill);
+              navigate('draft-generator');
+            }}
+          />
+        );
+      case 'content-tracker':
+        return (
+          <ContentTracker
+            executives={executives}
+            selectedExecutive={selectedExecutive}
+            onSelectExecutive={setSelectedExecutive}
+            onWriteDraft={() => navigate('draft-generator')}
+          />
+        );
+      case 'voice-intake':
+        return <VoiceIntake executives={executives} />;
       case 'settings':
         return (
           <Settings
             apiKey={apiKey}
+            openaiApiKey={openaiApiKey}
             theme={theme}
             onUpdateApiKey={handleUpdateApiKey}
+            onUpdateOpenaiApiKey={handleUpdateOpenaiApiKey}
             onUpdateTheme={handleUpdateTheme}
             onUpdateVaultPath={handleUpdateVaultPath}
           />

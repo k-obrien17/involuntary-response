@@ -24,6 +24,8 @@ export interface VoiceScoreboard {
   stances: number;
   narratives: number;
   antivoice: number;
+  trends: number;
+  drafts: number;
   has_kernel: boolean;
 }
 
@@ -46,7 +48,9 @@ export type VoiceFileType =
   | 'voice-narrative'
   | 'voice-kernel'
   | 'voice-index'
-  | 'voice-antivoice';
+  | 'voice-antivoice'
+  | 'voice-trend'
+  | 'voice-draft';
 
 export const VOICE_FILE_TYPE_LABELS: Record<VoiceFileType, string> = {
   'voice-quote': 'Quotes',
@@ -57,6 +61,8 @@ export const VOICE_FILE_TYPE_LABELS: Record<VoiceFileType, string> = {
   'voice-kernel': 'Kernel',
   'voice-index': 'Index',
   'voice-antivoice': 'Anti-Voice',
+  'voice-trend': 'Trends',
+  'voice-draft': 'Drafts',
 };
 
 export const VOICE_SOURCE_TYPES = [
@@ -69,3 +75,21 @@ export const VOICE_SOURCE_TYPES = [
 ];
 
 export const CONFIDENCE_LEVELS = ['high', 'medium', 'low'];
+
+// Voice intake types
+export interface VoiceIntent {
+  executive_name: string;
+  action: 'queue_draft' | 'create_trend';
+  format: string;
+  topic: string;
+  notes: string;
+}
+
+export const DRAFT_FORMATS = [
+  'social-post',
+  'talking-points',
+  'op-ed',
+  'memo',
+  'email',
+  'blog-post',
+] as const;

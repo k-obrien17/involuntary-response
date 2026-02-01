@@ -4,6 +4,7 @@ import type {
   VaultFile,
   VoiceScoreboard,
   CreateQuoteInput,
+  VoiceIntent,
 } from './types';
 
 // Settings API
@@ -66,7 +67,47 @@ export async function generateWithClaudeStream(
   return invoke('generate_with_claude_stream', { systemPrompt, userMessage, maxTokens: maxTokens ?? null });
 }
 
+// Trend API
+export async function createTrend(
+  voicePath: string,
+  speaker: string,
+  headline: string,
+  sourceUrl: string,
+  sourceName: string,
+  topicTags: string[],
+  notes: string,
+): Promise<VaultFile> {
+  return invoke('create_trend', { voicePath, speaker, headline, sourceUrl, sourceName, topicTags, notes });
+}
+
+export async function updateTrendStatus(path: string, status: string): Promise<VaultFile> {
+  return invoke('update_trend_status', { path, status });
+}
+
+// Draft queue API
+export async function createDraftPlaceholder(
+  voicePath: string,
+  speaker: string,
+  topic: string,
+  format: string,
+  notes: string,
+): Promise<VaultFile> {
+  return invoke('create_draft_placeholder', { voicePath, speaker, topic, format, notes });
+}
+
+export async function updateFileStatus(path: string, status: string): Promise<VaultFile> {
+  return invoke('update_file_status', { path, status });
+}
+
+export async function updateFileBody(path: string, body: string): Promise<VaultFile> {
+  return invoke('update_file_body', { path, body });
+}
+
 // Anti-voice API
+export async function getAntiVoiceContext(voicePath: string): Promise<string> {
+  return invoke('get_anti_voice_context', { voicePath });
+}
+
 export async function createAntiVoice(
   voicePath: string,
   speaker: string,
@@ -74,4 +115,16 @@ export async function createAntiVoice(
   summary: string,
 ): Promise<VaultFile> {
   return invoke('create_anti_voice', { voicePath, speaker, feedback, summary });
+}
+
+// Voice intake API
+export async function transcribeAndParse(
+  audioBytes: number[],
+  executiveNames: string[],
+): Promise<VoiceIntent[]> {
+  return invoke('transcribe_and_parse', { audioBytes, executiveNames });
+}
+
+export async function dispatchVoiceIntents(intents: VoiceIntent[]): Promise<number> {
+  return invoke('dispatch_voice_intents', { intents });
 }

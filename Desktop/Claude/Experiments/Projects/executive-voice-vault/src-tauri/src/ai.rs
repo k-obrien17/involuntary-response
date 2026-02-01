@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
+use reqwest::multipart;
 
 #[derive(Debug, Serialize)]
 struct AnthropicRequest {
@@ -164,4 +165,43 @@ pub async fn call_claude_streaming(
 
     let _ = app_handle.emit("claude-stream-done", ());
     Ok(())
+}
+
+pub async fn transcribe_audio(api_key: &str, audio_bytes: Vec<u8>) -> Result<String, String> {
+    let client = reqwest::Client::new();
+
+    let audio_part = multipart::Part::bytes(audio_bytes)
+        .file_name("recording.webm")
+        .mime_str("audio/webm")
+        .map_err(|e| format!("Failed to create audio part: {}", e))?;
+
+    let form = multipart::Form::new()
+        .text("model", "whisper-1")
+        .part("file", audio_part);
+
+    let response = client
+        .post("https://api.openai.com/v1/audio/transcriptions")
+        .header("Authorization", format!("Bearer {}", api_key))
+        .multipart(form)
+        .send()
+        .await
+        .map_err(|e| format!("Whisper request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let body = response.text().await.unwrap_or_default();
+        return Err(format!("Whisper API error ({}): {}", status, body));
+    }
+
+    #[derive(Deserialize)]
+    struct WhisperResponse {
+        text: String,
+    }
+
+    let body: WhisperResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse Whisper response: {}", e))?;
+
+    Ok(body.text)
 }

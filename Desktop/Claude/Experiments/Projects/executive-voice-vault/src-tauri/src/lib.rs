@@ -41,8 +41,19 @@ pub fn run() {
             commands::set_setting,
             commands::generate_with_claude,
             commands::generate_with_claude_stream,
+            // Trends
+            commands::create_trend,
+            commands::update_trend_status,
+            // Drafts
+            commands::create_draft_placeholder,
+            commands::update_file_status,
+            commands::update_file_body,
             // Anti-voice
             commands::create_anti_voice,
+            commands::get_anti_voice_context,
+            // Voice intake
+            commands::transcribe_and_parse,
+            commands::dispatch_voice_intents,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

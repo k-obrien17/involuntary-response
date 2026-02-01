@@ -62,6 +62,8 @@ pub enum VoiceFileType {
     VoiceKernel,
     VoiceIndex,
     VoiceAntivoice,
+    VoiceTrend,
+    VoiceDraft,
 }
 
 impl VoiceFileType {
@@ -75,6 +77,8 @@ impl VoiceFileType {
             "voice-kernel" => Some(Self::VoiceKernel),
             "voice-index" => Some(Self::VoiceIndex),
             "voice-antivoice" => Some(Self::VoiceAntivoice),
+            "voice-trend" => Some(Self::VoiceTrend),
+            "voice-draft" => Some(Self::VoiceDraft),
             _ => None,
         }
     }
@@ -89,6 +93,8 @@ impl VoiceFileType {
             Self::VoiceKernel => "voice-kernel",
             Self::VoiceIndex => "voice-index",
             Self::VoiceAntivoice => "voice-antivoice",
+            Self::VoiceTrend => "voice-trend",
+            Self::VoiceDraft => "voice-draft",
         }
     }
 
@@ -102,6 +108,8 @@ impl VoiceFileType {
             Self::VoiceKernel => "",
             Self::VoiceIndex => "",
             Self::VoiceAntivoice => "Anti-Voice",
+            Self::VoiceTrend => "Trends",
+            Self::VoiceDraft => "Drafts",
         }
     }
 
@@ -115,6 +123,8 @@ impl VoiceFileType {
             Self::VoiceKernel => "VK",
             Self::VoiceIndex => "",
             Self::VoiceAntivoice => "AV",
+            Self::VoiceTrend => "VT",
+            Self::VoiceDraft => "VD",
         }
     }
 }
@@ -136,6 +146,8 @@ pub struct VoiceScoreboard {
     pub stances: usize,
     pub narratives: usize,
     pub antivoice: usize,
+    pub trends: usize,
+    pub drafts: usize,
     pub has_kernel: bool,
 }
 
@@ -309,6 +321,8 @@ pub fn get_scoreboard(voice_path: &Path) -> Result<VoiceScoreboard, String> {
         stances: 0,
         narratives: 0,
         antivoice: 0,
+        trends: 0,
+        drafts: 0,
         has_kernel: false,
     };
 
@@ -320,6 +334,8 @@ pub fn get_scoreboard(voice_path: &Path) -> Result<VoiceScoreboard, String> {
             Some("voice-stance") => scoreboard.stances += 1,
             Some("voice-narrative") => scoreboard.narratives += 1,
             Some("voice-antivoice") => scoreboard.antivoice += 1,
+            Some("voice-trend") => scoreboard.trends += 1,
+            Some("voice-draft") => scoreboard.drafts += 1,
             Some("voice-kernel") => scoreboard.has_kernel = true,
             _ => {}
         }

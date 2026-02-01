@@ -26,6 +26,7 @@ interface DerivationContext {
   system_prompt: string;
   quotes_text: string;
   all_derived: string;
+  anti_voice: string;
 }
 
 export function DerivationPanel({
@@ -76,6 +77,9 @@ export function DerivationPanel({
       let userMessage = context.quotes_text;
       if (context.all_derived) {
         userMessage = context.all_derived + '\n\n---\n\nSource Quotes:\n\n' + context.quotes_text;
+      }
+      if (context.anti_voice) {
+        userMessage = context.anti_voice + '\n\n---\n\n' + userMessage;
       }
 
       const unlistenChunk = await listen<{ text: string }>('claude-stream-chunk', (event) => {
