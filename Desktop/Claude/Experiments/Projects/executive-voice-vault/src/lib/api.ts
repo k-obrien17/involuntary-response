@@ -5,6 +5,7 @@ import type {
   VoiceScoreboard,
   CreateQuoteInput,
   VoiceIntent,
+  CreateKeyfactInput,
 } from './types';
 
 // Settings API
@@ -125,6 +126,58 @@ export async function transcribeAndParse(
   return invoke('transcribe_and_parse', { audioBytes, executiveNames });
 }
 
+export async function parseTranscript(
+  transcript: string,
+  executiveNames: string[],
+): Promise<VoiceIntent[]> {
+  return invoke('parse_transcript', { transcript, executiveNames });
+}
+
 export async function dispatchVoiceIntents(intents: VoiceIntent[]): Promise<number> {
   return invoke('dispatch_voice_intents', { intents });
+}
+
+// Delete API
+export async function deleteVaultFile(path: string): Promise<void> {
+  return invoke('delete_vault_file', { path });
+}
+
+// Publish draft API
+export async function publishDraft(
+  path: string,
+  publishUrl: string,
+  publishPlatform: string,
+): Promise<VaultFile> {
+  return invoke('publish_draft', { path, publishUrl, publishPlatform });
+}
+
+// All drafts API
+export interface DraftWithExecutive {
+  executive_name: string;
+  file: VaultFile;
+}
+
+export async function listAllDrafts(): Promise<DraftWithExecutive[]> {
+  return invoke('list_all_drafts');
+}
+
+// Key facts API
+export async function createKeyfact(
+  voicePath: string,
+  speaker: string,
+  input: CreateKeyfactInput,
+): Promise<VaultFile> {
+  return invoke('create_keyfact', {
+    voicePath,
+    speaker,
+    title: input.title,
+    factCategory: input.fact_category,
+    factValue: input.fact_value,
+    source: input.source,
+    context: input.context,
+  });
+}
+
+export async function listKeyfacts(voicePath: string): Promise<VaultFile[]> {
+  return invoke('list_keyfacts', { voicePath });
 }

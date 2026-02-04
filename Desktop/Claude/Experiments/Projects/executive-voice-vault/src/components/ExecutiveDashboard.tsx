@@ -10,8 +10,10 @@ import {
   Sparkles,
   FileText,
   ExternalLink,
+  Lightbulb,
 } from 'lucide-react';
 import type { VaultExecutive, VoiceScoreboard, VaultFile } from '../lib/types';
+import { KEYFACT_CATEGORY_LABELS, type KeyfactCategory } from '../lib/types';
 import * as api from '../lib/api';
 import { openInObsidian } from '../lib/obsidian';
 
@@ -31,6 +33,7 @@ export function ExecutiveDashboard({
   const [scoreboard, setScoreboard] = useState<VoiceScoreboard | null>(null);
   const [kernel, setKernel] = useState<VaultFile | null>(null);
   const [recentQuotes, setRecentQuotes] = useState<VaultFile[]>([]);
+  const [keyfacts, setKeyfacts] = useState<VaultFile[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -41,11 +44,13 @@ export function ExecutiveDashboard({
       api.getVoiceScoreboard(selectedExecutive.voice_path),
       api.getVoiceKernel(selectedExecutive.voice_path),
       api.listQuotes(selectedExecutive.voice_path),
+      api.listKeyfacts(selectedExecutive.voice_path),
     ])
-      .then(([sb, k, quotes]) => {
+      .then(([sb, k, quotes, facts]) => {
         setScoreboard(sb);
         setKernel(k);
         setRecentQuotes(quotes.slice(-10).reverse());
+        setKeyfacts(facts.reverse());
       })
       .finally(() => setLoading(false));
   }, [selectedExecutive]);
@@ -92,16 +97,23 @@ export function ExecutiveDashboard({
             <ScoreCard icon={Languages} label="Lexicon" count={scoreboard.lexicon} color="amber" />
             <ScoreCard icon={Shield} label="Stances" count={scoreboard.stances} color="rose" />
             <ScoreCard icon={BookMarked} label="Narratives" count={scoreboard.narratives} color="purple" />
+            <ScoreCard icon={Lightbulb} label="Key Facts" count={scoreboard.keyfacts} color="yellow" />
             <ScoreCard icon={Brain} label="Kernel" count={scoreboard.has_kernel ? 1 : 0} color="cyan" />
           </div>
 
           {/* Quick actions */}
-          <div className="flex gap-3 mb-8">
+          <div className="flex flex-wrap gap-3 mb-8">
             <button
               onClick={() => onNavigate('quote-input')}
               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
             >
               <Plus className="w-4 h-4" /> Add Quote
+            </button>
+            <button
+              onClick={() => onNavigate('keyfact-input')}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
+            >
+              <Lightbulb className="w-4 h-4" /> Add Key Fact
             </button>
             <button
               onClick={() => onNavigate('derivation')}
@@ -136,6 +148,48 @@ export function ExecutiveDashboard({
                   <span className="text-gray-400">... (click Browse to see full kernel)</span>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Key Facts */}
+          {keyfacts.length > 0 && (
+            <div className="bg-white rounded-lg shadow p-6 mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Key Facts ({keyfacts.length})
+              </h3>
+              <div className="grid gap-3 md:grid-cols-2">
+                {keyfacts.slice(0, 6).map((kf) => (
+                  <div
+                    key={kf.path}
+                    className="border border-amber-200 bg-amber-50 rounded-lg p-3 flex items-start justify-between group"
+                  >
+                    <div>
+                      <span className="inline-block px-2 py-0.5 text-xs font-medium bg-amber-200 text-amber-800 rounded mb-1">
+                        {KEYFACT_CATEGORY_LABELS[kf.frontmatter.fact_category as KeyfactCategory] || kf.frontmatter.fact_category}
+                      </span>
+                      <p className="font-medium text-gray-900">{kf.frontmatter.fact_value as string}</p>
+                      {kf.frontmatter.source && (
+                        <p className="text-xs text-gray-500 mt-1">Source: {kf.frontmatter.source as string}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => openInObsidian(kf.path)}
+                      className="opacity-0 group-hover:opacity-100 text-amber-600 hover:text-amber-800 p-1 flex-shrink-0"
+                      title="Open in Obsidian"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {keyfacts.length > 6 && (
+                <button
+                  onClick={() => onNavigate('voice-browser')}
+                  className="mt-3 text-sm text-amber-600 hover:underline"
+                >
+                  View all {keyfacts.length} key facts...
+                </button>
+              )}
             </div>
           )}
 
@@ -193,6 +247,7 @@ function ScoreCard({
     rose: 'bg-rose-50 text-rose-600',
     purple: 'bg-purple-50 text-purple-600',
     cyan: 'bg-cyan-50 text-cyan-600',
+    yellow: 'bg-amber-50 text-amber-600',
   };
 
   return (

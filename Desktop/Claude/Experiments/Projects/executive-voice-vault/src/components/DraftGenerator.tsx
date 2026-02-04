@@ -103,15 +103,27 @@ export function DraftGenerator({
     streamedText.current = '';
 
     try {
-      const [quotes, lexicon, antiVoice] = await Promise.all([
+      const [quotes, lexicon, antiVoice, keyfacts] = await Promise.all([
         api.listQuotes(selectedExecutive.voice_path),
         api.listVoiceFiles(selectedExecutive.voice_path, 'voice-lexicon'),
         api.getAntiVoiceContext(selectedExecutive.voice_path),
+        api.listKeyfacts(selectedExecutive.voice_path),
       ]);
 
       let context = '';
       if (kernel) {
         context += '=== VOICE KERNEL ===\n' + kernel.body + '\n\n';
+      }
+
+      if (keyfacts.length > 0) {
+        context += '=== KEY FACTS ===\n';
+        context += 'Important facts about this executive that may be relevant to mention:\n';
+        for (const kf of keyfacts) {
+          const category = kf.frontmatter.fact_category as string || '';
+          const value = kf.frontmatter.fact_value as string || '';
+          context += `- [${category}] ${value}\n`;
+        }
+        context += '\n';
       }
 
       if (lexicon.length > 0) {
@@ -134,7 +146,7 @@ export function DraftGenerator({
         }
       }
 
-      let systemPrompt = `You are a voice-aware ghostwriter. You have access to a Voice Kernel (master voice reference), lexicon entries, and verbatim quotes for ${selectedExecutive.name}.
+      let systemPrompt = `You are a voice-aware ghostwriter. You have access to a Voice Kernel (master voice reference), key facts, lexicon entries, and verbatim quotes for ${selectedExecutive.name}.
 
 Draft content that authentically captures their voice. Follow the voice kernel's tone sliders, use their actual lexicon, and mirror their cadence patterns.
 
@@ -144,6 +156,7 @@ Rules:
 - Match their sentence structure and rhythm
 - Never use phrases from their taboo list
 - If Anti-Voice constraints are provided, strictly avoid those patterns
+- If Key Facts are provided, weave in relevant facts naturally where they add credibility or context (don't force them)
 - Stay in their voice — do not add generic corporate language they wouldn't use`;
 
       // LinkedIn-specific prompt additions

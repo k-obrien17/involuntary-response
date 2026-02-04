@@ -64,6 +64,7 @@ pub enum VoiceFileType {
     VoiceAntivoice,
     VoiceTrend,
     VoiceDraft,
+    VoiceKeyfact,
 }
 
 impl VoiceFileType {
@@ -79,6 +80,7 @@ impl VoiceFileType {
             "voice-antivoice" => Some(Self::VoiceAntivoice),
             "voice-trend" => Some(Self::VoiceTrend),
             "voice-draft" => Some(Self::VoiceDraft),
+            "voice-keyfact" => Some(Self::VoiceKeyfact),
             _ => None,
         }
     }
@@ -95,6 +97,7 @@ impl VoiceFileType {
             Self::VoiceAntivoice => "voice-antivoice",
             Self::VoiceTrend => "voice-trend",
             Self::VoiceDraft => "voice-draft",
+            Self::VoiceKeyfact => "voice-keyfact",
         }
     }
 
@@ -110,6 +113,7 @@ impl VoiceFileType {
             Self::VoiceAntivoice => "Anti-Voice",
             Self::VoiceTrend => "Trends",
             Self::VoiceDraft => "Drafts",
+            Self::VoiceKeyfact => "KeyFacts",
         }
     }
 
@@ -125,6 +129,7 @@ impl VoiceFileType {
             Self::VoiceAntivoice => "AV",
             Self::VoiceTrend => "VT",
             Self::VoiceDraft => "VD",
+            Self::VoiceKeyfact => "KF",
         }
     }
 }
@@ -148,6 +153,7 @@ pub struct VoiceScoreboard {
     pub antivoice: usize,
     pub trends: usize,
     pub drafts: usize,
+    pub keyfacts: usize,
     pub has_kernel: bool,
 }
 
@@ -323,6 +329,7 @@ pub fn get_scoreboard(voice_path: &Path) -> Result<VoiceScoreboard, String> {
         antivoice: 0,
         trends: 0,
         drafts: 0,
+        keyfacts: 0,
         has_kernel: false,
     };
 
@@ -336,6 +343,7 @@ pub fn get_scoreboard(voice_path: &Path) -> Result<VoiceScoreboard, String> {
             Some("voice-antivoice") => scoreboard.antivoice += 1,
             Some("voice-trend") => scoreboard.trends += 1,
             Some("voice-draft") => scoreboard.drafts += 1,
+            Some("voice-keyfact") => scoreboard.keyfacts += 1,
             Some("voice-kernel") => scoreboard.has_kernel = true,
             _ => {}
         }

@@ -9,6 +9,7 @@ import {
   Newspaper,
   ClipboardList,
   Mic,
+  Lightbulb,
 } from 'lucide-react';
 import * as api from './lib/api';
 import type { CreateQuoteInput } from './lib/types';
@@ -22,12 +23,14 @@ import { DraftGenerator } from './components/DraftGenerator';
 import { TrendIngestion } from './components/TrendIngestion';
 import { ContentTracker } from './components/ContentTracker';
 import { VoiceIntake } from './components/VoiceIntake';
+import { KeyfactInput } from './components/KeyfactInput';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ExecutiveProvider, useExecutive } from './contexts/ExecutiveContext';
 
 type View =
   | 'exec-dashboard'
   | 'quote-input'
+  | 'keyfact-input'
   | 'voice-browser'
   | 'derivation'
   | 'draft-generator'
@@ -129,6 +132,7 @@ function AppContent() {
   const navItems = [
     { id: 'exec-dashboard' as View, label: 'Dashboard', icon: LayoutDashboard },
     { id: 'quote-input' as View, label: 'Add Quote', icon: Quote },
+    { id: 'keyfact-input' as View, label: 'Key Facts', icon: Lightbulb },
     { id: 'voice-browser' as View, label: 'Browse', icon: FolderOpen },
     { id: 'derivation' as View, label: 'Derive', icon: Sparkles },
     { id: 'draft-generator' as View, label: 'Draft', icon: PenTool },
@@ -156,6 +160,14 @@ function AppContent() {
             onSelectExecutive={setSelectedExecutive}
             onSubmit={handleCreateQuote}
             apiKey={apiKey}
+          />
+        );
+      case 'keyfact-input':
+        return (
+          <KeyfactInput
+            executives={executives}
+            selectedExecutive={selectedExecutive}
+            onSelectExecutive={setSelectedExecutive}
           />
         );
       case 'voice-browser':

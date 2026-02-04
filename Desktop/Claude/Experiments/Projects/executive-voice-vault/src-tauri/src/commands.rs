@@ -293,6 +293,64 @@ pub fn update_file_body(
     vault::read_vault_file(Path::new(&path)).map_err(CommandError::from)
 }
 
+// --- Key facts commands ---
+
+#[tauri::command]
+pub fn create_keyfact(
+    settings: SettingsState<'_>,
+    voice_path: String,
+    speaker: String,
+    title: String,
+    fact_category: String,
+    fact_value: String,
+    source: String,
+    context: String,
+) -> CommandResult<vault::VaultFile> {
+    let _ = get_vault_path(&settings)?;
+
+    let file_type = vault::VoiceFileType::VoiceKeyfact;
+    let id = vault::generate_next_id(Path::new(&voice_path), &file_type)
+        .map_err(CommandError::from)?;
+    let today = chrono::Local::now().format("%Y-%m-%d").to_string();
+
+    let mut fields = std::collections::HashMap::new();
+    fields.insert("id".into(), serde_yaml::Value::String(id.clone()));
+    fields.insert("type".into(), serde_yaml::Value::String("voice-keyfact".into()));
+    fields.insert("voice_system".into(), serde_yaml::Value::Bool(true));
+    fields.insert(
+        "speaker".into(),
+        serde_yaml::Value::String(format!("\"[[{}]]\"", speaker)),
+    );
+    fields.insert("fact_category".into(), serde_yaml::Value::String(fact_category));
+    fields.insert("fact_value".into(), serde_yaml::Value::String(fact_value.clone()));
+    fields.insert("source".into(), serde_yaml::Value::String(source));
+    fields.insert("date_valid".into(), serde_yaml::Value::String(today));
+
+    let frontmatter = vault::Frontmatter { fields };
+    let body = if context.is_empty() {
+        format!("# {}\n\n{}\n", title, fact_value)
+    } else {
+        format!("# {}\n\n{}\n\n## Context\n{}\n", title, fact_value, context)
+    };
+
+    let file_path = vault::get_voice_file_path(Path::new(&voice_path), &file_type, &id, &title);
+    vault::write_vault_file(&file_path, &frontmatter, &body).map_err(CommandError::from)?;
+    vault::read_vault_file(&file_path).map_err(CommandError::from)
+}
+
+#[tauri::command]
+pub fn list_keyfacts(
+    settings: SettingsState<'_>,
+    voice_path: String,
+) -> CommandResult<Vec<vault::VaultFile>> {
+    let _ = get_vault_path(&settings)?;
+    vault::list_voice_files(
+        Path::new(&voice_path),
+        Some(&vault::VoiceFileType::VoiceKeyfact),
+    )
+    .map_err(|e| e.into())
+}
+
 // --- Anti-voice context ---
 
 #[tauri::command]
@@ -432,6 +490,54 @@ Rules:
 }
 
 #[tauri::command]
+pub async fn parse_transcript(
+    settings: SettingsState<'_>,
+    transcript: String,
+    executive_names: Vec<String>,
+) -> CommandResult<Vec<VoiceIntent>> {
+    let anthropic_key = settings
+        .get("api_key")
+        .ok_or_else(|| CommandError::from("Anthropic API key not configured.".to_string()))?;
+
+    let names_list = executive_names.join(", ");
+    let system_prompt = format!(
+        r#"You are a voice intake parser for an executive content management system.
+
+Given a transcript of someone describing content deliverables, extract each distinct content intent.
+
+Known executives: {}
+
+For each intent, output a JSON object:
+{{
+  "executive_name": "exact match from known list",
+  "action": "queue_draft" or "create_trend",
+  "format": "social-post" | "talking-points" | "op-ed" | "memo" | "email" | "blog-post",
+  "topic": "brief topic description",
+  "notes": "any additional context mentioned"
+}}
+
+Output a JSON array of intents. Only output the JSON, no other text.
+
+Rules:
+- Match executive names fuzzy (first name only is fine)
+- Default format to "social-post" if not specified
+- If the speaker says "post about", "write about", "LinkedIn" → queue_draft
+- If the speaker says "track", "watch", "trending", "article about" → create_trend
+- Capture any mentioned angles, data points, or references in notes"#,
+        names_list
+    );
+
+    let response = ai::call_claude(&anthropic_key, &system_prompt, &transcript, 2048)
+        .await
+        .map_err(CommandError::from)?;
+
+    let intents: Vec<VoiceIntent> = serde_json::from_str(&response)
+        .map_err(|e| CommandError::from(format!("Failed to parse intents: {}. Raw: {}", e, response)))?;
+
+    Ok(intents)
+}
+
+#[tauri::command]
 pub fn dispatch_voice_intents(
     settings: SettingsState<'_>,
     intents: Vec<VoiceIntent>,
@@ -514,6 +620,82 @@ pub fn dispatch_voice_intents(
     }
 
     Ok(dispatched)
+}
+
+// --- Delete command ---
+
+#[tauri::command]
+pub fn delete_vault_file(
+    settings: SettingsState<'_>,
+    path: String,
+) -> CommandResult<()> {
+    let _ = get_vault_path(&settings)?;
+    std::fs::remove_file(Path::new(&path))
+        .map_err(|e| CommandError::from(format!("Failed to delete file: {}", e)))
+}
+
+// --- Publish draft command ---
+
+#[tauri::command]
+pub fn publish_draft(
+    settings: SettingsState<'_>,
+    path: String,
+    publish_url: String,
+    publish_platform: String,
+) -> CommandResult<vault::VaultFile> {
+    let _ = get_vault_path(&settings)?;
+    let mut file = vault::read_vault_file(Path::new(&path)).map_err(CommandError::from)?;
+
+    let today = chrono::Local::now().format("%Y-%m-%d").to_string();
+    file.frontmatter.fields.insert("status".into(), serde_yaml::Value::String("published".into()));
+    file.frontmatter.fields.insert("publish_url".into(), serde_yaml::Value::String(publish_url));
+    file.frontmatter.fields.insert("publish_date".into(), serde_yaml::Value::String(today));
+    file.frontmatter.fields.insert("publish_platform".into(), serde_yaml::Value::String(publish_platform));
+
+    vault::write_vault_file(Path::new(&path), &file.frontmatter, &file.body)
+        .map_err(CommandError::from)?;
+    vault::read_vault_file(Path::new(&path)).map_err(CommandError::from)
+}
+
+// --- List all drafts across executives ---
+
+#[derive(Debug, serde::Serialize)]
+pub struct DraftWithExecutive {
+    pub executive_name: String,
+    pub file: vault::VaultFile,
+}
+
+#[tauri::command]
+pub fn list_all_drafts(
+    settings: SettingsState<'_>,
+) -> CommandResult<Vec<DraftWithExecutive>> {
+    let vault_path = get_vault_path(&settings)?;
+    let executives = vault::discover_executives(Path::new(&vault_path))
+        .map_err(CommandError::from)?;
+
+    let mut all_drafts = Vec::new();
+    for exec in executives {
+        let drafts = vault::list_voice_files(
+            Path::new(&exec.voice_path),
+            Some(&vault::VoiceFileType::VoiceDraft),
+        ).map_err(CommandError::from)?;
+
+        for draft in drafts {
+            all_drafts.push(DraftWithExecutive {
+                executive_name: exec.name.clone(),
+                file: draft,
+            });
+        }
+    }
+
+    // Sort by created date descending (newest first)
+    all_drafts.sort_by(|a, b| {
+        let a_date = a.file.frontmatter.get_string("created");
+        let b_date = b.file.frontmatter.get_string("created");
+        b_date.cmp(&a_date)
+    });
+
+    Ok(all_drafts)
 }
 
 // --- Anti-voice commands ---

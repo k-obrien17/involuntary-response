@@ -26,6 +26,7 @@ export interface VoiceScoreboard {
   antivoice: number;
   trends: number;
   drafts: number;
+  keyfacts: number;
   has_kernel: boolean;
 }
 
@@ -50,7 +51,8 @@ export type VoiceFileType =
   | 'voice-index'
   | 'voice-antivoice'
   | 'voice-trend'
-  | 'voice-draft';
+  | 'voice-draft'
+  | 'voice-keyfact';
 
 export const VOICE_FILE_TYPE_LABELS: Record<VoiceFileType, string> = {
   'voice-quote': 'Quotes',
@@ -63,6 +65,7 @@ export const VOICE_FILE_TYPE_LABELS: Record<VoiceFileType, string> = {
   'voice-antivoice': 'Anti-Voice',
   'voice-trend': 'Trends',
   'voice-draft': 'Drafts',
+  'voice-keyfact': 'Key Facts',
 };
 
 export const VOICE_SOURCE_TYPES = [
@@ -93,3 +96,49 @@ export const DRAFT_FORMATS = [
   'email',
   'blog-post',
 ] as const;
+
+// Publish platforms
+export const PUBLISH_PLATFORMS = [
+  'linkedin',
+  'blog',
+  'newsletter',
+  'other',
+] as const;
+
+export type PublishPlatform = typeof PUBLISH_PLATFORMS[number];
+
+export const PUBLISH_PLATFORM_LABELS: Record<PublishPlatform, string> = {
+  linkedin: 'LinkedIn',
+  blog: 'Blog',
+  newsletter: 'Newsletter',
+  other: 'Other',
+};
+
+// Key facts
+export const KEYFACT_CATEGORIES = [
+  'career',
+  'education',
+  'achievement',
+  'preference',
+  'opinion',
+  'statistic',
+] as const;
+
+export type KeyfactCategory = typeof KEYFACT_CATEGORIES[number];
+
+export const KEYFACT_CATEGORY_LABELS: Record<KeyfactCategory, string> = {
+  career: 'Career',
+  education: 'Education',
+  achievement: 'Achievement',
+  preference: 'Preference',
+  opinion: 'Opinion',
+  statistic: 'Statistic',
+};
+
+export interface CreateKeyfactInput {
+  title: string;
+  fact_category: KeyfactCategory;
+  fact_value: string;
+  source: string;
+  context: string;
+}

@@ -49,11 +49,18 @@ pub fn run() {
             commands::create_draft_placeholder,
             commands::update_file_status,
             commands::update_file_body,
+            commands::delete_vault_file,
+            commands::publish_draft,
+            commands::list_all_drafts,
             // Anti-voice
             commands::create_anti_voice,
             commands::get_anti_voice_context,
+            // Key facts
+            commands::create_keyfact,
+            commands::list_keyfacts,
             // Voice intake
             commands::transcribe_and_parse,
+            commands::parse_transcript,
             commands::dispatch_voice_intents,
         ])
         .run(tauri::generate_context!())
