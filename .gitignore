@@ -1,3 +1,26 @@
+# Ignore everything by default
+*
+
+# Track Claude config
+!.gitignore
+!.claude/
+.claude/*
+!.claude/CLAUDE.md
+!.claude/OPS-MANUAL.md
+
+# Track executive-voice-vault project
+!Desktop/
+Desktop/*
+!Desktop/Claude/
+Desktop/Claude/*
+!Desktop/Claude/Experiments/
+Desktop/Claude/Experiments/*
+!Desktop/Claude/Experiments/Projects/
+Desktop/Claude/Experiments/Projects/*
+!Desktop/Claude/Experiments/Projects/executive-voice-vault/
+!Desktop/Claude/Experiments/Projects/executive-voice-vault/**
+
+# Standard ignores for tracked projects
 node_modules/
 .env
 *.db
