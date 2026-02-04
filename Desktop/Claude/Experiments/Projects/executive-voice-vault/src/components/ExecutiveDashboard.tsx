@@ -165,12 +165,12 @@ export function ExecutiveDashboard({
                   >
                     <div>
                       <span className="inline-block px-2 py-0.5 text-xs font-medium bg-amber-200 text-amber-800 rounded mb-1">
-                        {KEYFACT_CATEGORY_LABELS[kf.frontmatter.fact_category as KeyfactCategory] || kf.frontmatter.fact_category}
+                        {KEYFACT_CATEGORY_LABELS[kf.frontmatter.fact_category as KeyfactCategory] || String(kf.frontmatter.fact_category)}
                       </span>
-                      <p className="font-medium text-gray-900">{kf.frontmatter.fact_value as string}</p>
-                      {kf.frontmatter.source && (
-                        <p className="text-xs text-gray-500 mt-1">Source: {kf.frontmatter.source as string}</p>
-                      )}
+                      <p className="font-medium text-gray-900">{String(kf.frontmatter.fact_value)}</p>
+                      {kf.frontmatter.source ? (
+                        <p className="text-xs text-gray-500 mt-1">Source: {String(kf.frontmatter.source)}</p>
+                      ) : null}
                     </div>
                     <button
                       onClick={() => openInObsidian(kf.path)}

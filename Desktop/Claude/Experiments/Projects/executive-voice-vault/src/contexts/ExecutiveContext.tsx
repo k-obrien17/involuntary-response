@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import type { VaultExecutive } from '../lib/types';
 import * as api from '../lib/api';
 
+const SELECTED_EXECUTIVE_KEY = 'voice-vault-selected-executive';
+
 interface ExecutiveContextValue {
   executives: VaultExecutive[];
   selectedExecutive: VaultExecutive | null;
@@ -16,6 +18,22 @@ interface ExecutiveContextValue {
 
 const ExecutiveContext = createContext<ExecutiveContextValue | null>(null);
 
+function loadSavedExecutive(): string | null {
+  try {
+    return localStorage.getItem(SELECTED_EXECUTIVE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function saveExecutive(voicePath: string) {
+  try {
+    localStorage.setItem(SELECTED_EXECUTIVE_KEY, voicePath);
+  } catch {
+    // localStorage not available
+  }
+}
+
 export function ExecutiveProvider({
   children,
   initialVaultPath,
@@ -24,24 +42,36 @@ export function ExecutiveProvider({
   initialVaultPath: string | null;
 }) {
   const [executives, setExecutives] = useState<VaultExecutive[]>([]);
-  const [selectedExecutive, setSelectedExecutive] = useState<VaultExecutive | null>(null);
+  const [selectedExecutive, setSelectedExecutiveState] = useState<VaultExecutive | null>(null);
   const [vaultPath, setVaultPath] = useState<string | null>(initialVaultPath);
   const [vaultError, setVaultError] = useState<string | null>(null);
 
   const vaultConfigured = !!vaultPath;
+
+  const setSelectedExecutive = useCallback((exec: VaultExecutive) => {
+    setSelectedExecutiveState(exec);
+    saveExecutive(exec.voice_path);
+  }, []);
 
   const refreshExecutives = useCallback(async () => {
     if (!vaultPath) return;
     try {
       const execs = await api.listExecutives();
       setExecutives(execs);
-      if (execs.length > 0 && !selectedExecutive) {
+
+      // Try to restore saved executive, otherwise use first
+      const savedPath = loadSavedExecutive();
+      const savedExec = savedPath ? execs.find(e => e.voice_path === savedPath) : null;
+
+      if (savedExec) {
+        setSelectedExecutiveState(savedExec);
+      } else if (execs.length > 0 && !selectedExecutive) {
         setSelectedExecutive(execs[0]);
       }
     } catch (err: any) {
       setVaultError(err?.message || 'Failed to discover executives from vault');
     }
-  }, [vaultPath, selectedExecutive]);
+  }, [vaultPath, selectedExecutive, setSelectedExecutive]);
 
   useEffect(() => {
     if (vaultPath) {

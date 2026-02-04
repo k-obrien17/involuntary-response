@@ -1,4 +1,5 @@
-import { invoke } from '@tauri-apps/api/core';
+import { invoke as tauriInvoke } from '@tauri-apps/api/core';
+import { createInstrumentedInvoke } from './qa';
 import type {
   VaultExecutive,
   VaultFile,
@@ -7,6 +8,9 @@ import type {
   VoiceIntent,
   CreateKeyfactInput,
 } from './types';
+
+// Wrap invoke for QA instrumentation
+const invoke = createInstrumentedInvoke(tauriInvoke);
 
 // Settings API
 export async function getSetting(key: string): Promise<string | null> {
@@ -180,4 +184,49 @@ export async function createKeyfact(
 
 export async function listKeyfacts(voicePath: string): Promise<VaultFile[]> {
   return invoke('list_keyfacts', { voicePath });
+}
+
+// Derivation API
+export interface DerivationContext {
+  system_prompt: string;
+  quotes_text: string;
+  all_derived: string;
+  anti_voice: string;
+}
+
+export async function getDerivationContext(
+  voicePath: string,
+  derivationType: string,
+  speaker: string,
+): Promise<DerivationContext> {
+  return invoke('get_derivation_context', { voicePath, derivationType, speaker });
+}
+
+// Voice health API
+export interface VoiceHealth {
+  quotes: number;
+  has_kernel: boolean;
+  level: string;
+  label: string;
+  icon: string;
+  last_refresh_quote_count: number;
+  quotes_since_refresh: number;
+}
+
+export async function getVoiceHealth(voicePath: string): Promise<VoiceHealth> {
+  return invoke('get_voice_health', { voicePath });
+}
+
+export async function markVoiceRefreshed(voicePath: string): Promise<void> {
+  return invoke('mark_voice_refreshed', { voicePath });
+}
+
+export async function writeDerivedFile(
+  voicePath: string,
+  fileType: string,
+  title: string,
+  frontmatterFields: Record<string, unknown>,
+  body: string,
+): Promise<VaultFile> {
+  return invoke('write_derived_file', { voicePath, fileType, title, frontmatterFields, body });
 }

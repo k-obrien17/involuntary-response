@@ -1,42 +1,29 @@
 import { useState, useEffect } from 'react';
 import {
-  LayoutDashboard,
   Settings as SettingsIcon,
-  Quote,
   FolderOpen,
-  Sparkles,
   PenTool,
-  Newspaper,
-  ClipboardList,
-  Mic,
-  Lightbulb,
+  Plus,
+  Home,
 } from 'lucide-react';
 import * as api from './lib/api';
-import type { CreateQuoteInput } from './lib/types';
 
 import { Settings } from './components/Settings';
-import { QuoteInput } from './components/QuoteInput';
-import { ExecutiveDashboard } from './components/ExecutiveDashboard';
-import { VoiceBrowser } from './components/VoiceBrowser';
-import { DerivationPanel } from './components/DerivationPanel';
 import { DraftGenerator } from './components/DraftGenerator';
-import { TrendIngestion } from './components/TrendIngestion';
-import { ContentTracker } from './components/ContentTracker';
-import { VoiceIntake } from './components/VoiceIntake';
-import { KeyfactInput } from './components/KeyfactInput';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { QAPanel } from './components/QAPanel';
 import { ExecutiveProvider, useExecutive } from './contexts/ExecutiveContext';
 
+// Lazy load components that will be created
+import { HomeScreen } from './components/HomeScreen';
+import { UnifiedCapture } from './components/UnifiedCapture';
+import { Library } from './components/Library';
+
 type View =
-  | 'exec-dashboard'
-  | 'quote-input'
-  | 'keyfact-input'
-  | 'voice-browser'
-  | 'derivation'
-  | 'draft-generator'
-  | 'trends'
-  | 'content-tracker'
-  | 'voice-intake'
+  | 'home'
+  | 'add'
+  | 'write'
+  | 'library'
   | 'settings';
 
 function AppContent() {
@@ -44,8 +31,8 @@ function AppContent() {
   const [openaiApiKey, setOpenaiApiKey] = useState<string | null>(null);
   const [theme, setTheme] = useState<string>('light');
   const [loading, setLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<View>('exec-dashboard');
-  const [draftPrefill, setDraftPrefill] = useState<{ topic: string; articleText: string; notes: string } | null>(null);
+  const [currentView, setCurrentView] = useState<View>('write');
+  const [draftPrefill, setDraftPrefill] = useState<{ topic: string; format: string; notes: string } | null>(null);
 
   const {
     executives,
@@ -74,10 +61,6 @@ function AppContent() {
     };
     loadData();
   }, []);
-
-  const handleCreateQuote = async (voicePath: string, speaker: string, input: CreateQuoteInput) => {
-    return api.createQuote(voicePath, speaker, input);
-  };
 
   const handleUpdateApiKey = async (key: string) => {
     await api.setSetting('api_key', key);
@@ -130,65 +113,34 @@ function AppContent() {
   }
 
   const navItems = [
-    { id: 'exec-dashboard' as View, label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'quote-input' as View, label: 'Add Quote', icon: Quote },
-    { id: 'keyfact-input' as View, label: 'Key Facts', icon: Lightbulb },
-    { id: 'voice-browser' as View, label: 'Browse', icon: FolderOpen },
-    { id: 'derivation' as View, label: 'Derive', icon: Sparkles },
-    { id: 'draft-generator' as View, label: 'Draft', icon: PenTool },
-    { id: 'trends' as View, label: 'Trends', icon: Newspaper },
-    { id: 'content-tracker' as View, label: 'Content', icon: ClipboardList },
-    { id: 'voice-intake' as View, label: 'Intake', icon: Mic },
+    { id: 'home' as View, label: 'Home', icon: Home },
+    { id: 'add' as View, label: 'Add', icon: Plus },
+    { id: 'write' as View, label: 'Write', icon: PenTool },
+    { id: 'library' as View, label: 'Library', icon: FolderOpen },
   ];
+
+  const handleQuickDraft = (topic: string, format: string) => {
+    setDraftPrefill({ topic, format, notes: '' });
+    navigate('write');
+  };
 
   const renderView = () => {
     switch (currentView) {
-      case 'exec-dashboard':
+      case 'home':
         return (
-          <ExecutiveDashboard
-            executives={executives}
-            selectedExecutive={selectedExecutive}
-            onSelectExecutive={setSelectedExecutive}
-            onNavigate={(view) => navigate(view as View)}
+          <HomeScreen
+            onQuickDraft={handleQuickDraft}
+            onNavigate={navigate}
           />
         );
-      case 'quote-input':
+      case 'add':
         return (
-          <QuoteInput
-            executives={executives}
-            selectedExecutive={selectedExecutive}
-            onSelectExecutive={setSelectedExecutive}
-            onSubmit={handleCreateQuote}
-            apiKey={apiKey}
-          />
-        );
-      case 'keyfact-input':
-        return (
-          <KeyfactInput
-            executives={executives}
-            selectedExecutive={selectedExecutive}
-            onSelectExecutive={setSelectedExecutive}
-          />
-        );
-      case 'voice-browser':
-        return (
-          <VoiceBrowser
-            executives={executives}
-            selectedExecutive={selectedExecutive}
-            onSelectExecutive={setSelectedExecutive}
-          />
-        );
-      case 'derivation':
-        return (
-          <DerivationPanel
-            executives={executives}
-            selectedExecutive={selectedExecutive}
-            onSelectExecutive={setSelectedExecutive}
+          <UnifiedCapture
             apiKey={apiKey}
             onNavigateToSettings={() => navigate('settings')}
           />
         );
-      case 'draft-generator':
+      case 'write':
         return (
           <DraftGenerator
             executives={executives}
@@ -200,29 +152,14 @@ function AppContent() {
             onClearPrefill={() => setDraftPrefill(null)}
           />
         );
-      case 'trends':
+      case 'library':
         return (
-          <TrendIngestion
+          <Library
             executives={executives}
             selectedExecutive={selectedExecutive}
             onSelectExecutive={setSelectedExecutive}
-            onDraftFromTrend={(prefill) => {
-              setDraftPrefill(prefill);
-              navigate('draft-generator');
-            }}
           />
         );
-      case 'content-tracker':
-        return (
-          <ContentTracker
-            executives={executives}
-            selectedExecutive={selectedExecutive}
-            onSelectExecutive={setSelectedExecutive}
-            onWriteDraft={() => navigate('draft-generator')}
-          />
-        );
-      case 'voice-intake':
-        return <VoiceIntake executives={executives} />;
       case 'settings':
         return (
           <Settings
@@ -243,8 +180,21 @@ function AppContent() {
       <aside className="w-64 bg-white shadow-lg flex-shrink-0">
         <div className="p-6 border-b">
           <h1 className="text-xl font-bold text-indigo-600">Voice Vault</h1>
-          {selectedExecutive && (
-            <p className="text-sm text-gray-500 mt-1 truncate">{selectedExecutive.name}</p>
+          {executives.length > 0 && (
+            <select
+              className="mt-2 w-full text-sm px-2 py-1.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 bg-gray-50"
+              value={selectedExecutive?.voice_path || ''}
+              onChange={(e) => {
+                const exec = executives.find((ex) => ex.voice_path === e.target.value);
+                if (exec) setSelectedExecutive(exec);
+              }}
+            >
+              {executives.map((exec) => (
+                <option key={exec.voice_path} value={exec.voice_path}>
+                  {exec.name}
+                </option>
+              ))}
+            </select>
           )}
         </div>
 
@@ -326,6 +276,7 @@ function App() {
   return (
     <ExecutiveProvider initialVaultPath={vaultPath}>
       <AppContent />
+      <QAPanel />
     </ExecutiveProvider>
   );
 }

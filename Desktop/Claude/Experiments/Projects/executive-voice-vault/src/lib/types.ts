@@ -69,6 +69,7 @@ export const VOICE_FILE_TYPE_LABELS: Record<VoiceFileType, string> = {
 };
 
 export const VOICE_SOURCE_TYPES = [
+  'linkedin',
   'interview',
   'article',
   'podcast',

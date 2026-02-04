@@ -19,6 +19,9 @@ const FILE_TYPES: VoiceFileType[] = [
   'voice-narrative',
   'voice-kernel',
   'voice-antivoice',
+  'voice-trend',
+  'voice-draft',
+  'voice-keyfact',
 ];
 
 export function VoiceBrowser({

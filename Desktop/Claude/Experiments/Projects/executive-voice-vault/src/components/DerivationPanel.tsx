@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { Sparkles, Save, Eye, ExternalLink } from 'lucide-react';
-import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import type { VaultExecutive, VaultFile } from '../lib/types';
 import * as api from '../lib/api';
@@ -22,12 +21,6 @@ interface DerivationPanelProps {
   onNavigateToSettings: () => void;
 }
 
-interface DerivationContext {
-  system_prompt: string;
-  quotes_text: string;
-  all_derived: string;
-  anti_voice: string;
-}
 
 export function DerivationPanel({
   executives,
@@ -68,11 +61,11 @@ export function DerivationPanel({
     streamedText.current = '';
 
     try {
-      const context: DerivationContext = await invoke('get_derivation_context', {
-        voicePath: selectedExecutive.voice_path,
+      const context = await api.getDerivationContext(
+        selectedExecutive.voice_path,
         derivationType,
-        speaker: selectedExecutive.name,
-      });
+        selectedExecutive.name,
+      );
 
       let userMessage = context.quotes_text;
       if (context.all_derived) {
@@ -118,17 +111,17 @@ export function DerivationPanel({
       let savedFile: VaultFile;
 
       if (derivationType === 'kernel') {
-        savedFile = await invoke('write_derived_file', {
-          voicePath: selectedExecutive.voice_path,
-          fileType: 'voice-kernel',
-          title: `Voice Kernel - ${selectedExecutive.name}`,
-          frontmatterFields: {
+        savedFile = await api.writeDerivedFile(
+          selectedExecutive.voice_path,
+          'voice-kernel',
+          `Voice Kernel - ${selectedExecutive.name}`,
+          {
             speaker: `"[[${selectedExecutive.name}]]"`,
             status: 'draft',
             version: 1,
           },
-          body: result,
-        });
+          result,
+        );
       } else {
         const typeMap: Record<string, string> = {
           principles: 'voice-principle',
@@ -137,17 +130,17 @@ export function DerivationPanel({
           narratives: 'voice-narrative',
         };
 
-        savedFile = await invoke('write_derived_file', {
-          voicePath: selectedExecutive.voice_path,
-          fileType: typeMap[derivationType] || `voice-${derivationType.slice(0, -1)}`,
-          title: `Derived ${derivationType}`,
-          frontmatterFields: {
+        savedFile = await api.writeDerivedFile(
+          selectedExecutive.voice_path,
+          typeMap[derivationType] || `voice-${derivationType.slice(0, -1)}`,
+          `Derived ${derivationType}`,
+          {
             speaker: `"[[${selectedExecutive.name}]]"`,
             status: 'draft',
             confidence: 'medium',
           },
-          body: result,
-        });
+          result,
+        );
       }
 
       setSaved(true);

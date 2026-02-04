@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { FileText, Copy, Check, Save, ExternalLink } from 'lucide-react';
-import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import type { VaultExecutive, VaultFile } from '../lib/types';
 import * as api from '../lib/api';
@@ -14,7 +13,7 @@ interface DraftGeneratorProps {
   onSelectExecutive: (exec: VaultExecutive) => void;
   apiKey: string | null;
   onNavigateToSettings: () => void;
-  prefill?: { topic: string; articleText: string; notes: string } | null;
+  prefill?: { topic: string; format?: string; articleText?: string; notes?: string } | null;
   onClearPrefill?: () => void;
 }
 
@@ -35,9 +34,12 @@ const DRAFT_STATUS_COLORS: Record<DraftStatus, string> = {
 };
 
 export function DraftGenerator({
-  executives,
+  // executives and onSelectExecutive kept for API compatibility but not used
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  executives: _executives,
   selectedExecutive,
-  onSelectExecutive,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onSelectExecutive: _onSelectExecutive,
   apiKey,
   onNavigateToSettings,
   prefill,
@@ -68,6 +70,9 @@ export function DraftGenerator({
   useEffect(() => {
     if (!prefill) return;
     setTopic(prefill.topic);
+    if (prefill.format) {
+      setFormat(prefill.format);
+    }
     if (prefill.articleText) {
       setArticleText(prefill.articleText);
     }
@@ -146,64 +151,52 @@ export function DraftGenerator({
         }
       }
 
-      let systemPrompt = `You are a voice-aware ghostwriter. You have access to a Voice Kernel (master voice reference), key facts, lexicon entries, and verbatim quotes for ${selectedExecutive.name}.
+      let systemPrompt = `You are a ghostwriter for ${selectedExecutive.name}. Write content in their authentic voice.
 
-Draft content that authentically captures their voice. Follow the voice kernel's tone sliders, use their actual lexicon, and mirror their cadence patterns.
+CRITICAL: Output ONLY the finished post/content. No explanations, no "here's the post", no voice analysis, no metadata. Just the clean, ready-to-publish text.
 
-Rules:
-- Use their signature phrases naturally (from lexicon)
-- Follow their do/don't patterns (from kernel)
-- Match their sentence structure and rhythm
-- Never use phrases from their taboo list
-- If Anti-Voice constraints are provided, strictly avoid those patterns
-- If Key Facts are provided, weave in relevant facts naturally where they add credibility or context (don't force them)
-- Stay in their voice — do not add generic corporate language they wouldn't use`;
+Voice Guidelines (use but don't mention):
+- Match their natural speaking style and word choices
+- Use their typical sentence structure and rhythm
+- Avoid phrases they wouldn't use
+- Stay authentic — no generic corporate language`;
 
       // LinkedIn-specific prompt additions
       if (isLinkedIn) {
         systemPrompt += `
 
-LinkedIn Post Rules:
-- Keep under 3,000 characters total
-- Start with a strong hook line (under 100 characters) that creates curiosity or states a bold take
-- Use short paragraphs (1-3 sentences max)
-- Add blank lines between paragraphs for mobile readability
-- End with a clear call-to-action or thought-provoking question
-- Use 2-3 relevant hashtags at the end (not inline)
-- No emoji unless the speaker's voice naturally uses them`;
+FORMAT: LinkedIn Post
+- Under 3,000 characters
+- Strong hook in the first line
+- Short paragraphs with blank lines between
+- End with a question or call-to-action
+- 2-3 hashtags at the end`;
 
-        if (authorship === 'authored') {
+        if (authorship === 'authored' && articleText.trim()) {
           systemPrompt += `
-
-The speaker WROTE the article/content being discussed. Frame the post from a place of ownership and authority:
-- "I wrote about..." / "In my latest piece..." / "I've been thinking about X and finally put it down..."
-- Share the thinking behind writing it, what prompted it
-- Pull out the key insight they want people to take away
-- Tone: sharing their own work, inviting discussion on their ideas`;
-        } else {
+- Frame as sharing their own work ("I wrote about...", "In my latest piece...")`;
+        } else if (articleText.trim()) {
           systemPrompt += `
-
-The speaker is COMMENTING ON someone else's article/content. Frame the post as a reaction and take:
-- "Just read..." / "This caught my eye..." / "Interesting take on..."
-- Give credit to the original author/source
-- Add their unique perspective — what they agree with, disagree with, or what's missing
-- Connect it to their own experience or domain
-- Tone: thought leader weighing in, adding value beyond the original piece`;
+- Frame as commentary on the referenced content`;
         }
       }
 
-      let userMessage = `${context}\n\n---\n\nBRIEF:\n- Format: ${format}\n- Topic: ${topic}\n- Audience: ${audience || 'General'}\n- Goal: ${goal || 'Inform and persuade'}`;
+      let userMessage = `VOICE CONTEXT:\n${context}\n\n---\n\nWrite a ${format} about: ${topic}`;
 
+      if (audience) {
+        userMessage += `\nAudience: ${audience}`;
+      }
+      if (goal) {
+        userMessage += `\nGoal: ${goal}`;
+      }
       if (articleText.trim()) {
-        userMessage += `\n\n--- REFERENCE ARTICLE/TEXT ---\n${articleText}\n--- END REFERENCE ---`;
-        userMessage += `\n\nRelationship to article: ${authorship === 'authored' ? 'The speaker WROTE this article' : 'The speaker is COMMENTING ON this article'}`;
+        userMessage += `\n\nReference material:\n${articleText}`;
       }
-
       if (additionalNotes) {
-        userMessage += `\n- Additional notes: ${additionalNotes}`;
+        userMessage += `\n\nNotes: ${additionalNotes}`;
       }
 
-      userMessage += `\n\nPlease draft this content in ${selectedExecutive.name}'s voice.`;
+      userMessage += `\n\nWrite the ${format} now. Output only the finished text, nothing else.`;
 
       const unlistenChunk = await listen<{ text: string }>('claude-stream-chunk', (event) => {
         streamedText.current += event.payload.text;
@@ -243,11 +236,11 @@ The speaker is COMMENTING ON someone else's article/content. Frame the post as a
   const handleSave = async () => {
     if (!draft || !selectedExecutive) return;
     try {
-      const savedFile: VaultFile = await invoke('write_derived_file', {
-        voicePath: selectedExecutive.voice_path,
-        fileType: 'voice-draft',
-        title: `Draft - ${topic.slice(0, 50)}`,
-        frontmatterFields: {
+      const savedFile = await api.writeDerivedFile(
+        selectedExecutive.voice_path,
+        'voice-draft',
+        `Draft - ${topic.slice(0, 50)}`,
+        {
           speaker: `"[[${selectedExecutive.name}]]"`,
           status: draftStatus,
           draft_format: format,
@@ -255,8 +248,8 @@ The speaker is COMMENTING ON someone else's article/content. Frame the post as a
           draft_audience: audience,
           ...(articleText.trim() ? { reference_article: true, authorship } : {}),
         },
-        body: draft,
-      });
+        draft,
+      );
       setSaved(true);
       setSavedPath(savedFile.path);
     } catch (err) {
@@ -275,27 +268,24 @@ The speaker is COMMENTING ON someone else's article/content. Frame the post as a
     'blog-post',
   ];
 
+  if (!selectedExecutive) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Write</h2>
+        <p className="text-gray-500">Select an executive from the sidebar to start writing.</p>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Voice-Aware Draft Generator</h2>
-
-      <div className="mb-4">
-        <select
-          className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-          value={selectedExecutive?.voice_path || ''}
-          onChange={(e) => {
-            const exec = executives.find((ex) => ex.voice_path === e.target.value);
-            if (exec) onSelectExecutive(exec);
-          }}
-        >
-          <option value="">Select executive...</option>
-          {executives.map((exec) => (
-            <option key={exec.voice_path} value={exec.voice_path}>
-              {exec.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">Write for {selectedExecutive.name}</h2>
+      {kernel && (
+        <p className="text-sm text-emerald-600 mb-6">Voice Kernel loaded</p>
+      )}
+      {!kernel && (
+        <p className="text-sm text-amber-600 mb-6">No Voice Kernel yet — generate one from the Library for better results</p>
+      )}
 
       {selectedExecutive && (
         <div className="space-y-4">
@@ -402,12 +392,6 @@ The speaker is COMMENTING ON someone else's article/content. Frame the post as a
               placeholder="Key quotes to feature, specific data points, etc."
             />
           </div>
-
-          {kernel && (
-            <div className="text-sm text-emerald-600">
-              Voice Kernel loaded for {selectedExecutive.name}
-            </div>
-          )}
 
           <button
             onClick={handleGenerate}

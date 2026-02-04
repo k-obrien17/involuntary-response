@@ -337,7 +337,7 @@ export function ContentTracker({
                 const draftFormat = d.frontmatter.draft_format as string || '';
                 const draftTopic = d.frontmatter.draft_topic as string || d.filename;
                 const created = d.frontmatter.created as string || '';
-                const publishUrl = d.frontmatter.publish_url as string || '';
+                const draftPublishUrl = d.frontmatter.publish_url as string || '';
                 const isExpanded = expandedId === d.path;
 
                 return (
@@ -357,8 +357,8 @@ export function ContentTracker({
                             <span>{draftFormat.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>
                           )}
                           {created && <span>{created}</span>}
-                          {publishUrl && (
-                            <a href={publishUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">
+                          {draftPublishUrl && (
+                            <a href={draftPublishUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">
                               View published
                             </a>
                           )}

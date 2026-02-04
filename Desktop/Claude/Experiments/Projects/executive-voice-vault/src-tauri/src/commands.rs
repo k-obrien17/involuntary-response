@@ -698,6 +698,72 @@ pub fn list_all_drafts(
     Ok(all_drafts)
 }
 
+// --- Voice health commands ---
+
+#[derive(Debug, serde::Serialize)]
+pub struct VoiceHealth {
+    pub quotes: usize,
+    pub has_kernel: bool,
+    pub level: String, // "needs-material" | "building" | "ready"
+    pub label: String,
+    pub icon: String,
+    pub last_refresh_quote_count: usize,
+    pub quotes_since_refresh: usize,
+}
+
+#[tauri::command]
+pub fn get_voice_health(
+    settings: SettingsState<'_>,
+    voice_path: String,
+) -> CommandResult<VoiceHealth> {
+    let _ = get_vault_path(&settings)?;
+    let scoreboard = vault::get_scoreboard(Path::new(&voice_path))
+        .map_err(CommandError::from)?;
+
+    // Get last refresh count from settings
+    let settings_key = format!("last_refresh_{}", voice_path.replace("/", "_"));
+    let last_refresh_quote_count = settings
+        .get(&settings_key)
+        .and_then(|s| s.parse::<usize>().ok())
+        .unwrap_or(0);
+
+    let quotes_since_refresh = scoreboard.quotes.saturating_sub(last_refresh_quote_count);
+
+    let (level, label, icon) = if scoreboard.quotes < 5 {
+        ("needs-material".to_string(), "Needs material".to_string(), "🔴".to_string())
+    } else if scoreboard.quotes < 20 || !scoreboard.has_kernel {
+        ("building".to_string(), "Building".to_string(), "🟡".to_string())
+    } else {
+        ("ready".to_string(), "Ready".to_string(), "🟢".to_string())
+    };
+
+    Ok(VoiceHealth {
+        quotes: scoreboard.quotes,
+        has_kernel: scoreboard.has_kernel,
+        level,
+        label,
+        icon,
+        last_refresh_quote_count,
+        quotes_since_refresh,
+    })
+}
+
+#[tauri::command]
+pub fn mark_voice_refreshed(
+    settings: SettingsState<'_>,
+    voice_path: String,
+) -> CommandResult<()> {
+    let _ = get_vault_path(&settings)?;
+    let scoreboard = vault::get_scoreboard(Path::new(&voice_path))
+        .map_err(CommandError::from)?;
+
+    let settings_key = format!("last_refresh_{}", voice_path.replace("/", "_"));
+    settings.set(&settings_key, &scoreboard.quotes.to_string())
+        .map_err(CommandError::from)?;
+
+    Ok(())
+}
+
 // --- Anti-voice commands ---
 
 #[tauri::command]

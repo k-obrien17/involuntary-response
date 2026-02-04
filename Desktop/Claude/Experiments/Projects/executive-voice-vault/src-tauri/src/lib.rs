@@ -55,6 +55,9 @@ pub fn run() {
             // Anti-voice
             commands::create_anti_voice,
             commands::get_anti_voice_context,
+            // Voice health
+            commands::get_voice_health,
+            commands::mark_voice_refreshed,
             // Key facts
             commands::create_keyfact,
             commands::list_keyfacts,
