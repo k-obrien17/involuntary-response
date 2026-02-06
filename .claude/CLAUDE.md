@@ -10,6 +10,8 @@
 
 Solo operator running Total Emphasis, a content strategy and ghostwriting consultancy. ~80 active clients (Fortune 500 to startups). ~80 emails/day. Every minute Claude saves is a minute Keith gets back for high-value work. This file is the operating contract. OPS-MANUAL.md has playbooks, detailed protocols, and tool reference.
 
+**Projects:** See `~/.claude/projects-index.md` for a cross-project registry (paths, purpose, stack, status). Read it when Keith references a project by name from any directory.
+
 ---
 
 ## TL;DR
