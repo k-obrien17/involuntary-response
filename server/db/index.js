@@ -54,6 +54,8 @@ const migrations = [
   { id: 2, name: 'add_lineup_artists_note', sql: `ALTER TABLE lineup_artists ADD COLUMN note TEXT` },
   { id: 3, name: 'add_users_username', sql: `ALTER TABLE users ADD COLUMN username TEXT` },
   { id: 4, name: 'add_users_username_index', sql: `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)` },
+  { id: 5, name: 'add_spotify_id', sql: `ALTER TABLE lineup_artists ADD COLUMN artist_spotify_id TEXT` },
+  { id: 6, name: 'add_spotify_url', sql: `ALTER TABLE lineup_artists ADD COLUMN artist_spotify_url TEXT` },
 ];
 
 const checkMigration = db.prepare('SELECT 1 FROM migrations WHERE name = ?');

@@ -27,102 +27,90 @@ export default function Leaderboard() {
     fetchLeaderboard();
   }, [page]);
 
-  const slotLabels = ['First', 'Second', 'Third', 'Fourth', 'Last'];
-
-  const getPositionBadge = (avgPosition) => {
-    if (avgPosition <= 0.5) return { label: 'Usually first', color: 'from-yellow-400 to-orange-500' };
-    if (avgPosition <= 1.5) return { label: 'Usually early', color: 'from-pink-400 to-purple-500' };
-    if (avgPosition <= 2.5) return { label: 'Usually middle', color: 'from-blue-400 to-cyan-500' };
-    if (avgPosition <= 3.5) return { label: 'Usually late', color: 'from-green-400 to-teal-500' };
-    return { label: 'Usually last', color: 'from-purple-400 to-indigo-500' };
+  const getPositionLabel = (avgPosition) => {
+    if (avgPosition <= 0.5) return 'USUALLY FIRST';
+    if (avgPosition <= 1.5) return 'USUALLY EARLY';
+    if (avgPosition <= 2.5) return 'USUALLY MIDDLE';
+    if (avgPosition <= 3.5) return 'USUALLY LATE';
+    return 'USUALLY LAST';
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900 text-white">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent">
-            Artist Leaderboard
+          <h1 className="text-5xl font-bold mb-4 uppercase tracking-tight">
+            ARTIST LEADERBOARD
           </h1>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-500 text-lg uppercase">
             The most popular artists across all Backyard Marquee lineups
           </p>
         </div>
 
         {loading ? (
           <div className="text-center py-16">
-            <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-white text-xl uppercase">LOADING...</p>
           </div>
         ) : artists.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-gray-400 text-xl mb-4">No artists on the leaderboard yet</p>
+            <p className="text-gray-500 text-xl mb-4 uppercase">No artists on the leaderboard yet</p>
             <Link
               to="/create"
-              className="inline-block bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-3 rounded-full font-semibold hover:opacity-90 transition"
+              className="inline-block bg-white text-black px-8 py-3 font-bold uppercase hover:bg-gray-200 transition"
             >
-              Create the First Lineup
+              CREATE THE FIRST LINEUP
             </Link>
           </div>
         ) : (
           <>
-            <div className="max-w-4xl mx-auto space-y-4">
+            <div className="max-w-4xl mx-auto">
               {artists.map((artist, index) => {
                 const rank = page * limit + index + 1;
-                const badge = getPositionBadge(artist.avg_position);
 
                 return (
                   <Link
                     key={artist.artist_name}
                     to={`/artist/${encodeURIComponent(artist.artist_name)}`}
-                    className="group relative block"
+                    className="group block border-b-2 border-white/20 hover:border-white transition"
                   >
-                    {/* Glow effect for top 3 */}
-                    {rank <= 3 && (
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl opacity-30 group-hover:opacity-60 blur transition duration-300"></div>
-                    )}
-                    {/* Regular glow for others */}
-                    {rank > 3 && (
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl opacity-0 group-hover:opacity-40 blur transition duration-300"></div>
-                    )}
-
-                    <div className="relative flex items-center gap-4 bg-gray-900/90 backdrop-blur-lg rounded-xl p-4 border border-white/10 group-hover:border-white/20 transition">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                        rank <= 3 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 shadow-lg shadow-yellow-500/30' : 'bg-white/20'
+                    <div className="flex items-center gap-4 py-4">
+                      <div className={`w-16 h-16 flex items-center justify-center font-bold text-2xl border-2 ${
+                        rank <= 3 ? 'border-white bg-white text-black' : 'border-white/50 text-white'
                       }`}>
-                        {rank}
+                        {String(rank).padStart(2, '0')}
                       </div>
 
                       {artist.artist_image ? (
                         <img
                           src={artist.artist_image}
                           alt={artist.artist_name}
-                          className="w-16 h-16 rounded-full object-cover ring-2 ring-white/10"
+                          className="w-16 h-16 object-cover border border-white/50"
                         />
                       ) : (
-                        <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-2xl ring-2 ring-white/10">
-                          🎵
+                        <div className="w-16 h-16 bg-white/10 border border-white/50 flex items-center justify-center text-gray-500 font-bold">
+                          ?
                         </div>
                       )}
 
                       <div className="flex-1">
-                        <h3 className="text-xl font-semibold group-hover:text-pink-400 transition">
+                        <h3 className="text-xl font-bold uppercase group-hover:text-gray-300 transition">
                           {artist.artist_name}
                         </h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-400">
-                          <span>{artist.lineup_count} lineup{artist.lineup_count !== 1 ? 's' : ''}</span>
-                          <span>•</span>
-                          <span>{artist.headliner_count}x going first</span>
+                        <div className="flex items-center gap-4 text-sm text-gray-500 uppercase">
+                          <span>{artist.lineup_count} LINEUP{artist.lineup_count !== 1 ? 'S' : ''}</span>
+                          <span>/</span>
+                          <span>{artist.headliner_count}X FIRST</span>
                         </div>
                       </div>
 
-                      <div className={`px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${badge.color} shadow-lg`}>
-                        {badge.label}
+                      <div className="text-xs font-bold text-gray-500 uppercase border border-white/30 px-3 py-1">
+                        {getPositionLabel(artist.avg_position)}
                       </div>
 
-                      <div className="text-gray-500 group-hover:text-pink-400 transition">
-                        →
+                      <div className="text-gray-500 group-hover:text-white transition font-bold">
+                        &rarr;
                       </div>
                     </div>
                   </Link>
@@ -135,19 +123,19 @@ export default function Leaderboard() {
               <button
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="px-6 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 border-2 border-white hover:bg-white hover:text-black transition disabled:opacity-30 disabled:cursor-not-allowed uppercase font-bold"
               >
-                ← Previous
+                PREV
               </button>
-              <span className="px-4 py-2 text-gray-400">
-                Page {page + 1} of {Math.ceil(total / limit)}
+              <span className="px-4 py-2 text-gray-500 uppercase">
+                PAGE {page + 1} OF {Math.ceil(total / limit)}
               </span>
               <button
                 onClick={() => setPage(p => p + 1)}
                 disabled={(page + 1) * limit >= total}
-                className="px-6 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 border-2 border-white hover:bg-white hover:text-black transition disabled:opacity-30 disabled:cursor-not-allowed uppercase font-bold"
               >
-                Next →
+                NEXT
               </button>
             </div>
           </>

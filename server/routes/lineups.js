@@ -19,6 +19,8 @@ router.get('/', authenticateToken, (req, res) => {
         (SELECT json_group_array(json_object(
           'artist_name', la.artist_name,
           'artist_image', la.artist_image,
+          'artist_spotify_id', la.artist_spotify_id,
+          'artist_spotify_url', la.artist_spotify_url,
           'slot_position', la.slot_position,
           'note', la.note
         ))
@@ -73,7 +75,7 @@ router.get('/:id', (req, res) => {
     }
 
     const artists = db.prepare(`
-      SELECT artist_name, artist_image, artist_mbid, slot_position, note
+      SELECT artist_name, artist_image, artist_mbid, artist_spotify_id, artist_spotify_url, slot_position, note
       FROM lineup_artists
       WHERE lineup_id = ?
       ORDER BY slot_position
@@ -111,8 +113,8 @@ router.post('/', authenticateToken, (req, res) => {
     const lineupId = result.lastInsertRowid;
 
     const insertArtist = db.prepare(`
-      INSERT INTO lineup_artists (lineup_id, slot_position, artist_name, artist_image, artist_mbid, note)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO lineup_artists (lineup_id, slot_position, artist_name, artist_image, artist_mbid, artist_spotify_id, artist_spotify_url, note)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     for (const artist of artists) {
@@ -122,6 +124,8 @@ router.post('/', authenticateToken, (req, res) => {
         artist.artist_name,
         artist.artist_image || null,
         artist.artist_mbid || null,
+        artist.artist_spotify_id || null,
+        artist.artist_spotify_url || null,
         sanitize(artist.note, 300) || null
       );
     }
@@ -166,8 +170,8 @@ router.put('/:id', authenticateToken, (req, res) => {
     db.prepare('DELETE FROM lineup_artists WHERE lineup_id = ?').run(req.params.id);
 
     const insertArtist = db.prepare(`
-      INSERT INTO lineup_artists (lineup_id, slot_position, artist_name, artist_image, artist_mbid, note)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO lineup_artists (lineup_id, slot_position, artist_name, artist_image, artist_mbid, artist_spotify_id, artist_spotify_url, note)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     for (const artist of artists) {
@@ -177,6 +181,8 @@ router.put('/:id', authenticateToken, (req, res) => {
         artist.artist_name,
         artist.artist_image || null,
         artist.artist_mbid || null,
+        artist.artist_spotify_id || null,
+        artist.artist_spotify_url || null,
         sanitize(artist.note, 300) || null
       );
     }

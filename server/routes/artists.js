@@ -2,7 +2,37 @@ import { Router } from 'express';
 
 const router = Router();
 
-const LASTFM_API_KEY = process.env.LASTFM_API_KEY;
+const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+
+// Token cache for client credentials flow
+let accessToken = null;
+let expiresAt = 0;
+
+async function getSpotifyToken() {
+  if (accessToken && Date.now() < expiresAt) {
+    return accessToken;
+  }
+
+  const res = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: 'Basic ' + Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64'),
+    },
+    body: 'grant_type=client_credentials',
+  });
+
+  if (!res.ok) {
+    throw new Error(`Spotify token request failed: ${res.status}`);
+  }
+
+  const data = await res.json();
+  accessToken = data.access_token;
+  // Expire 60s early to avoid edge-case failures
+  expiresAt = Date.now() + (data.expires_in - 60) * 1000;
+  return accessToken;
+}
 
 router.get('/search', async (req, res) => {
   const { q } = req.query;
@@ -11,45 +41,41 @@ router.get('/search', async (req, res) => {
     return res.json({ artists: [] });
   }
 
-  if (!LASTFM_API_KEY) {
-    // Return mock data if no API key configured
+  if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
+    // Return mock data if no credentials configured
     return res.json({
       artists: [
-        { name: q, image: null, tags: ['rock'], mbid: null },
+        { name: q, image: null, popularity: 50, spotifyId: null, spotifyUrl: null },
       ]
     });
   }
 
   try {
-    const url = new URL('https://ws.audioscrobbler.com/2.0/');
-    url.searchParams.set('method', 'artist.search');
-    url.searchParams.set('artist', q);
-    url.searchParams.set('api_key', LASTFM_API_KEY);
-    url.searchParams.set('format', 'json');
+    const token = await getSpotifyToken();
+
+    const url = new URL('https://api.spotify.com/v1/search');
+    url.searchParams.set('type', 'artist');
+    url.searchParams.set('q', q);
     url.searchParams.set('limit', '10');
 
-    const response = await fetch(url);
-    const data = await response.json();
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-    if (data.error) {
-      console.error('Last.fm API error:', data.message);
+    if (!response.ok) {
+      console.error('Spotify API error:', response.status);
       return res.status(500).json({ error: 'Search failed' });
     }
 
-    const artists = (data.results?.artistmatches?.artist || []).map(artist => {
-      // Get the largest image available
-      const images = artist.image || [];
-      const largeImage = images.find(img => img.size === 'large') ||
-                         images.find(img => img.size === 'medium') ||
-                         images[0];
+    const data = await response.json();
 
-      return {
-        name: artist.name,
-        mbid: artist.mbid || null,
-        image: largeImage?.['#text'] || null,
-        listeners: artist.listeners,
-      };
-    });
+    const artists = (data.artists?.items || []).map(artist => ({
+      name: artist.name,
+      spotifyId: artist.id,
+      image: artist.images[0]?.url || null,
+      popularity: artist.popularity,
+      spotifyUrl: artist.external_urls?.spotify || null,
+    }));
 
     res.json({ artists });
   } catch (err) {

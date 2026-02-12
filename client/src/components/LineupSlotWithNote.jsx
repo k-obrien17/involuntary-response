@@ -1,20 +1,20 @@
 import { useState } from 'react';
 
 export default function LineupSlotWithNote({ position, artist, onRemove, onNoteChange, onMoveUp, onMoveDown, isFirst, isLast }) {
-  const slotLabels = ['Going first', 'Second', 'Third', 'Fourth', 'Going last'];
+  const slotLabels = ['GOING FIRST', 'SECOND', 'THIRD', 'FOURTH', 'GOING LAST'];
   const [showNote, setShowNote] = useState(false);
 
   return (
     <div
-      className={`rounded-xl border transition ${
+      className={`border-2 transition ${
         artist
-          ? 'bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/50'
-          : 'bg-white/5 border-white/10 border-dashed'
+          ? 'border-white'
+          : 'border-white/30 border-dashed'
       }`}
     >
       <div className="flex items-center gap-4 p-4">
-        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm">
-          {position}
+        <div className="w-8 h-8 bg-white/20 flex items-center justify-center font-bold text-sm">
+          {String(position).padStart(2, '0')}
         </div>
 
         {artist ? (
@@ -23,54 +23,54 @@ export default function LineupSlotWithNote({ position, artist, onRemove, onNoteC
               <img
                 src={artist.image}
                 alt={artist.name}
-                className="w-14 h-14 rounded-full object-cover"
+                className="w-14 h-14 object-cover border border-white/50"
               />
             ) : (
-              <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center">
-                <span className="text-2xl">🎵</span>
+              <div className="w-14 h-14 bg-white/10 border border-white/50 flex items-center justify-center text-gray-500 font-bold">
+                ?
               </div>
             )}
             <div className="flex-1">
-              <p className="font-semibold text-lg">{artist.name}</p>
-              <p className="text-gray-400 text-sm">{slotLabels[position - 1]}</p>
+              <p className="font-bold text-lg uppercase">{artist.name}</p>
+              <p className="text-gray-500 text-sm uppercase">{slotLabels[position - 1]}</p>
             </div>
             <button
               onClick={() => setShowNote(!showNote)}
-              className={`px-3 py-1 rounded-full text-sm transition ${
+              className={`px-3 py-1 text-sm transition uppercase ${
                 artist.note
-                  ? 'bg-purple-500/30 text-purple-300 hover:bg-purple-500/40'
-                  : 'bg-white/10 text-gray-400 hover:bg-white/20'
+                  ? 'bg-white text-black'
+                  : 'bg-white/20 text-gray-500 hover:bg-white/30'
               }`}
             >
-              {artist.note ? 'Edit note' : '+ Add note'}
+              {artist.note ? 'EDIT NOTE' : '+ NOTE'}
             </button>
             <div className="flex flex-col gap-1">
               <button
                 onClick={onMoveUp}
                 disabled={isFirst}
-                className="w-6 h-6 rounded bg-white/10 text-gray-400 hover:bg-white/20 transition flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+                className="w-6 h-6 bg-white/20 text-white hover:bg-white hover:text-black transition flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed font-bold text-xs"
               >
-                ↑
+                ^
               </button>
               <button
                 onClick={onMoveDown}
                 disabled={isLast}
-                className="w-6 h-6 rounded bg-white/10 text-gray-400 hover:bg-white/20 transition flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+                className="w-6 h-6 bg-white/20 text-white hover:bg-white hover:text-black transition flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed font-bold text-xs"
               >
-                ↓
+                v
               </button>
             </div>
             <button
               onClick={onRemove}
-              className="w-8 h-8 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500/40 transition flex items-center justify-center"
+              className="w-8 h-8 bg-white/20 text-white hover:bg-white hover:text-black transition flex items-center justify-center font-bold"
             >
-              ×
+              X
             </button>
           </>
         ) : (
-          <div className="flex-1 text-gray-500">
-            <p className="font-medium">{slotLabels[position - 1]}</p>
-            <p className="text-sm">Search and add an artist</p>
+          <div className="flex-1 text-gray-600">
+            <p className="font-bold uppercase">{slotLabels[position - 1]}</p>
+            <p className="text-sm uppercase">SEARCH AND ADD AN ARTIST</p>
           </div>
         )}
       </div>
@@ -81,8 +81,8 @@ export default function LineupSlotWithNote({ position, artist, onRemove, onNoteC
           <textarea
             value={artist.note || ''}
             onChange={(e) => onNoteChange(e.target.value)}
-            placeholder={`Why did you pick ${artist.name}? What makes them special to you?`}
-            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-white placeholder-gray-500 text-sm focus:outline-none focus:border-pink-500 resize-none"
+            placeholder={`WHY DID YOU PICK ${artist.name.toUpperCase()}?`}
+            className="w-full px-3 py-2 bg-black border-2 border-white text-white placeholder-gray-600 text-sm focus:outline-none resize-none uppercase"
             rows={2}
           />
         </div>
@@ -91,7 +91,7 @@ export default function LineupSlotWithNote({ position, artist, onRemove, onNoteC
       {/* Show note preview when collapsed */}
       {artist && artist.note && !showNote && (
         <div className="px-4 pb-3">
-          <p className="text-sm text-gray-400 italic truncate">"{artist.note}"</p>
+          <p className="text-sm text-gray-500 truncate">"{artist.note}"</p>
         </div>
       )}
     </div>

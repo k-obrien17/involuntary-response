@@ -97,6 +97,8 @@ export default function CreateLineup() {
           artist_name: artist.name,
           artist_image: artist.image,
           artist_mbid: artist.mbid || null,
+          artist_spotify_id: artist.spotifyId || null,
+          artist_spotify_url: artist.spotifyUrl || null,
           note: artist.note || null,
         })),
       });

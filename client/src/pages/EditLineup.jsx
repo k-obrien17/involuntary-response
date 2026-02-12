@@ -43,6 +43,8 @@ export default function EditLineup() {
             name: artist.artist_name,
             image: artist.artist_image,
             mbid: artist.artist_mbid,
+            spotifyId: artist.artist_spotify_id,
+            spotifyUrl: artist.artist_spotify_url,
             note: artist.note || '',
           };
         });
@@ -114,6 +116,8 @@ export default function EditLineup() {
           artist_name: artist.name,
           artist_image: artist.image,
           artist_mbid: artist.mbid || null,
+          artist_spotify_id: artist.spotifyId || null,
+          artist_spotify_url: artist.spotifyUrl || null,
           note: artist.note || null,
         })),
       });
@@ -127,30 +131,30 @@ export default function EditLineup() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-xl uppercase">LOADING...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900 text-white">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Edit Your Lineup</h1>
+          <h1 className="text-4xl font-bold uppercase tracking-tight">EDIT YOUR LINEUP</h1>
           <button
             onClick={() => navigate('/my-lineups')}
-            className="text-gray-400 hover:text-white"
+            className="text-gray-500 hover:text-white uppercase"
           >
-            ← Cancel
+            CANCEL
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Artist Search */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Search Artists</h2>
+            <h2 className="text-2xl font-bold mb-4 uppercase">SEARCH ARTISTS</h2>
             <ArtistSearch
               onSelect={addArtist}
               disabled={isLineupFull}
@@ -159,21 +163,21 @@ export default function EditLineup() {
 
             {/* Overall Description */}
             <div className="mt-8">
-              <h2 className="text-2xl font-semibold mb-4">About Your Lineup</h2>
+              <h2 className="text-2xl font-bold mb-4 uppercase">ABOUT YOUR LINEUP</h2>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Why did you choose these artists? What's the vibe of your dream concert?"
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 min-h-[120px] resize-none"
+                placeholder="WHY DID YOU CHOOSE THESE ARTISTS? WHAT'S THE VIBE?"
+                className="w-full px-4 py-3 bg-black border-2 border-white text-white placeholder-gray-600 focus:outline-none min-h-[120px] resize-none uppercase"
               />
             </div>
           </div>
 
           {/* Lineup Builder */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Your Lineup</h2>
+            <h2 className="text-2xl font-bold mb-4 uppercase">YOUR LINEUP</h2>
 
-            <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
+            <div className="border-2 border-white p-6">
               <div className="space-y-4">
                 {lineup.map((artist, index) => (
                   <LineupSlotWithNote
@@ -191,20 +195,20 @@ export default function EditLineup() {
               </div>
 
               {error && (
-                <div className="mt-4 bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg">
+                <div className="mt-4 border-2 border-white text-white px-4 py-3 uppercase text-sm">
                   {error}
                 </div>
               )}
 
               <div className="mt-6 space-y-4">
                 <div>
-                  <label className="block text-gray-300 mb-2">Lineup Name</label>
+                  <label className="block text-gray-500 mb-2 uppercase text-sm">LINEUP NAME</label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="My Dream Concert"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-pink-500"
+                    placeholder="MY DREAM CONCERT"
+                    className="w-full px-4 py-3 bg-black border-2 border-white text-white placeholder-gray-600 focus:outline-none uppercase"
                   />
                 </div>
 
@@ -213,17 +217,17 @@ export default function EditLineup() {
                     type="checkbox"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
-                    className="w-5 h-5 rounded"
+                    className="w-5 h-5"
                   />
-                  <span className="text-gray-300">Make this lineup public (shareable)</span>
+                  <span className="text-gray-500 uppercase text-sm">MAKE THIS LINEUP PUBLIC (SHAREABLE)</span>
                 </label>
 
                 <button
                   onClick={handleSave}
                   disabled={saving || !hasArtists}
-                  className="w-full bg-gradient-to-r from-pink-500 to-purple-600 py-3 rounded-lg text-white font-semibold hover:opacity-90 transition disabled:opacity-50"
+                  className="w-full bg-white text-black py-3 font-bold uppercase hover:bg-gray-200 transition disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? 'SAVING...' : 'SAVE CHANGES'}
                 </button>
               </div>
             </div>
