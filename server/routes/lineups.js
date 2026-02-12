@@ -48,7 +48,7 @@ router.get('/', authenticateToken, (req, res) => {
 router.get('/:id', (req, res) => {
   try {
     const lineup = db.prepare(`
-      SELECT l.*, u.email as creator_email
+      SELECT l.*, u.username as creator_username
       FROM lineups l
       JOIN users u ON l.user_id = u.id
       WHERE l.id = ?

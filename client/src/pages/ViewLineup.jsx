@@ -177,7 +177,8 @@ export default function ViewLineup() {
           </div>
 
           <p className="text-center text-gray-600 mt-6 text-sm uppercase">
-            CREATED {new Date(lineup.created_at).toLocaleDateString()}
+            {lineup.creator_username && <>BY @{lineup.creator_username} &middot; </>}
+            {new Date(lineup.created_at).toLocaleDateString()}
           </p>
         </div>
       </div>

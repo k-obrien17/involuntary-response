@@ -74,7 +74,7 @@ router.get('/artist/:name', (req, res) => {
         l.created_at,
         la.slot_position,
         la.note as artist_note,
-        u.email as creator_email,
+        u.username as creator_username,
         (SELECT json_group_array(json_object(
           'artist_name', la2.artist_name,
           'slot_position', la2.slot_position,
@@ -132,7 +132,7 @@ router.get('/browse', (req, res) => {
         l.title,
         l.description,
         l.created_at,
-        u.email as creator_email,
+        u.username as creator_username,
         (SELECT json_group_array(json_object(
           'artist_name', la.artist_name,
           'artist_image', la.artist_image,

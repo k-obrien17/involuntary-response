@@ -159,6 +159,7 @@ export default function Discover() {
                       </p>
                     )}
                     <p className="text-gray-600 text-sm mb-4 uppercase">
+                      {lineup.creator_username && <>@{lineup.creator_username} &middot; </>}
                       {new Date(lineup.created_at).toLocaleDateString()}
                     </p>
 
