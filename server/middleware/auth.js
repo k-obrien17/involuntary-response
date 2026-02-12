@@ -1,6 +1,9 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'backyard-marquee-secret-change-in-production';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+export const JWT_SECRET = process.env.JWT_SECRET;
 
 export function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];

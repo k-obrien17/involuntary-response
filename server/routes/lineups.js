@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import db from '../db/index.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken, JWT_SECRET } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -63,7 +63,7 @@ router.get('/:id', (req, res) => {
 
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'backyard-marquee-secret-change-in-production');
+        const decoded = jwt.verify(token, JWT_SECRET);
         userId = decoded.id;
       } catch {}
     }
