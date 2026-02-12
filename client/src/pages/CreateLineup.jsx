@@ -110,32 +110,32 @@ export default function CreateLineup() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-xl uppercase">LOADING...</div>
       </div>
     );
   }
 
   if (hasExisting) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900 text-white">
+      <div className="min-h-screen bg-black text-white">
         <Navbar />
         <div className="flex items-center justify-center py-32">
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4">You Already Have a Lineup</h1>
-            <p className="text-gray-400 mb-6">Each person can only create one marquee lineup.</p>
+            <h1 className="text-3xl font-bold mb-4 uppercase">YOU ALREADY HAVE A LINEUP</h1>
+            <p className="text-gray-500 mb-6 uppercase">Each person can only create one marquee lineup.</p>
             <div className="space-x-4">
               <button
-                onClick={() => navigate('/my-lineups')}
-                className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-3 rounded-full font-semibold hover:opacity-90 transition"
+                onClick={() => navigate('/my-lineup')}
+                className="bg-white text-black px-6 py-3 font-bold uppercase hover:bg-gray-200 transition"
               >
-                View My Lineup
+                VIEW MY LINEUP
               </button>
               <button
                 onClick={() => navigate('/')}
-                className="border border-white/30 px-6 py-3 rounded-full font-semibold hover:bg-white/10 transition"
+                className="border-2 border-white px-6 py-3 font-bold uppercase hover:bg-white hover:text-black transition"
               >
-                Go Home
+                GO HOME
               </button>
             </div>
           </div>
@@ -145,15 +145,15 @@ export default function CreateLineup() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900 text-white">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8 text-center">Create Your Lineup</h1>
+        <h1 className="text-4xl font-bold mb-8 text-center uppercase tracking-tight">CREATE YOUR LINEUP</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Artist Search */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Search Artists</h2>
+            <h2 className="text-2xl font-bold mb-4 uppercase">SEARCH ARTISTS</h2>
             <ArtistSearch
               onSelect={addArtist}
               disabled={isLineupFull}
@@ -162,21 +162,21 @@ export default function CreateLineup() {
 
             {/* Overall Description */}
             <div className="mt-8">
-              <h2 className="text-2xl font-semibold mb-4">About Your Lineup</h2>
+              <h2 className="text-2xl font-bold mb-4 uppercase">ABOUT YOUR LINEUP</h2>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Why did you choose these artists? What's the vibe of your dream concert?"
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 min-h-[120px] resize-none"
+                placeholder="WHY DID YOU CHOOSE THESE ARTISTS? WHAT'S THE VIBE?"
+                className="w-full px-4 py-3 bg-black border-2 border-white text-white placeholder-gray-600 focus:outline-none min-h-[120px] resize-none uppercase"
               />
             </div>
           </div>
 
           {/* Lineup Builder */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Your Lineup</h2>
+            <h2 className="text-2xl font-bold mb-4 uppercase">YOUR LINEUP</h2>
 
-            <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
+            <div className="border-2 border-white p-6">
               <div className="space-y-4">
                 {lineup.map((artist, index) => (
                   <LineupSlotWithNote
@@ -194,20 +194,20 @@ export default function CreateLineup() {
               </div>
 
               {error && (
-                <div className="mt-4 bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg">
+                <div className="mt-4 border-2 border-white text-white px-4 py-3 uppercase text-sm">
                   {error}
                 </div>
               )}
 
               <div className="mt-6 space-y-4">
                 <div>
-                  <label className="block text-gray-300 mb-2">Lineup Name</label>
+                  <label className="block text-gray-500 mb-2 uppercase text-sm">LINEUP NAME</label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="My Dream Concert"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-pink-500"
+                    placeholder="MY DREAM CONCERT"
+                    className="w-full px-4 py-3 bg-black border-2 border-white text-white placeholder-gray-600 focus:outline-none uppercase"
                   />
                 </div>
 
@@ -216,17 +216,17 @@ export default function CreateLineup() {
                     type="checkbox"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
-                    className="w-5 h-5 rounded"
+                    className="w-5 h-5"
                   />
-                  <span className="text-gray-300">Make this lineup public (shareable)</span>
+                  <span className="text-gray-500 uppercase text-sm">MAKE THIS LINEUP PUBLIC (SHAREABLE)</span>
                 </label>
 
                 <button
                   onClick={handleSave}
                   disabled={saving || !hasArtists}
-                  className="w-full bg-gradient-to-r from-pink-500 to-purple-600 py-3 rounded-lg text-white font-semibold hover:opacity-90 transition disabled:opacity-50"
+                  className="w-full bg-white text-black py-3 font-bold uppercase hover:bg-gray-200 transition disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : 'Save Lineup'}
+                  {saving ? 'SAVING...' : 'SAVE LINEUP'}
                 </button>
               </div>
             </div>

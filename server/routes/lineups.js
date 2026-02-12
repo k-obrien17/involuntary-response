@@ -5,6 +5,12 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = Router();
 
+// Sanitize user input: trim, strip HTML tags, enforce max length
+function sanitize(str, maxLength) {
+  if (str == null) return null;
+  return String(str).trim().replace(/<[^>]*>/g, '').slice(0, maxLength);
+}
+
 // Get all lineups for current user
 router.get('/', authenticateToken, (req, res) => {
   try {
@@ -82,7 +88,9 @@ router.get('/:id', (req, res) => {
 
 // Create lineup
 router.post('/', authenticateToken, (req, res) => {
-  const { title, description, is_public, artists } = req.body;
+  const { is_public, artists } = req.body;
+  const title = sanitize(req.body.title, 100);
+  const description = sanitize(req.body.description, 500);
 
   if (!title || !artists || artists.length === 0) {
     return res.status(400).json({ error: 'Title and at least one artist required' });
@@ -114,7 +122,7 @@ router.post('/', authenticateToken, (req, res) => {
         artist.artist_name,
         artist.artist_image || null,
         artist.artist_mbid || null,
-        artist.note || null
+        sanitize(artist.note, 300) || null
       );
     }
 
@@ -127,7 +135,9 @@ router.post('/', authenticateToken, (req, res) => {
 
 // Update lineup
 router.put('/:id', authenticateToken, (req, res) => {
-  const { title, description, is_public, artists } = req.body;
+  const { is_public, artists } = req.body;
+  const title = sanitize(req.body.title, 100);
+  const description = sanitize(req.body.description, 500);
 
   if (!title || !artists || artists.length === 0) {
     return res.status(400).json({ error: 'Title and at least one artist required' });
@@ -167,7 +177,7 @@ router.put('/:id', authenticateToken, (req, res) => {
         artist.artist_name,
         artist.artist_image || null,
         artist.artist_mbid || null,
-        artist.note || null
+        sanitize(artist.note, 300) || null
       );
     }
 

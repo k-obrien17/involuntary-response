@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -21,7 +21,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/create" element={<CreateLineup />} />
           <Route path="/lineup/:id" element={<ViewLineup />} />
-          <Route path="/my-lineups" element={<MyLineups />} />
+          <Route path="/my-lineup" element={<MyLineups />} />
+          <Route path="/my-lineups" element={<Navigate to="/my-lineup" replace />} />
           <Route path="/edit/:id" element={<EditLineup />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/artist/:name" element={<ArtistDetail />} />

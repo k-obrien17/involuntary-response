@@ -40,31 +40,34 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_lineup_artists_lineup_id ON lineup_artists(lineup_id);
 `);
 
-// Add new columns if they don't exist (migrations)
-try {
-  db.exec(`ALTER TABLE lineups ADD COLUMN description TEXT`);
-} catch (e) {
-  // Column already exists
-}
+// Migration runner
+db.exec(`
+  CREATE TABLE IF NOT EXISTS migrations (
+    id INTEGER PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
 
-try {
-  db.exec(`ALTER TABLE lineup_artists ADD COLUMN note TEXT`);
-} catch (e) {
-  // Column already exists
-}
+const migrations = [
+  { id: 1, name: 'add_lineups_description', sql: `ALTER TABLE lineups ADD COLUMN description TEXT` },
+  { id: 2, name: 'add_lineup_artists_note', sql: `ALTER TABLE lineup_artists ADD COLUMN note TEXT` },
+  { id: 3, name: 'add_users_username', sql: `ALTER TABLE users ADD COLUMN username TEXT` },
+  { id: 4, name: 'add_users_username_index', sql: `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)` },
+];
 
-// Migration: Add username column, make email optional
-try {
-  db.exec(`ALTER TABLE users ADD COLUMN username TEXT`);
-} catch (e) {
-  // Column already exists
-}
+const checkMigration = db.prepare('SELECT 1 FROM migrations WHERE name = ?');
+const recordMigration = db.prepare('INSERT INTO migrations (id, name) VALUES (?, ?)');
 
-// Create unique index on username if it doesn't exist
-try {
-  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
-} catch (e) {
-  // Index already exists
+for (const m of migrations) {
+  if (!checkMigration.get(m.name)) {
+    try {
+      db.exec(m.sql);
+    } catch {
+      // Column/index may already exist from before migration tracking
+    }
+    recordMigration.run(m.id, m.name);
+  }
 }
 
 export default db;
