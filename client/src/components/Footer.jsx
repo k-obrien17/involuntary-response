@@ -66,7 +66,7 @@ export default function Footer() {
             {new Date().getFullYear()} BACKYARD MARQUEE
           </p>
           <p className="text-gray-600 text-xs uppercase">
-            Artist data powered by Last.fm
+            Artist data powered by Spotify
           </p>
         </div>
       </div>
