@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { lineups } from '../api/client';
+import { lineups as lineupsApi } from '../api/client';
 import Navbar from '../components/Navbar';
 
 export default function MyLineups() {
-  const [lineup, setLineup] = useState(null);
+  const [myLineups, setMyLineups] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const [deleting, setDeleting] = useState(null);
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -18,32 +18,34 @@ export default function MyLineups() {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    const fetchLineup = async () => {
+    const fetchLineups = async () => {
       if (!user) return;
       try {
-        const res = await lineups.getAll();
+        const res = await lineupsApi.getAll();
         if (res.data.length === 0) {
           navigate('/create', { replace: true });
           return;
         }
-        setLineup(res.data[0]);
+        setMyLineups(res.data);
       } catch {
-        setLineup(null);
+        setMyLineups([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchLineup();
+    fetchLineups();
   }, [user, navigate]);
 
-  const handleShare = async () => {
-    const url = `${window.location.origin}/lineup/${lineup.id}`;
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this lineup? This cannot be undone.')) return;
+    setDeleting(id);
     try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await lineupsApi.delete(id);
+      setMyLineups((prev) => prev.filter((l) => l.id !== id));
     } catch {
-      alert('Copy this link: ' + url);
+      alert('Failed to delete lineup');
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -55,120 +57,72 @@ export default function MyLineups() {
     );
   }
 
-  if (!lineup) return null;
-
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          {/* Festival Poster - same design as ViewLineup */}
-          <div className="border-4 border-white">
-            {/* Header */}
-            <div className="border-b-4 border-white p-6 text-center">
-              <p className="text-gray-500 uppercase tracking-[0.3em] text-xs font-bold mb-4">
-                BACKYARD MARQUEE PRESENTS
-              </p>
-              <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-4">
-                {lineup.title}
-              </h1>
-            </div>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold uppercase tracking-tight">MY LINEUPS</h1>
+          <Link
+            to="/create"
+            className="bg-white text-black px-6 py-3 font-bold uppercase hover:bg-gray-200 transition"
+          >
+            CREATE NEW LINEUP
+          </Link>
+        </div>
 
-            {lineup.description && (
-              <div className="border-b-2 border-white p-4">
-                <p className="text-gray-400 text-sm text-center">
-                  "{lineup.description}"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {myLineups.map((lineup) => (
+            <div key={lineup.id} className="border-2 border-white/50 hover:border-white transition">
+              <Link to={`/lineup/${lineup.id}`} className="block p-6">
+                <h3 className="text-xl font-bold mb-2 uppercase hover:text-gray-300 transition">
+                  {lineup.title}
+                </h3>
+                {lineup.description && (
+                  <p className="text-gray-500 text-sm mb-3 line-clamp-2">
+                    &ldquo;{lineup.description}&rdquo;
+                  </p>
+                )}
+                <p className="text-gray-600 text-sm mb-4 uppercase">
+                  {new Date(lineup.created_at).toLocaleDateString()}
                 </p>
-              </div>
-            )}
 
-            {/* Lineup */}
-            <div className="p-6">
-              {lineup.artists?.map((artist, index) => (
-                <div
-                  key={index}
-                  className={`py-4 ${index < lineup.artists.length - 1 ? 'border-b border-white/30' : ''}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="text-gray-500 font-bold w-8">{String(index + 1).padStart(2, '0')}</span>
-                    {artist.artist_image && (
-                      <img
-                        src={artist.artist_image}
-                        alt={artist.artist_name}
-                        className={`object-cover border border-white ${
-                          index === 0 ? 'w-16 h-16' : 'w-12 h-12'
-                        }`}
-                      />
-                    )}
-                    <div className="flex items-baseline gap-2">
-                      {artist.artist_spotify_url ? (
-                        <a
-                          href={artist.artist_spotify_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`font-bold uppercase tracking-wide hover:underline ${
-                            index === 0
-                              ? 'text-3xl md:text-4xl'
-                              : index === 1
-                              ? 'text-2xl md:text-3xl text-gray-200'
-                              : index === 2
-                              ? 'text-xl md:text-2xl text-gray-300'
-                              : 'text-lg md:text-xl text-gray-400'
-                          }`}
-                        >
-                          {artist.artist_name}
-                        </a>
-                      ) : (
-                        <span className={`font-bold uppercase tracking-wide ${
-                          index === 0
-                            ? 'text-3xl md:text-4xl'
-                            : index === 1
-                            ? 'text-2xl md:text-3xl text-gray-200'
-                            : index === 2
-                            ? 'text-xl md:text-2xl text-gray-300'
-                            : 'text-lg md:text-xl text-gray-400'
-                        }`}>
-                          {artist.artist_name}
-                        </span>
-                      )}
-                      {artist.artist_spotify_url && (
-                        <span className="text-gray-600 text-[9px] tracking-wide normal-case">on Spotify</span>
-                      )}
+                <div className="space-y-1">
+                  {lineup.artists.map((artist, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <span className={`w-6 font-bold text-sm ${
+                        index === 0 ? 'text-white' :
+                        index === 1 ? 'text-gray-300' :
+                        'text-gray-500'
+                      }`}>
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span className={`flex-1 uppercase ${index < 2 ? 'font-bold' : 'text-gray-500'}`}>
+                        {artist.artist_name}
+                      </span>
                     </div>
-                  </div>
-                  {artist.note && (
-                    <p className="text-gray-500 text-sm mt-2 ml-12 italic">
-                      "{artist.note}"
-                    </p>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
+              </Link>
 
-            {/* Footer */}
-            <div className="border-t-4 border-white p-4">
-              <p className="text-gray-600 text-xs uppercase tracking-widest text-center">
-                backyard-marquee.vercel.app
-              </p>
+              <div className="flex border-t border-white/30">
+                <Link
+                  to={`/edit/${lineup.id}`}
+                  className="flex-1 text-center py-3 text-sm font-bold uppercase text-gray-400 hover:text-white hover:bg-white/10 transition"
+                >
+                  EDIT
+                </Link>
+                <button
+                  onClick={() => handleDelete(lineup.id)}
+                  disabled={deleting === lineup.id}
+                  className="flex-1 text-center py-3 text-sm font-bold uppercase text-gray-400 hover:text-white hover:bg-white/10 transition border-l border-white/30 disabled:opacity-50"
+                >
+                  {deleting === lineup.id ? 'DELETING...' : 'DELETE'}
+                </button>
+              </div>
             </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-            <Link
-              to={`/edit/${lineup.id}`}
-              className="bg-white text-black px-8 py-3 font-bold uppercase hover:bg-gray-200 transition text-center"
-            >
-              EDIT LINEUP
-            </Link>
-            <button
-              onClick={handleShare}
-              className="border-2 border-white px-8 py-3 font-bold uppercase hover:bg-white hover:text-black transition"
-            >
-              {copied ? 'LINK COPIED' : 'SHARE THIS LINEUP'}
-            </button>
-          </div>
+          ))}
         </div>
       </div>
     </div>

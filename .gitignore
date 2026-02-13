@@ -8,6 +8,12 @@
 !.claude/CLAUDE.md
 !.claude/OPS-MANUAL.md
 
+# Track app source
+!client/
+!client/**
+!server/
+!server/**
+
 # Standard ignores
 node_modules/
 .env

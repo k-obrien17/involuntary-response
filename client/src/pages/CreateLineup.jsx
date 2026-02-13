@@ -13,7 +13,6 @@ export default function CreateLineup() {
   const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [hasExisting, setHasExisting] = useState(false);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -22,22 +21,6 @@ export default function CreateLineup() {
       navigate('/login');
     }
   }, [user, loading, navigate]);
-
-  // Check if user already has a lineup
-  useEffect(() => {
-    const checkExisting = async () => {
-      if (!user) return;
-      try {
-        const res = await lineups.getAll();
-        if (res.data.length > 0) {
-          setHasExisting(true);
-        }
-      } catch (err) {
-        console.error('Failed to check existing lineups:', err);
-      }
-    };
-    checkExisting();
-  }, [user]);
 
   const addArtist = (artist) => {
     const emptySlot = lineup.findIndex((slot) => slot === null);
@@ -114,34 +97,6 @@ export default function CreateLineup() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-white text-xl uppercase">LOADING...</div>
-      </div>
-    );
-  }
-
-  if (hasExisting) {
-    return (
-      <div className="min-h-screen bg-black text-white">
-        <Navbar />
-        <div className="flex items-center justify-center py-32">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4 uppercase">YOU ALREADY HAVE A LINEUP</h1>
-            <p className="text-gray-500 mb-6 uppercase">Each person can only create one marquee lineup.</p>
-            <div className="space-x-4">
-              <button
-                onClick={() => navigate('/my-lineup')}
-                className="bg-white text-black px-6 py-3 font-bold uppercase hover:bg-gray-200 transition"
-              >
-                VIEW MY LINEUP
-              </button>
-              <button
-                onClick={() => navigate('/')}
-                className="border-2 border-white px-6 py-3 font-bold uppercase hover:bg-white hover:text-black transition"
-              >
-                GO HOME
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     );
   }

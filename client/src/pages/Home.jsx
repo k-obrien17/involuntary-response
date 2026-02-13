@@ -43,7 +43,7 @@ export default function Home() {
                 to="/my-lineups"
                 className="inline-block border-2 border-white px-8 py-4 text-lg font-bold uppercase hover:bg-white hover:text-black transition"
               >
-                MY LINEUP
+                MY LINEUPS
               </Link>
             </div>
           ) : (

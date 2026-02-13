@@ -14,7 +14,7 @@ export default function Navbar() {
     { path: '/leaderboard', label: 'LEADERBOARD' },
     ...(user ? [
       { path: '/create', label: 'CREATE' },
-      { path: '/my-lineup', label: 'MY LINEUP' },
+      { path: '/my-lineups', label: 'MY LINEUPS' },
     ] : []),
   ];
 

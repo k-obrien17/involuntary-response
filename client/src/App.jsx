@@ -21,8 +21,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/create" element={<CreateLineup />} />
           <Route path="/lineup/:id" element={<ViewLineup />} />
-          <Route path="/my-lineup" element={<MyLineups />} />
-          <Route path="/my-lineups" element={<Navigate to="/my-lineup" replace />} />
+          <Route path="/my-lineups" element={<MyLineups />} />
+          <Route path="/my-lineup" element={<Navigate to="/my-lineups" replace />} />
           <Route path="/edit/:id" element={<EditLineup />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/artist/:name" element={<ArtistDetail />} />

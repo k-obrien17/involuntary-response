@@ -103,11 +103,6 @@ router.post('/', authenticateToken, (req, res) => {
   }
 
   try {
-    // Check if user already has a lineup
-    const existingLineup = db.prepare('SELECT id FROM lineups WHERE user_id = ?').get(req.user.id);
-    if (existingLineup) {
-      return res.status(400).json({ error: 'You can only create one lineup. Delete your existing lineup first.' });
-    }
     const insertLineup = db.prepare('INSERT INTO lineups (user_id, title, description, is_public) VALUES (?, ?, ?, ?)');
     const result = insertLineup.run(req.user.id, title, description || null, is_public ? 1 : 0);
     const lineupId = result.lastInsertRowid;
