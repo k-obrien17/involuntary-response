@@ -9,12 +9,12 @@ function clamp(val, min, max) {
 }
 
 // Get leaderboard - top artists by appearances
-router.get('/leaderboard', (req, res) => {
+router.get('/leaderboard', async (req, res) => {
   const safeLimit = clamp(req.query.limit || 50, 1, 100);
   const safeOffset = clamp(req.query.offset || 0, 0, 10000);
 
   try {
-    const artists = db.prepare(`
+    const artists = await db.all(`
       SELECT
         artist_name,
         artist_image,
@@ -28,14 +28,14 @@ router.get('/leaderboard', (req, res) => {
       GROUP BY LOWER(artist_name)
       ORDER BY lineup_count DESC, headliner_count DESC
       LIMIT ? OFFSET ?
-    `).all(safeLimit, safeOffset);
+    `, safeLimit, safeOffset);
 
-    const total = db.prepare(`
+    const total = await db.get(`
       SELECT COUNT(DISTINCT LOWER(artist_name)) as count
       FROM lineup_artists la
       JOIN lineups l ON la.lineup_id = l.id
       WHERE l.is_public = 1
-    `).get();
+    `);
 
     res.json({ artists, total: total.count });
   } catch (err) {
@@ -45,12 +45,12 @@ router.get('/leaderboard', (req, res) => {
 });
 
 // Get stats for a specific artist
-router.get('/artist/:name', (req, res) => {
+router.get('/artist/:name', async (req, res) => {
   const artistName = decodeURIComponent(req.params.name);
 
   try {
     // Get artist stats
-    const stats = db.prepare(`
+    const stats = await db.get(`
       SELECT
         artist_name,
         artist_image,
@@ -65,14 +65,14 @@ router.get('/artist/:name', (req, res) => {
       JOIN lineups l ON la.lineup_id = l.id
       WHERE l.is_public = 1 AND LOWER(artist_name) = LOWER(?)
       GROUP BY LOWER(artist_name)
-    `).get(artistName);
+    `, artistName);
 
     if (!stats) {
       return res.status(404).json({ error: 'Artist not found in any lineups' });
     }
 
     // Get lineups featuring this artist
-    const lineups = db.prepare(`
+    const lineups = await db.all(`
       SELECT
         l.id,
         l.title,
@@ -95,7 +95,7 @@ router.get('/artist/:name', (req, res) => {
       WHERE l.is_public = 1 AND LOWER(la.artist_name) = LOWER(?)
       ORDER BY l.created_at DESC
       LIMIT 20
-    `).all(artistName);
+    `, artistName);
 
     const parsedLineups = lineups.map(l => ({
       ...l,
@@ -103,7 +103,7 @@ router.get('/artist/:name', (req, res) => {
     }));
 
     // Get commonly paired artists
-    const pairings = db.prepare(`
+    const pairings = await db.all(`
       SELECT
         la2.artist_name,
         COUNT(*) as pair_count
@@ -116,7 +116,7 @@ router.get('/artist/:name', (req, res) => {
       GROUP BY LOWER(la2.artist_name)
       ORDER BY pair_count DESC
       LIMIT 10
-    `).all(artistName, artistName);
+    `, artistName, artistName);
 
     res.json({ stats, lineups: parsedLineups, pairings });
   } catch (err) {
@@ -126,7 +126,7 @@ router.get('/artist/:name', (req, res) => {
 });
 
 // Browse all public lineups
-router.get('/browse', (req, res) => {
+router.get('/browse', async (req, res) => {
   const { sort = 'recent', tag } = req.query;
   const safeLimit = clamp(req.query.limit || 20, 1, 50);
   const safeOffset = clamp(req.query.offset || 0, 0, 10000);
@@ -145,7 +145,7 @@ router.get('/browse', (req, res) => {
     const params = tag ? [tag, safeLimit, safeOffset] : [safeLimit, safeOffset];
     const countParams = tag ? [tag] : [];
 
-    const lineups = db.prepare(`
+    const lineups = await db.all(`
       SELECT
         l.id,
         l.title,
@@ -170,7 +170,7 @@ router.get('/browse', (req, res) => {
       WHERE l.is_public = 1 ${tagFilter}
       ORDER BY ${orderBy}
       LIMIT ? OFFSET ?
-    `).all(...params);
+    `, ...params);
 
     const parsed = lineups.map(l => ({
       ...l,
@@ -178,9 +178,9 @@ router.get('/browse', (req, res) => {
       tags: JSON.parse(l.tags || '[]').filter(t => t !== null)
     }));
 
-    const total = db.prepare(`
+    const total = await db.get(`
       SELECT COUNT(*) as count FROM lineups l WHERE l.is_public = 1 ${tagFilter}
-    `).get(...countParams);
+    `, ...countParams);
 
     res.json({ lineups: parsed, total: total.count });
   } catch (err) {
@@ -190,9 +190,9 @@ router.get('/browse', (req, res) => {
 });
 
 // Get all tags with counts (public lineups only)
-router.get('/tags', (req, res) => {
+router.get('/tags', async (req, res) => {
   try {
-    const tags = db.prepare(`
+    const tags = await db.all(`
       SELECT lt.tag, COUNT(*) as count
       FROM lineup_tags lt
       JOIN lineups l ON lt.lineup_id = l.id
@@ -200,7 +200,7 @@ router.get('/tags', (req, res) => {
       GROUP BY lt.tag
       ORDER BY count DESC
       LIMIT 50
-    `).all();
+    `);
     res.json(tags);
   } catch (err) {
     console.error('Tags error:', err);
@@ -209,7 +209,7 @@ router.get('/tags', (req, res) => {
 });
 
 // Search artists in the database
-router.get('/search-artists', (req, res) => {
+router.get('/search-artists', async (req, res) => {
   const { q } = req.query;
   const safeLimit = clamp(req.query.limit || 20, 1, 50);
 
@@ -218,7 +218,7 @@ router.get('/search-artists', (req, res) => {
   }
 
   try {
-    const artists = db.prepare(`
+    const artists = await db.all(`
       SELECT
         artist_name,
         artist_image,
@@ -229,7 +229,7 @@ router.get('/search-artists', (req, res) => {
       GROUP BY LOWER(artist_name)
       ORDER BY lineup_count DESC
       LIMIT ?
-    `).all(`%${q}%`, safeLimit);
+    `, `%${q}%`, safeLimit);
 
     res.json({ artists });
   } catch (err) {
@@ -239,14 +239,14 @@ router.get('/search-artists', (req, res) => {
 });
 
 // Get site-wide stats
-router.get('/site', (req, res) => {
+router.get('/site', async (req, res) => {
   try {
-    const stats = db.prepare(`
+    const stats = await db.get(`
       SELECT
         (SELECT COUNT(*) FROM users) as total_users,
         (SELECT COUNT(*) FROM lineups WHERE is_public = 1) as total_lineups,
         (SELECT COUNT(DISTINCT LOWER(artist_name)) FROM lineup_artists la JOIN lineups l ON la.lineup_id = l.id WHERE l.is_public = 1) as unique_artists
-    `).get();
+    `);
 
     res.json(stats);
   } catch (err) {

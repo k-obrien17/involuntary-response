@@ -4,15 +4,15 @@ import db from '../db/index.js';
 const router = Router();
 
 // Get public user profile
-router.get('/:username', (req, res) => {
+router.get('/:username', async (req, res) => {
   try {
-    const user = db.prepare('SELECT id, username, created_at FROM users WHERE username = ?').get(req.params.username);
+    const user = await db.get('SELECT id, username, created_at FROM users WHERE username = ?', req.params.username);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const lineups = db.prepare(`
+    const lineups = await db.all(`
       SELECT
         l.id,
         l.title,
@@ -34,7 +34,7 @@ router.get('/:username', (req, res) => {
       FROM lineups l
       WHERE l.user_id = ? AND l.is_public = 1
       ORDER BY l.created_at DESC
-    `).all(user.id);
+    `, user.id);
 
     const parsed = lineups.map(l => ({
       ...l,

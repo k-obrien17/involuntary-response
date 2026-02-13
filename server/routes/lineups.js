@@ -17,9 +17,9 @@ function sanitize(str, maxLength) {
 }
 
 // Get all lineups for current user
-router.get('/', authenticateToken, (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const lineups = db.prepare(`
+    const lineups = await db.all(`
       SELECT l.*,
         (SELECT json_group_array(json_object(
           'artist_name', la.artist_name,
@@ -38,7 +38,7 @@ router.get('/', authenticateToken, (req, res) => {
       FROM lineups l
       WHERE l.user_id = ?
       ORDER BY l.created_at DESC
-    `).all(req.user.id);
+    `, req.user.id);
 
     const parsed = lineups.map(l => ({
       ...l,
@@ -54,14 +54,14 @@ router.get('/', authenticateToken, (req, res) => {
 });
 
 // Get single lineup (public or own)
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
-    const lineup = db.prepare(`
+    const lineup = await db.get(`
       SELECT l.*, u.username as creator_username
       FROM lineups l
       JOIN users u ON l.user_id = u.id
       WHERE l.id = ?
-    `).get(req.params.id);
+    `, req.params.id);
 
     if (!lineup) {
       return res.status(404).json({ error: 'Lineup not found' });
@@ -83,14 +83,15 @@ router.get('/:id', (req, res) => {
       return res.status(403).json({ error: 'This lineup is private' });
     }
 
-    const artists = db.prepare(`
+    const artists = await db.all(`
       SELECT artist_name, artist_image, artist_mbid, artist_spotify_id, artist_spotify_url, slot_position, note
       FROM lineup_artists
       WHERE lineup_id = ?
       ORDER BY slot_position
-    `).all(req.params.id);
+    `, req.params.id);
 
-    const tags = db.prepare('SELECT tag FROM lineup_tags WHERE lineup_id = ?').all(req.params.id).map(r => r.tag);
+    const tagRows = await db.all('SELECT tag FROM lineup_tags WHERE lineup_id = ?', req.params.id);
+    const tags = tagRows.map(r => r.tag);
 
     res.json({ ...lineup, artists, tags });
   } catch (err) {
@@ -100,21 +101,20 @@ router.get('/:id', (req, res) => {
 });
 
 // Sanitize and insert tags for a lineup
-function insertTags(lineupId, tags) {
+async function insertTags(lineupId, tags) {
   if (!Array.isArray(tags)) return;
-  const insertTag = db.prepare('INSERT OR IGNORE INTO lineup_tags (lineup_id, tag) VALUES (?, ?)');
   const seen = new Set();
   for (const raw of tags.slice(0, 5)) {
     const tag = String(raw).toLowerCase().replace(/[^a-z0-9\- ]/g, '').trim().slice(0, 30);
     if (tag && !seen.has(tag)) {
       seen.add(tag);
-      insertTag.run(lineupId, tag);
+      await db.run('INSERT OR IGNORE INTO lineup_tags (lineup_id, tag) VALUES (?, ?)', lineupId, tag);
     }
   }
 }
 
 // Create lineup
-router.post('/', authenticateToken, createLimiter, (req, res) => {
+router.post('/', authenticateToken, createLimiter, async (req, res) => {
   const { is_public, artists, tags } = req.body;
   const title = sanitize(req.body.title, 100);
   const description = sanitize(req.body.description, 500);
@@ -128,17 +128,13 @@ router.post('/', authenticateToken, createLimiter, (req, res) => {
   }
 
   try {
-    const insertLineup = db.prepare('INSERT INTO lineups (user_id, title, description, is_public) VALUES (?, ?, ?, ?)');
-    const result = insertLineup.run(req.user.id, title, description || null, is_public ? 1 : 0);
+    const result = await db.run('INSERT INTO lineups (user_id, title, description, is_public) VALUES (?, ?, ?, ?)', req.user.id, title, description || null, is_public ? 1 : 0);
     const lineupId = result.lastInsertRowid;
 
-    const insertArtist = db.prepare(`
-      INSERT INTO lineup_artists (lineup_id, slot_position, artist_name, artist_image, artist_mbid, artist_spotify_id, artist_spotify_url, note)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
     for (const artist of artists) {
-      insertArtist.run(
+      await db.run(
+        `INSERT INTO lineup_artists (lineup_id, slot_position, artist_name, artist_image, artist_mbid, artist_spotify_id, artist_spotify_url, note)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         lineupId,
         artist.slot_position,
         artist.artist_name,
@@ -150,7 +146,7 @@ router.post('/', authenticateToken, createLimiter, (req, res) => {
       );
     }
 
-    insertTags(lineupId, tags);
+    await insertTags(lineupId, tags);
 
     res.status(201).json({ id: lineupId, title, description, is_public });
   } catch (err) {
@@ -160,7 +156,7 @@ router.post('/', authenticateToken, createLimiter, (req, res) => {
 });
 
 // Update lineup
-router.put('/:id', authenticateToken, (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   const { is_public, artists, tags } = req.body;
   const title = sanitize(req.body.title, 100);
   const description = sanitize(req.body.description, 500);
@@ -174,7 +170,7 @@ router.put('/:id', authenticateToken, (req, res) => {
   }
 
   try {
-    const lineup = db.prepare('SELECT * FROM lineups WHERE id = ?').get(req.params.id);
+    const lineup = await db.get('SELECT * FROM lineups WHERE id = ?', req.params.id);
 
     if (!lineup) {
       return res.status(404).json({ error: 'Lineup not found' });
@@ -185,19 +181,15 @@ router.put('/:id', authenticateToken, (req, res) => {
     }
 
     // Update lineup
-    db.prepare('UPDATE lineups SET title = ?, description = ?, is_public = ? WHERE id = ?')
-      .run(title, description || null, is_public ? 1 : 0, req.params.id);
+    await db.run('UPDATE lineups SET title = ?, description = ?, is_public = ? WHERE id = ?', title, description || null, is_public ? 1 : 0, req.params.id);
 
     // Delete old artists and insert new ones
-    db.prepare('DELETE FROM lineup_artists WHERE lineup_id = ?').run(req.params.id);
-
-    const insertArtist = db.prepare(`
-      INSERT INTO lineup_artists (lineup_id, slot_position, artist_name, artist_image, artist_mbid, artist_spotify_id, artist_spotify_url, note)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
+    await db.run('DELETE FROM lineup_artists WHERE lineup_id = ?', req.params.id);
 
     for (const artist of artists) {
-      insertArtist.run(
+      await db.run(
+        `INSERT INTO lineup_artists (lineup_id, slot_position, artist_name, artist_image, artist_mbid, artist_spotify_id, artist_spotify_url, note)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         req.params.id,
         artist.slot_position,
         artist.artist_name,
@@ -210,8 +202,8 @@ router.put('/:id', authenticateToken, (req, res) => {
     }
 
     // Delete old tags and insert new ones
-    db.prepare('DELETE FROM lineup_tags WHERE lineup_id = ?').run(req.params.id);
-    insertTags(req.params.id, tags);
+    await db.run('DELETE FROM lineup_tags WHERE lineup_id = ?', req.params.id);
+    await insertTags(req.params.id, tags);
 
     res.json({ id: req.params.id, title, description, is_public });
   } catch (err) {
@@ -221,16 +213,16 @@ router.put('/:id', authenticateToken, (req, res) => {
 });
 
 // Toggle like on a lineup
-router.post('/:id/like', authenticateToken, likeLimiter, (req, res) => {
+router.post('/:id/like', authenticateToken, likeLimiter, async (req, res) => {
   try {
-    const existing = db.prepare('SELECT id FROM lineup_likes WHERE user_id = ? AND lineup_id = ?').get(req.user.id, req.params.id);
+    const existing = await db.get('SELECT id FROM lineup_likes WHERE user_id = ? AND lineup_id = ?', req.user.id, req.params.id);
     if (existing) {
-      db.prepare('DELETE FROM lineup_likes WHERE id = ?').run(existing.id);
+      await db.run('DELETE FROM lineup_likes WHERE id = ?', existing.id);
     } else {
-      db.prepare('INSERT INTO lineup_likes (user_id, lineup_id) VALUES (?, ?)').run(req.user.id, req.params.id);
+      await db.run('INSERT INTO lineup_likes (user_id, lineup_id) VALUES (?, ?)', req.user.id, req.params.id);
     }
-    const count = db.prepare('SELECT COUNT(*) as count FROM lineup_likes WHERE lineup_id = ?').get(req.params.id).count;
-    res.json({ liked: !existing, count });
+    const countRow = await db.get('SELECT COUNT(*) as count FROM lineup_likes WHERE lineup_id = ?', req.params.id);
+    res.json({ liked: !existing, count: countRow.count });
   } catch (err) {
     console.error('Like error:', err);
     res.status(500).json({ error: 'Failed to toggle like' });
@@ -238,19 +230,19 @@ router.post('/:id/like', authenticateToken, likeLimiter, (req, res) => {
 });
 
 // Get like count + user's like status
-router.get('/:id/likes', (req, res) => {
+router.get('/:id/likes', async (req, res) => {
   try {
-    const count = db.prepare('SELECT COUNT(*) as count FROM lineup_likes WHERE lineup_id = ?').get(req.params.id).count;
+    const countRow = await db.get('SELECT COUNT(*) as count FROM lineup_likes WHERE lineup_id = ?', req.params.id);
     let liked = false;
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (token) {
       try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        liked = !!db.prepare('SELECT 1 FROM lineup_likes WHERE user_id = ? AND lineup_id = ?').get(decoded.id, req.params.id);
+        liked = !!(await db.get('SELECT 1 FROM lineup_likes WHERE user_id = ? AND lineup_id = ?', decoded.id, req.params.id));
       } catch {}
     }
-    res.json({ liked, count });
+    res.json({ liked, count: countRow.count });
   } catch (err) {
     console.error('Get likes error:', err);
     res.status(500).json({ error: 'Failed to get likes' });
@@ -258,15 +250,15 @@ router.get('/:id/likes', (req, res) => {
 });
 
 // Get comments for a lineup
-router.get('/:id/comments', (req, res) => {
+router.get('/:id/comments', async (req, res) => {
   try {
-    const comments = db.prepare(`
+    const comments = await db.all(`
       SELECT c.id, c.content, c.created_at, c.user_id, u.username
       FROM lineup_comments c
       JOIN users u ON c.user_id = u.id
       WHERE c.lineup_id = ?
       ORDER BY c.created_at ASC
-    `).all(req.params.id);
+    `, req.params.id);
     res.json(comments);
   } catch (err) {
     console.error('Get comments error:', err);
@@ -275,19 +267,19 @@ router.get('/:id/comments', (req, res) => {
 });
 
 // Add a comment
-router.post('/:id/comments', authenticateToken, commentLimiter, (req, res) => {
+router.post('/:id/comments', authenticateToken, commentLimiter, async (req, res) => {
   const content = sanitize(req.body.content, 500);
   if (!content) {
     return res.status(400).json({ error: 'Comment content required' });
   }
   try {
-    const result = db.prepare('INSERT INTO lineup_comments (lineup_id, user_id, content) VALUES (?, ?, ?)').run(req.params.id, req.user.id, content);
-    const comment = db.prepare(`
+    const result = await db.run('INSERT INTO lineup_comments (lineup_id, user_id, content) VALUES (?, ?, ?)', req.params.id, req.user.id, content);
+    const comment = await db.get(`
       SELECT c.id, c.content, c.created_at, c.user_id, u.username
       FROM lineup_comments c
       JOIN users u ON c.user_id = u.id
       WHERE c.id = ?
-    `).get(result.lastInsertRowid);
+    `, result.lastInsertRowid);
     res.status(201).json(comment);
   } catch (err) {
     console.error('Add comment error:', err);
@@ -296,16 +288,16 @@ router.post('/:id/comments', authenticateToken, commentLimiter, (req, res) => {
 });
 
 // Delete own comment
-router.delete('/:id/comments/:commentId', authenticateToken, (req, res) => {
+router.delete('/:id/comments/:commentId', authenticateToken, async (req, res) => {
   try {
-    const comment = db.prepare('SELECT * FROM lineup_comments WHERE id = ? AND lineup_id = ?').get(req.params.commentId, req.params.id);
+    const comment = await db.get('SELECT * FROM lineup_comments WHERE id = ? AND lineup_id = ?', req.params.commentId, req.params.id);
     if (!comment) {
       return res.status(404).json({ error: 'Comment not found' });
     }
     if (comment.user_id !== req.user.id) {
       return res.status(403).json({ error: 'Not authorized to delete this comment' });
     }
-    db.prepare('DELETE FROM lineup_comments WHERE id = ?').run(req.params.commentId);
+    await db.run('DELETE FROM lineup_comments WHERE id = ?', req.params.commentId);
     res.json({ success: true });
   } catch (err) {
     console.error('Delete comment error:', err);
@@ -314,9 +306,9 @@ router.delete('/:id/comments/:commentId', authenticateToken, (req, res) => {
 });
 
 // Delete lineup
-router.delete('/:id', authenticateToken, (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
-    const lineup = db.prepare('SELECT * FROM lineups WHERE id = ?').get(req.params.id);
+    const lineup = await db.get('SELECT * FROM lineups WHERE id = ?', req.params.id);
 
     if (!lineup) {
       return res.status(404).json({ error: 'Lineup not found' });
@@ -326,7 +318,7 @@ router.delete('/:id', authenticateToken, (req, res) => {
       return res.status(403).json({ error: 'Not authorized to delete this lineup' });
     }
 
-    db.prepare('DELETE FROM lineups WHERE id = ?').run(req.params.id);
+    await db.run('DELETE FROM lineups WHERE id = ?', req.params.id);
     res.json({ success: true });
   } catch (err) {
     console.error('Delete lineup error:', err);

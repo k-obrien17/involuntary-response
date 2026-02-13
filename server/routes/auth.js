@@ -33,21 +33,21 @@ router.post('/register', registerLimiter, async (req, res) => {
   }
 
   try {
-    const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+    const existingUser = await db.get('SELECT id FROM users WHERE username = ?', username);
     if (existingUser) {
       return res.status(400).json({ error: 'Username already taken' });
     }
 
     // Check if email is provided and already in use
     if (email) {
-      const existingEmail = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+      const existingEmail = await db.get('SELECT id FROM users WHERE email = ?', email);
       if (existingEmail) {
         return res.status(400).json({ error: 'Email already registered' });
       }
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const result = db.prepare('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)').run(username, email || null, passwordHash);
+    const result = await db.run('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', username, email || null, passwordHash);
 
     const user = { id: result.lastInsertRowid, username, email: email || null };
     const token = generateToken(user);
@@ -67,7 +67,7 @@ router.post('/login', loginLimiter, async (req, res) => {
   }
 
   try {
-    const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+    const user = await db.get('SELECT * FROM users WHERE username = ?', username);
     if (!user) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }

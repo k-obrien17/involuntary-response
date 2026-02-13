@@ -7,7 +7,7 @@ import lineupsRoutes from './routes/lineups.js';
 import artistsRoutes from './routes/artists.js';
 import statsRoutes from './routes/stats.js';
 import usersRoutes from './routes/users.js';
-import db from './db/index.js';
+import db, { initDatabase } from './db/index.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,10 +25,10 @@ function escapeHtml(str) {
 
 // OG meta tags for social crawlers
 const CRAWLER_RE = /bot|crawl|spider|slurp|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|Discordbot/i;
-app.get('/lineup/:id', (req, res, next) => {
+app.get('/lineup/:id', async (req, res, next) => {
   if (!CRAWLER_RE.test(req.headers['user-agent'] || '')) return next();
   try {
-    const lineup = db.prepare('SELECT l.title, l.description, u.username as creator_username FROM lineups l JOIN users u ON l.user_id = u.id WHERE l.id = ?').get(req.params.id);
+    const lineup = await db.get('SELECT l.title, l.description, u.username as creator_username FROM lineups l JOIN users u ON l.user_id = u.id WHERE l.id = ?', req.params.id);
     if (!lineup) return next();
     const title = escapeHtml(lineup.title);
     const desc = escapeHtml(lineup.description || `A lineup by @${lineup.creator_username || 'anonymous'}`);
@@ -62,6 +62,9 @@ app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error' });
 });
+
+// Init DB then start server
+await initDatabase();
 
 app.listen(PORT, () => {
   console.log(`🎸 Backyard Marquee server running on http://localhost:${PORT}`);
