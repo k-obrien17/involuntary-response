@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { lineups } from '../api/client';
 import ArtistSearch from '../components/ArtistSearch';
 import LineupSlotWithNote from '../components/LineupSlotWithNote';
+import TagInput from '../components/TagInput';
 import Navbar from '../components/Navbar';
 
 export default function CreateLineup() {
   const [lineup, setLineup] = useState([null, null, null, null, null]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [tags, setTags] = useState([]);
+  const [suggestedTags, setSuggestedTags] = useState([]);
   const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -22,12 +26,37 @@ export default function CreateLineup() {
     }
   }, [user, loading, navigate]);
 
+  // Remix pre-fill
+  useEffect(() => {
+    const remix = location.state?.remix;
+    if (remix) {
+      setTitle(remix.title || '');
+      setDescription(remix.description || '');
+      setTags(remix.tags || []);
+      if (remix.artists) {
+        const newLineup = [null, null, null, null, null];
+        remix.artists.forEach((artist, i) => {
+          if (i < 5) newLineup[i] = artist;
+        });
+        setLineup(newLineup);
+      }
+      window.history.replaceState({}, '');
+    }
+  }, [location.state]);
+
   const addArtist = (artist) => {
     const emptySlot = lineup.findIndex((slot) => slot === null);
     if (emptySlot !== -1) {
       const newLineup = [...lineup];
       newLineup[emptySlot] = { ...artist, note: '' };
       setLineup(newLineup);
+
+      // Compute genre suggestions from all artists' genres
+      const allGenres = newLineup.filter(Boolean).flatMap(a => a.genres || []);
+      const counts = {};
+      allGenres.forEach(g => { counts[g] = (counts[g] || 0) + 1; });
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([g]) => g);
+      setSuggestedTags(sorted.filter(g => !tags.includes(g)).slice(0, 5));
     }
   };
 
@@ -75,6 +104,7 @@ export default function CreateLineup() {
         title: title.trim(),
         description: description.trim() || null,
         is_public: isPublic,
+        tags,
         artists: lineup.filter(Boolean).map((artist, index) => ({
           slot_position: index,
           artist_name: artist.name,
@@ -126,6 +156,25 @@ export default function CreateLineup() {
                 placeholder="WHY DID YOU CHOOSE THESE ARTISTS? WHAT'S THE VIBE?"
                 className="w-full px-4 py-3 bg-black border-2 border-white text-white placeholder-gray-600 focus:outline-none min-h-[120px] resize-none uppercase"
               />
+            </div>
+
+            {/* Tags */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4 uppercase">TAGS</h2>
+              <TagInput tags={tags} onChange={setTags} />
+              {suggestedTags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {suggestedTags.map(tag => (
+                    <button
+                      key={tag}
+                      onClick={() => { setTags(prev => prev.length < 5 ? [...prev, tag] : prev); setSuggestedTags(prev => prev.filter(t => t !== tag)); }}
+                      className="px-2 py-1 text-xs uppercase text-gray-500 border border-white/20 hover:border-white hover:text-white transition"
+                    >
+                      + {tag}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { lineups } from '../api/client';
 import Navbar from '../components/Navbar';
+import Comments from '../components/Comments';
 
 export default function ViewLineup() {
   const { id } = useParams();
@@ -9,12 +11,22 @@ export default function ViewLineup() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const posterRef = useRef(null);
 
   useEffect(() => {
     const fetchLineup = async () => {
       try {
-        const res = await lineups.getOne(id);
-        setLineup(res.data);
+        const [lineupRes, likesRes] = await Promise.all([
+          lineups.getOne(id),
+          lineups.getLikes(id),
+        ]);
+        setLineup(lineupRes.data);
+        setLiked(likesRes.data.liked);
+        setLikeCount(likesRes.data.count);
       } catch (err) {
         setError(err.response?.data?.error || 'Failed to load lineup');
       } finally {
@@ -32,6 +44,52 @@ export default function ViewLineup() {
       setTimeout(() => setCopied(false), 2000);
     } catch {
       alert('Copy this link: ' + url);
+    }
+  };
+
+  const handleLike = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const res = await lineups.like(id);
+      setLiked(res.data.liked);
+      setLikeCount(res.data.count);
+    } catch {}
+  };
+
+  const handleRemix = () => {
+    navigate('/create', {
+      state: {
+        remix: {
+          title: `Remix: ${lineup.title}`,
+          description: lineup.description || '',
+          tags: lineup.tags || [],
+          artists: lineup.artists.map(a => ({
+            name: a.artist_name,
+            image: a.artist_image,
+            mbid: a.artist_mbid,
+            spotifyId: a.artist_spotify_id,
+            spotifyUrl: a.artist_spotify_url,
+            note: '',
+          })),
+        }
+      }
+    });
+  };
+
+  const handleDownload = async () => {
+    if (!posterRef.current) return;
+    try {
+      const { toPng } = await import('html-to-image');
+      const dataUrl = await toPng(posterRef.current, { pixelRatio: 2 });
+      const link = document.createElement('a');
+      link.download = `${lineup.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch {
+      alert('Failed to generate image');
     }
   };
 
@@ -64,7 +122,7 @@ export default function ViewLineup() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           {/* Festival Poster - Brutalist Style */}
-          <div className="border-4 border-white">
+          <div ref={posterRef} className="border-4 border-white bg-black">
             {/* Header */}
             <div className="border-b-4 border-white p-6 text-center">
               <p className="text-gray-500 uppercase tracking-[0.3em] text-xs font-bold mb-4">
@@ -146,6 +204,17 @@ export default function ViewLineup() {
               ))}
             </div>
 
+            {/* Tags */}
+            {lineup.tags && lineup.tags.length > 0 && (
+              <div className="px-6 pb-4 flex flex-wrap gap-2">
+                {lineup.tags.map(tag => (
+                  <Link key={tag} to={`/discover?tag=${encodeURIComponent(tag)}`} className="px-3 py-1 bg-white/10 text-gray-400 text-xs uppercase hover:bg-white/20 transition">
+                    {tag}
+                  </Link>
+                ))}
+              </div>
+            )}
+
             {/* Footer */}
             <div className="border-t-4 border-white p-4">
               <p className="text-gray-600 text-xs uppercase tracking-widest text-center">
@@ -155,31 +224,43 @@ export default function ViewLineup() {
           </div>
 
           {/* Action buttons */}
-          <div className="flex flex-col gap-4 items-center mt-8">
+          <div className="flex flex-wrap gap-4 justify-center mt-8">
+            <button
+              onClick={handleLike}
+              className={`px-8 py-3 font-bold uppercase transition ${
+                liked ? 'bg-white text-black' : 'border-2 border-white hover:bg-white hover:text-black'
+              }`}
+            >
+              {liked ? 'LIKED' : 'LIKE'} {likeCount > 0 && `(${likeCount})`}
+            </button>
             <button
               onClick={handleShare}
               className="bg-white text-black px-8 py-3 font-bold uppercase hover:bg-gray-200 transition"
             >
-              {copied ? 'LINK COPIED' : 'SHARE THIS LINEUP'}
+              {copied ? 'LINK COPIED' : 'SHARE'}
             </button>
-
-            <div className="text-center mt-4">
-              <p className="text-gray-500 uppercase tracking-widest text-sm mb-3">
-                THINK YOU COULD DO BETTER?
-              </p>
-              <Link
-                to="/create"
-                className="border-2 border-white px-8 py-3 font-bold uppercase hover:bg-white hover:text-black transition inline-block"
-              >
-                CREATE YOUR OWN
-              </Link>
-            </div>
+            <button
+              onClick={handleRemix}
+              className="border-2 border-white px-8 py-3 font-bold uppercase hover:bg-white hover:text-black transition"
+            >
+              REMIX THIS LINEUP
+            </button>
+            <button
+              onClick={handleDownload}
+              className="border-2 border-white px-8 py-3 font-bold uppercase hover:bg-white hover:text-black transition"
+            >
+              DOWNLOAD IMAGE
+            </button>
           </div>
 
           <p className="text-center text-gray-600 mt-6 text-sm uppercase">
-            {lineup.creator_username && <>BY @{lineup.creator_username} &middot; </>}
-            {new Date(lineup.created_at).toLocaleDateString()}
+            BY {lineup.creator_username ? (
+              <Link to={`/user/${lineup.creator_username}`} className="hover:text-white transition">@{lineup.creator_username}</Link>
+            ) : 'ANONYMOUS'} &middot; {new Date(lineup.created_at).toLocaleDateString()}
           </p>
+
+          {/* Comments */}
+          <Comments lineupId={id} />
         </div>
       </div>
     </div>

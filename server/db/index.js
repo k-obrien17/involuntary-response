@@ -56,6 +56,12 @@ const migrations = [
   { id: 4, name: 'add_users_username_index', sql: `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)` },
   { id: 5, name: 'add_spotify_id', sql: `ALTER TABLE lineup_artists ADD COLUMN artist_spotify_id TEXT` },
   { id: 6, name: 'add_spotify_url', sql: `ALTER TABLE lineup_artists ADD COLUMN artist_spotify_url TEXT` },
+  { id: 7, name: 'create_lineup_tags', sql: `CREATE TABLE IF NOT EXISTS lineup_tags (id INTEGER PRIMARY KEY AUTOINCREMENT, lineup_id INTEGER NOT NULL, tag TEXT NOT NULL, UNIQUE(lineup_id, tag), FOREIGN KEY (lineup_id) REFERENCES lineups(id) ON DELETE CASCADE)` },
+  { id: 8, name: 'add_lineup_tags_index', sql: `CREATE INDEX IF NOT EXISTS idx_lineup_tags_lineup_id ON lineup_tags(lineup_id)` },
+  { id: 9, name: 'create_lineup_likes', sql: `CREATE TABLE IF NOT EXISTS lineup_likes (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, lineup_id INTEGER NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(user_id, lineup_id), FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, FOREIGN KEY (lineup_id) REFERENCES lineups(id) ON DELETE CASCADE)` },
+  { id: 10, name: 'add_lineup_likes_indexes', sql: `CREATE INDEX IF NOT EXISTS idx_lineup_likes_lineup_id ON lineup_likes(lineup_id)` },
+  { id: 11, name: 'create_lineup_comments', sql: `CREATE TABLE IF NOT EXISTS lineup_comments (id INTEGER PRIMARY KEY AUTOINCREMENT, lineup_id INTEGER NOT NULL, user_id INTEGER NOT NULL, content TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (lineup_id) REFERENCES lineups(id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)` },
+  { id: 12, name: 'add_lineup_comments_index', sql: `CREATE INDEX IF NOT EXISTS idx_lineup_comments_lineup_id ON lineup_comments(lineup_id)` },
 ];
 
 const checkMigration = db.prepare('SELECT 1 FROM migrations WHERE name = ?');

@@ -151,7 +151,9 @@ export default function ArtistDetail() {
                     <div>
                       <h3 className="text-lg font-bold uppercase">{lineup.title}</h3>
                       <p className="text-gray-600 text-sm uppercase">
-                        {lineup.creator_username && <>@{lineup.creator_username} &middot; </>}
+                        {lineup.creator_username && (
+                          <><Link to={`/user/${lineup.creator_username}`} className="hover:text-white transition">@{lineup.creator_username}</Link> &middot; </>
+                        )}
                         {new Date(lineup.created_at).toLocaleDateString()}
                       </p>
                     </div>

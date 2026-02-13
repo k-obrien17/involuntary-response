@@ -104,6 +104,14 @@ export default function MyLineups() {
                     </div>
                   ))}
                 </div>
+
+                {lineup.tags && lineup.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-3">
+                    {lineup.tags.map(tag => (
+                      <span key={tag} className="px-2 py-0.5 bg-white/10 text-gray-500 text-xs uppercase">{tag}</span>
+                    ))}
+                  </div>
+                )}
               </Link>
 
               <div className="flex border-t border-white/30">

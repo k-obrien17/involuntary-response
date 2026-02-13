@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { lineups } from '../api/client';
 import ArtistSearch from '../components/ArtistSearch';
 import LineupSlotWithNote from '../components/LineupSlotWithNote';
+import TagInput from '../components/TagInput';
 import Navbar from '../components/Navbar';
 
 export default function EditLineup() {
@@ -11,6 +12,7 @@ export default function EditLineup() {
   const [lineup, setLineup] = useState([null, null, null, null, null]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [tags, setTags] = useState([]);
   const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -34,6 +36,7 @@ export default function EditLineup() {
 
         setTitle(data.title);
         setDescription(data.description || '');
+        setTags(data.tags || []);
         setIsPublic(!!data.is_public);
 
         // Map artists to lineup slots
@@ -111,6 +114,7 @@ export default function EditLineup() {
         title: title.trim(),
         description: description.trim() || null,
         is_public: isPublic,
+        tags,
         artists: lineup.filter(Boolean).map((artist, index) => ({
           slot_position: index,
           artist_name: artist.name,
@@ -170,6 +174,12 @@ export default function EditLineup() {
                 placeholder="WHY DID YOU CHOOSE THESE ARTISTS? WHAT'S THE VIBE?"
                 className="w-full px-4 py-3 bg-black border-2 border-white text-white placeholder-gray-600 focus:outline-none min-h-[120px] resize-none uppercase"
               />
+            </div>
+
+            {/* Tags */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4 uppercase">TAGS</h2>
+              <TagInput tags={tags} onChange={setTags} />
             </div>
           </div>
 

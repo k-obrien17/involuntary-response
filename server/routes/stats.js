@@ -121,10 +121,21 @@ router.get('/artist/:name', (req, res) => {
 
 // Browse all public lineups
 router.get('/browse', (req, res) => {
-  const { limit = 20, offset = 0, sort = 'recent' } = req.query;
+  const { limit = 20, offset = 0, sort = 'recent', tag } = req.query;
 
   try {
-    const orderBy = sort === 'recent' ? 'l.created_at DESC' : 'l.created_at ASC';
+    let orderBy;
+    if (sort === 'likes') {
+      orderBy = 'like_count DESC, l.created_at DESC';
+    } else if (sort === 'oldest') {
+      orderBy = 'l.created_at ASC';
+    } else {
+      orderBy = 'l.created_at DESC';
+    }
+
+    const tagFilter = tag ? 'AND EXISTS (SELECT 1 FROM lineup_tags lt WHERE lt.lineup_id = l.id AND lt.tag = ?)' : '';
+    const params = tag ? [tag, parseInt(limit), parseInt(offset)] : [parseInt(limit), parseInt(offset)];
+    const countParams = tag ? [tag] : [];
 
     const lineups = db.prepare(`
       SELECT
@@ -133,6 +144,7 @@ router.get('/browse', (req, res) => {
         l.description,
         l.created_at,
         u.username as creator_username,
+        (SELECT COUNT(*) FROM lineup_likes ll WHERE ll.lineup_id = l.id) as like_count,
         (SELECT json_group_array(json_object(
           'artist_name', la.artist_name,
           'artist_image', la.artist_image,
@@ -141,27 +153,50 @@ router.get('/browse', (req, res) => {
         ))
         FROM lineup_artists la
         WHERE la.lineup_id = l.id
-        ORDER BY la.slot_position) as artists
+        ORDER BY la.slot_position) as artists,
+        (SELECT json_group_array(lt.tag)
+        FROM lineup_tags lt
+        WHERE lt.lineup_id = l.id) as tags
       FROM lineups l
       JOIN users u ON l.user_id = u.id
-      WHERE l.is_public = 1
+      WHERE l.is_public = 1 ${tagFilter}
       ORDER BY ${orderBy}
       LIMIT ? OFFSET ?
-    `).all(parseInt(limit), parseInt(offset));
+    `).all(...params);
 
     const parsed = lineups.map(l => ({
       ...l,
-      artists: JSON.parse(l.artists || '[]')
+      artists: JSON.parse(l.artists || '[]'),
+      tags: JSON.parse(l.tags || '[]').filter(t => t !== null)
     }));
 
     const total = db.prepare(`
-      SELECT COUNT(*) as count FROM lineups WHERE is_public = 1
-    `).get();
+      SELECT COUNT(*) as count FROM lineups l WHERE l.is_public = 1 ${tagFilter}
+    `).get(...countParams);
 
     res.json({ lineups: parsed, total: total.count });
   } catch (err) {
     console.error('Browse error:', err);
     res.status(500).json({ error: 'Failed to browse lineups' });
+  }
+});
+
+// Get all tags with counts (public lineups only)
+router.get('/tags', (req, res) => {
+  try {
+    const tags = db.prepare(`
+      SELECT lt.tag, COUNT(*) as count
+      FROM lineup_tags lt
+      JOIN lineups l ON lt.lineup_id = l.id
+      WHERE l.is_public = 1
+      GROUP BY lt.tag
+      ORDER BY count DESC
+      LIMIT 50
+    `).all();
+    res.json(tags);
+  } catch (err) {
+    console.error('Tags error:', err);
+    res.status(500).json({ error: 'Failed to get tags' });
   }
 });
 

@@ -75,6 +75,7 @@ router.get('/search', async (req, res) => {
       image: artist.images[0]?.url || null,
       popularity: artist.popularity,
       spotifyUrl: artist.external_urls?.spotify || null,
+      genres: artist.genres || [],
     }));
 
     res.json({ artists });

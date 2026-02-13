@@ -6,6 +6,8 @@ import authRoutes from './routes/auth.js';
 import lineupsRoutes from './routes/lineups.js';
 import artistsRoutes from './routes/artists.js';
 import statsRoutes from './routes/stats.js';
+import usersRoutes from './routes/users.js';
+import db from './db/index.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,11 +17,34 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// OG meta tags for social crawlers
+const CRAWLER_RE = /bot|crawl|spider|slurp|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|Discordbot/i;
+app.get('/lineup/:id', (req, res, next) => {
+  if (!CRAWLER_RE.test(req.headers['user-agent'] || '')) return next();
+  try {
+    const lineup = db.prepare('SELECT l.title, l.description, u.username as creator_username FROM lineups l JOIN users u ON l.user_id = u.id WHERE l.id = ?').get(req.params.id);
+    if (!lineup) return next();
+    const title = lineup.title;
+    const desc = lineup.description || `A lineup by @${lineup.creator_username || 'anonymous'}`;
+    res.send(`<!DOCTYPE html><html><head>
+      <meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />
+      <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}" />
+      <meta property="og:type" content="website" />
+      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
+      <meta name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
+    </head><body></body></html>`);
+  } catch {
+    next();
+  }
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/lineups', lineupsRoutes);
 app.use('/api/artists', artistsRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/users', usersRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

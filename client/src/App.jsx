@@ -10,6 +10,7 @@ import Leaderboard from './pages/Leaderboard';
 import ArtistDetail from './pages/ArtistDetail';
 import Discover from './pages/Discover';
 import EditLineup from './pages/EditLineup';
+import UserProfile from './pages/UserProfile';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/artist/:name" element={<ArtistDetail />} />
           <Route path="/discover" element={<Discover />} />
+          <Route path="/user/:username" element={<UserProfile />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

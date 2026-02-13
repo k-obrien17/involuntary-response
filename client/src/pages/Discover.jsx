@@ -1,26 +1,34 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { stats } from '../api/client';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function Discover() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [lineups, setLineups] = useState([]);
   const [siteStats, setSiteStats] = useState(null);
+  const [allTags, setAllTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
+  const [sort, setSort] = useState('recent');
+  const [activeTag, setActiveTag] = useState(searchParams.get('tag') || '');
   const limit = 12;
+
+  useEffect(() => {
+    stats.tags().then(res => setAllTags(res.data)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const [lineupsRes, statsRes] = await Promise.all([
-          stats.browse(limit, page * limit),
+          stats.browse(limit, page * limit, sort, activeTag || undefined),
           stats.site()
         ]);
         setLineups(lineupsRes.data.lineups);
@@ -33,7 +41,7 @@ export default function Discover() {
       }
     };
     fetchData();
-  }, [page]);
+  }, [page, sort, activeTag]);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -123,8 +131,44 @@ export default function Discover() {
           </div>
         </div>
 
+        {/* Tag Filter */}
+        {allTags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button
+              onClick={() => { setActiveTag(''); setPage(0); setSearchParams({}); }}
+              className={`px-3 py-1 text-sm uppercase font-bold transition ${!activeTag ? 'bg-white text-black' : 'border border-white/30 text-gray-500 hover:border-white hover:text-white'}`}
+            >
+              ALL
+            </button>
+            {allTags.map(t => (
+              <button
+                key={t.tag}
+                onClick={() => { setActiveTag(t.tag); setPage(0); setSearchParams({ tag: t.tag }); }}
+                className={`px-3 py-1 text-sm uppercase transition ${activeTag === t.tag ? 'bg-white text-black font-bold' : 'border border-white/30 text-gray-500 hover:border-white hover:text-white'}`}
+              >
+                {t.tag} ({t.count})
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Lineups Grid */}
-        <h2 className="text-2xl font-bold mb-6 uppercase tracking-wide">RECENT LINEUPS</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold uppercase tracking-wide">
+            {activeTag ? `"${activeTag}" LINEUPS` : 'LINEUPS'}
+          </h2>
+          <div className="flex gap-2">
+            {['recent', 'oldest', 'likes'].map(s => (
+              <button
+                key={s}
+                onClick={() => { setSort(s); setPage(0); }}
+                className={`px-3 py-1 text-sm uppercase transition ${sort === s ? 'bg-white text-black font-bold' : 'border border-white/30 text-gray-500 hover:border-white hover:text-white'}`}
+              >
+                {s === 'likes' ? 'TOP' : s.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {loading ? (
           <div className="text-center py-16">
@@ -159,7 +203,11 @@ export default function Discover() {
                       </p>
                     )}
                     <p className="text-gray-600 text-sm mb-4 uppercase">
-                      {lineup.creator_username && <>@{lineup.creator_username} &middot; </>}
+                      {lineup.creator_username && (
+                        <Link to={`/user/${lineup.creator_username}`} onClick={e => e.stopPropagation()} className="hover:text-white transition">@{lineup.creator_username}</Link>
+                      )}
+                      {lineup.creator_username && ' · '}
+                      {lineup.like_count > 0 && <>{lineup.like_count} LIKE{lineup.like_count !== 1 ? 'S' : ''} · </>}
                       {new Date(lineup.created_at).toLocaleDateString()}
                     </p>
 
@@ -179,6 +227,14 @@ export default function Discover() {
                         </div>
                       ))}
                     </div>
+
+                    {lineup.tags && lineup.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-3">
+                        {lineup.tags.map(tag => (
+                          <span key={tag} className="px-2 py-0.5 bg-white/10 text-gray-500 text-xs uppercase">{tag}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </Link>
               ))}
