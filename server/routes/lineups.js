@@ -1,9 +1,14 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
+import rateLimit from 'express-rate-limit';
 import db from '../db/index.js';
 import { authenticateToken, JWT_SECRET } from '../middleware/auth.js';
 
 const router = Router();
+
+const createLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 20, message: { error: 'Too many lineups created, try again later' } });
+const commentLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many comments, try again later' } });
+const likeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, message: { error: 'Too many likes, try again later' } });
 
 // Sanitize user input: trim, strip HTML tags, enforce max length
 function sanitize(str, maxLength) {
@@ -109,7 +114,7 @@ function insertTags(lineupId, tags) {
 }
 
 // Create lineup
-router.post('/', authenticateToken, (req, res) => {
+router.post('/', authenticateToken, createLimiter, (req, res) => {
   const { is_public, artists, tags } = req.body;
   const title = sanitize(req.body.title, 100);
   const description = sanitize(req.body.description, 500);
@@ -216,7 +221,7 @@ router.put('/:id', authenticateToken, (req, res) => {
 });
 
 // Toggle like on a lineup
-router.post('/:id/like', authenticateToken, (req, res) => {
+router.post('/:id/like', authenticateToken, likeLimiter, (req, res) => {
   try {
     const existing = db.prepare('SELECT id FROM lineup_likes WHERE user_id = ? AND lineup_id = ?').get(req.user.id, req.params.id);
     if (existing) {
@@ -270,7 +275,7 @@ router.get('/:id/comments', (req, res) => {
 });
 
 // Add a comment
-router.post('/:id/comments', authenticateToken, (req, res) => {
+router.post('/:id/comments', authenticateToken, commentLimiter, (req, res) => {
   const content = sanitize(req.body.content, 500);
   if (!content) {
     return res.status(400).json({ error: 'Comment content required' });

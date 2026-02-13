@@ -1,11 +1,15 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import rateLimit from 'express-rate-limit';
 import db from '../db/index.js';
 import { generateToken } from '../middleware/auth.js';
 
 const router = Router();
 
-router.post('/register', async (req, res) => {
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many attempts, try again later' } });
+const registerLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, message: { error: 'Too many accounts created, try again later' } });
+
+router.post('/register', registerLimiter, async (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !password) {
@@ -55,7 +59,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {

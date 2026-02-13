@@ -5,8 +5,10 @@ import { dirname, join } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const db = new Database(join(__dirname, 'backyard-marquee.db'));
 
-// Enable foreign keys
+// Enable foreign keys, WAL mode for concurrent reads, busy timeout for write contention
 db.pragma('foreign_keys = ON');
+db.pragma('journal_mode = WAL');
+db.pragma('busy_timeout = 5000');
 
 // Create tables
 db.exec(`

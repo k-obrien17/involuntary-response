@@ -3,9 +3,15 @@ import db from '../db/index.js';
 
 const router = Router();
 
+function clamp(val, min, max) {
+  const n = parseInt(val);
+  return isNaN(n) ? min : Math.min(Math.max(n, min), max);
+}
+
 // Get leaderboard - top artists by appearances
 router.get('/leaderboard', (req, res) => {
-  const { limit = 50, offset = 0 } = req.query;
+  const safeLimit = clamp(req.query.limit || 50, 1, 100);
+  const safeOffset = clamp(req.query.offset || 0, 0, 10000);
 
   try {
     const artists = db.prepare(`
@@ -22,7 +28,7 @@ router.get('/leaderboard', (req, res) => {
       GROUP BY LOWER(artist_name)
       ORDER BY lineup_count DESC, headliner_count DESC
       LIMIT ? OFFSET ?
-    `).all(parseInt(limit), parseInt(offset));
+    `).all(safeLimit, safeOffset);
 
     const total = db.prepare(`
       SELECT COUNT(DISTINCT LOWER(artist_name)) as count
@@ -121,7 +127,9 @@ router.get('/artist/:name', (req, res) => {
 
 // Browse all public lineups
 router.get('/browse', (req, res) => {
-  const { limit = 20, offset = 0, sort = 'recent', tag } = req.query;
+  const { sort = 'recent', tag } = req.query;
+  const safeLimit = clamp(req.query.limit || 20, 1, 50);
+  const safeOffset = clamp(req.query.offset || 0, 0, 10000);
 
   try {
     let orderBy;
@@ -134,7 +142,7 @@ router.get('/browse', (req, res) => {
     }
 
     const tagFilter = tag ? 'AND EXISTS (SELECT 1 FROM lineup_tags lt WHERE lt.lineup_id = l.id AND lt.tag = ?)' : '';
-    const params = tag ? [tag, parseInt(limit), parseInt(offset)] : [parseInt(limit), parseInt(offset)];
+    const params = tag ? [tag, safeLimit, safeOffset] : [safeLimit, safeOffset];
     const countParams = tag ? [tag] : [];
 
     const lineups = db.prepare(`
@@ -202,7 +210,8 @@ router.get('/tags', (req, res) => {
 
 // Search artists in the database
 router.get('/search-artists', (req, res) => {
-  const { q, limit = 20 } = req.query;
+  const { q } = req.query;
+  const safeLimit = clamp(req.query.limit || 20, 1, 50);
 
   if (!q || q.trim().length === 0) {
     return res.json({ artists: [] });
@@ -220,7 +229,7 @@ router.get('/search-artists', (req, res) => {
       GROUP BY LOWER(artist_name)
       ORDER BY lineup_count DESC
       LIMIT ?
-    `).all(`%${q}%`, parseInt(limit));
+    `).all(`%${q}%`, safeLimit);
 
     res.json({ artists });
   } catch (err) {

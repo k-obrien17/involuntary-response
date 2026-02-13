@@ -17,6 +17,12 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// HTML entity escaping for safe interpolation
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // OG meta tags for social crawlers
 const CRAWLER_RE = /bot|crawl|spider|slurp|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|Discordbot/i;
 app.get('/lineup/:id', (req, res, next) => {
@@ -24,15 +30,15 @@ app.get('/lineup/:id', (req, res, next) => {
   try {
     const lineup = db.prepare('SELECT l.title, l.description, u.username as creator_username FROM lineups l JOIN users u ON l.user_id = u.id WHERE l.id = ?').get(req.params.id);
     if (!lineup) return next();
-    const title = lineup.title;
-    const desc = lineup.description || `A lineup by @${lineup.creator_username || 'anonymous'}`;
+    const title = escapeHtml(lineup.title);
+    const desc = escapeHtml(lineup.description || `A lineup by @${lineup.creator_username || 'anonymous'}`);
     res.send(`<!DOCTYPE html><html><head>
-      <meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />
-      <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}" />
+      <meta property="og:title" content="${title}" />
+      <meta property="og:description" content="${desc}" />
       <meta property="og:type" content="website" />
       <meta name="twitter:card" content="summary" />
-      <meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
-      <meta name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
+      <meta name="twitter:title" content="${title}" />
+      <meta name="twitter:description" content="${desc}" />
     </head><body></body></html>`);
   } catch {
     next();
@@ -49,6 +55,12 @@ app.use('/api/users', usersRoutes);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Global error handler — prevent stack trace leaks
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(PORT, () => {
