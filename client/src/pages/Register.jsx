@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,8 +7,48 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) return;
+
+    const render = () => {
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: async (response) => {
+          setError('');
+          try {
+            await googleLogin(response.credential);
+            navigate('/create');
+          } catch (err) {
+            setError(err.response?.data?.error || 'Sign up failed');
+          }
+        },
+      });
+
+      window.google.accounts.id.renderButton(buttonRef.current, {
+        theme: 'filled_black',
+        size: 'large',
+        width: 320,
+        text: 'signup_with',
+      });
+    };
+
+    if (window.google) {
+      render();
+    } else {
+      const interval = setInterval(() => {
+        if (window.google) {
+          clearInterval(interval);
+          render();
+        }
+      }, 100);
+      return () => clearInterval(interval);
+    }
+  }, [googleLogin, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,6 +71,16 @@ export default function Register() {
             {error}
           </div>
         )}
+
+        <div className="flex justify-center">
+          <div ref={buttonRef}></div>
+        </div>
+
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-gray-700"></div>
+          <span className="text-gray-500 text-sm uppercase">or</span>
+          <div className="flex-1 border-t border-gray-700"></div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
