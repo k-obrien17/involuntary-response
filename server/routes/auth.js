@@ -94,22 +94,30 @@ router.post('/google', authLimiter, async (req, res) => {
     let user = await db.get('SELECT * FROM users WHERE google_id = ?', googleId);
 
     if (!user) {
-      // Auto-generate username from email prefix
-      const prefix = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_').substring(0, 17);
-      let username = prefix;
-      let suffix = 0;
+      // Check if an account with this email already exists (e.g. registered with password)
+      user = await db.get('SELECT * FROM users WHERE email = ?', email);
 
-      while (await db.get('SELECT 1 FROM users WHERE username = ?', username)) {
-        suffix++;
-        username = `${prefix.substring(0, 17)}${suffix}`;
+      if (user) {
+        // Link Google ID to existing account
+        await db.run('UPDATE users SET google_id = ? WHERE id = ?', googleId, user.id);
+      } else {
+        // Auto-generate username from email prefix
+        const prefix = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_').substring(0, 17);
+        let username = prefix;
+        let suffix = 0;
+
+        while (await db.get('SELECT 1 FROM users WHERE username = ?', username)) {
+          suffix++;
+          username = `${prefix.substring(0, 17)}${suffix}`;
+        }
+
+        const result = await db.run(
+          'INSERT INTO users (username, email, password_hash, google_id) VALUES (?, ?, ?, ?)',
+          username, email, 'google_oauth', googleId
+        );
+
+        user = { id: result.lastInsertRowid, username, email, google_id: googleId };
       }
-
-      const result = await db.run(
-        'INSERT INTO users (username, email, password_hash, google_id) VALUES (?, ?, ?, ?)',
-        username, email, 'google_oauth', googleId
-      );
-
-      user = { id: result.lastInsertRowid, username, email, google_id: googleId };
     }
 
     const token = generateToken(user);
