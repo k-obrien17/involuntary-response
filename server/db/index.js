@@ -79,6 +79,8 @@ export async function initDatabase() {
     { id: 10, name: 'add_lineup_likes_indexes', sql: `CREATE INDEX IF NOT EXISTS idx_lineup_likes_lineup_id ON lineup_likes(lineup_id)` },
     { id: 11, name: 'create_lineup_comments', sql: `CREATE TABLE IF NOT EXISTS lineup_comments (id INTEGER PRIMARY KEY AUTOINCREMENT, lineup_id INTEGER NOT NULL, user_id INTEGER NOT NULL, content TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (lineup_id) REFERENCES lineups(id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)` },
     { id: 12, name: 'add_lineup_comments_index', sql: `CREATE INDEX IF NOT EXISTS idx_lineup_comments_lineup_id ON lineup_comments(lineup_id)` },
+    { id: 13, name: 'add_users_google_id', sql: `ALTER TABLE users ADD COLUMN google_id TEXT` },
+    { id: 14, name: 'add_users_google_id_index', sql: `CREATE UNIQUE INDEX idx_users_google_id ON users(google_id)` },
   ];
 
   for (const m of migrations) {

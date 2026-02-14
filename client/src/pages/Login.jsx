@@ -1,29 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { googleLogin } = useAuth();
   const navigate = useNavigate();
+  const buttonRef = useRef(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId || !window.google) return;
 
-    try {
-      await login(username, password);
-      navigate('/create');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: async (response) => {
+        setError('');
+        try {
+          await googleLogin(response.credential);
+          navigate('/create');
+        } catch (err) {
+          setError(err.response?.data?.error || 'Sign in failed');
+        }
+      },
+    });
+
+    window.google.accounts.id.renderButton(buttonRef.current, {
+      theme: 'filled_black',
+      size: 'large',
+      width: 320,
+      text: 'signin_with',
+    });
+  }, [googleLogin, navigate]);
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -36,48 +44,11 @@ export default function Login() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-gray-500 mb-2 uppercase text-sm">USERNAME</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 bg-black border-2 border-white text-white placeholder-gray-600 focus:outline-none uppercase"
-              placeholder="YOUR_USERNAME"
-              required
-            />
-          </div>
+        <div className="flex justify-center">
+          <div ref={buttonRef}></div>
+        </div>
 
-          <div>
-            <label className="block text-gray-500 mb-2 uppercase text-sm">PASSWORD</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-black border-2 border-white text-white placeholder-gray-600 focus:outline-none"
-              placeholder="********"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-white text-black py-3 font-bold uppercase hover:bg-gray-200 transition disabled:opacity-50"
-          >
-            {loading ? 'SIGNING IN...' : 'SIGN IN'}
-          </button>
-        </form>
-
-        <p className="text-gray-500 text-center mt-6 uppercase text-sm">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-white hover:text-gray-300 border-b border-white">
-            CREATE ONE
-          </Link>
-        </p>
-
-        <Link to="/" className="block text-center text-gray-600 mt-4 hover:text-white uppercase text-sm">
+        <Link to="/" className="block text-center text-gray-600 mt-8 hover:text-white uppercase text-sm">
           BACK TO HOME
         </Link>
       </div>

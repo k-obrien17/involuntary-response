@@ -13,8 +13,7 @@ api.interceptors.request.use((config) => {
 });
 
 export const auth = {
-  register: (username, password, email) => api.post('/auth/register', { username, password, email }),
-  login: (username, password) => api.post('/auth/login', { username, password }),
+  google: (credential) => api.post('/auth/google', { credential }),
 };
 
 export const artists = {

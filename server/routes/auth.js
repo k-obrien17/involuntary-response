@@ -1,87 +1,57 @@
 import { Router } from 'express';
-import bcrypt from 'bcryptjs';
+import { OAuth2Client } from 'google-auth-library';
 import rateLimit from 'express-rate-limit';
 import db from '../db/index.js';
 import { generateToken } from '../middleware/auth.js';
 
 const router = Router();
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many attempts, try again later' } });
-const registerLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, message: { error: 'Too many accounts created, try again later' } });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many attempts, try again later' } });
 
-router.post('/register', registerLimiter, async (req, res) => {
-  const { username, email, password } = req.body;
+router.post('/google', authLimiter, async (req, res) => {
+  const { credential } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password required' });
-  }
-
-  if (username.length < 3) {
-    return res.status(400).json({ error: 'Username must be at least 3 characters' });
-  }
-
-  if (username.length > 20) {
-    return res.status(400).json({ error: 'Username must be 20 characters or less' });
-  }
-
-  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-    return res.status(400).json({ error: 'Username can only contain letters, numbers, and underscores' });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  if (!credential) {
+    return res.status(400).json({ error: 'Missing credential' });
   }
 
   try {
-    const existingUser = await db.get('SELECT id FROM users WHERE username = ?', username);
-    if (existingUser) {
-      return res.status(400).json({ error: 'Username already taken' });
-    }
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const googleId = payload.sub;
+    const email = payload.email;
 
-    // Check if email is provided and already in use
-    if (email) {
-      const existingEmail = await db.get('SELECT id FROM users WHERE email = ?', email);
-      if (existingEmail) {
-        return res.status(400).json({ error: 'Email already registered' });
-      }
-    }
+    // Check for existing user by google_id
+    let user = await db.get('SELECT * FROM users WHERE google_id = ?', googleId);
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    const result = await db.run('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', username, email || null, passwordHash);
-
-    const user = { id: result.lastInsertRowid, username, email: email || null };
-    const token = generateToken(user);
-
-    res.status(201).json({ token, user: { id: user.id, username: user.username, email: user.email } });
-  } catch (err) {
-    console.error('Registration error:', err);
-    res.status(500).json({ error: 'Registration failed' });
-  }
-});
-
-router.post('/login', loginLimiter, async (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password required' });
-  }
-
-  try {
-    const user = await db.get('SELECT * FROM users WHERE username = ?', username);
     if (!user) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
+      // Auto-generate username from email prefix
+      const prefix = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_').substring(0, 17);
+      let username = prefix;
+      let suffix = 0;
 
-    const validPassword = await bcrypt.compare(password, user.password_hash);
-    if (!validPassword) {
-      return res.status(401).json({ error: 'Invalid username or password' });
+      while (await db.get('SELECT 1 FROM users WHERE username = ?', username)) {
+        suffix++;
+        username = `${prefix.substring(0, 17)}${suffix}`;
+      }
+
+      const result = await db.run(
+        'INSERT INTO users (username, email, password_hash, google_id) VALUES (?, ?, ?, ?)',
+        username, email, 'google_oauth', googleId
+      );
+
+      user = { id: result.lastInsertRowid, username, email, google_id: googleId };
     }
 
     const token = generateToken(user);
     res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ error: 'Login failed' });
+    console.error('Google auth error:', err);
+    res.status(401).json({ error: 'Invalid Google credential' });
   }
 });
 

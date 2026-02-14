@@ -53,20 +53,12 @@ export default function Navbar() {
                 </button>
               </>
             ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="text-gray-500 hover:text-white transition uppercase"
-                >
-                  SIGN IN
-                </Link>
-                <Link
-                  to="/register"
-                  className="border-2 border-white px-4 py-2 text-sm font-bold uppercase hover:bg-white hover:text-black transition"
-                >
-                  SIGN UP
-                </Link>
-              </>
+              <Link
+                to="/login"
+                className="border-2 border-white px-4 py-2 text-sm font-bold uppercase hover:bg-white hover:text-black transition"
+              >
+                SIGN IN
+              </Link>
             )}
           </div>
 
@@ -117,22 +109,13 @@ export default function Navbar() {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-4">
-                  <Link
-                    to="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-gray-500 hover:text-white transition uppercase"
-                  >
-                    SIGN IN
-                  </Link>
-                  <Link
-                    to="/register"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="border-2 border-white px-4 py-2 text-sm font-bold uppercase hover:bg-white hover:text-black transition"
-                  >
-                    SIGN UP
-                  </Link>
-                </div>
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="border-2 border-white px-4 py-2 text-sm font-bold uppercase hover:bg-white hover:text-black transition"
+                >
+                  SIGN IN
+                </Link>
               )}
             </div>
           </div>
