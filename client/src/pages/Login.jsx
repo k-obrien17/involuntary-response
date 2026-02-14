@@ -10,27 +10,42 @@ export default function Login() {
 
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId || !window.google) return;
+    if (!clientId) return;
 
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      callback: async (response) => {
-        setError('');
-        try {
-          await googleLogin(response.credential);
-          navigate('/create');
-        } catch (err) {
-          setError(err.response?.data?.error || 'Sign in failed');
+    const render = () => {
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: async (response) => {
+          setError('');
+          try {
+            await googleLogin(response.credential);
+            navigate('/create');
+          } catch (err) {
+            setError(err.response?.data?.error || 'Sign in failed');
+          }
+        },
+      });
+
+      window.google.accounts.id.renderButton(buttonRef.current, {
+        theme: 'filled_black',
+        size: 'large',
+        width: 320,
+        text: 'signin_with',
+      });
+    };
+
+    if (window.google) {
+      render();
+    } else {
+      // GIS script still loading — poll until ready
+      const interval = setInterval(() => {
+        if (window.google) {
+          clearInterval(interval);
+          render();
         }
-      },
-    });
-
-    window.google.accounts.id.renderButton(buttonRef.current, {
-      theme: 'filled_black',
-      size: 'large',
-      width: 320,
-      text: 'signin_with',
-    });
+      }, 100);
+      return () => clearInterval(interval);
+    }
   }, [googleLogin, navigate]);
 
   return (
