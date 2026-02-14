@@ -53,12 +53,20 @@ export default function Navbar() {
                 </button>
               </>
             ) : (
-              <Link
-                to="/login"
-                className="border-2 border-white px-4 py-2 text-sm font-bold uppercase hover:bg-white hover:text-black transition"
-              >
-                SIGN IN
-              </Link>
+              <>
+                <Link
+                  to="/login"
+                  className="border-2 border-white px-4 py-2 text-sm font-bold uppercase hover:bg-white hover:text-black transition"
+                >
+                  SIGN IN
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-white text-black px-4 py-2 text-sm font-bold uppercase hover:bg-gray-200 transition"
+                >
+                  SIGN UP
+                </Link>
+              </>
             )}
           </div>
 
@@ -109,13 +117,22 @@ export default function Navbar() {
                   </button>
                 </div>
               ) : (
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="border-2 border-white px-4 py-2 text-sm font-bold uppercase hover:bg-white hover:text-black transition"
-                >
-                  SIGN IN
-                </Link>
+                <div className="space-y-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block border-2 border-white px-4 py-2 text-sm font-bold uppercase hover:bg-white hover:text-black transition text-center"
+                  >
+                    SIGN IN
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block bg-white text-black px-4 py-2 text-sm font-bold uppercase hover:bg-gray-200 transition text-center"
+                  >
+                    SIGN UP
+                  </Link>
+                </div>
               )}
             </div>
           </div>

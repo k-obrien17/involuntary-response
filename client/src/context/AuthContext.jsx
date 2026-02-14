@@ -16,12 +16,26 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const googleLogin = async (credential) => {
-    const res = await auth.google(credential);
+  const handleAuthResponse = (res) => {
     localStorage.setItem('token', res.data.token);
     localStorage.setItem('username', res.data.user.username);
     setUser({ username: res.data.user.username });
     return res.data;
+  };
+
+  const login = async (email, password) => {
+    const res = await auth.login(email, password);
+    return handleAuthResponse(res);
+  };
+
+  const register = async (username, email, password) => {
+    const res = await auth.register(username, email, password);
+    return handleAuthResponse(res);
+  };
+
+  const googleLogin = async (credential) => {
+    const res = await auth.google(credential);
+    return handleAuthResponse(res);
   };
 
   const logout = () => {
@@ -31,7 +45,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, googleLogin, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, googleLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );

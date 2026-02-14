@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { googleLogin } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const buttonRef = useRef(null);
 
@@ -37,7 +39,6 @@ export default function Login() {
     if (window.google) {
       render();
     } else {
-      // GIS script still loading — poll until ready
       const interval = setInterval(() => {
         if (window.google) {
           clearInterval(interval);
@@ -47,6 +48,17 @@ export default function Login() {
       return () => clearInterval(interval);
     }
   }, [googleLogin, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      await login(email, password);
+      navigate('/create');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Sign in failed');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -63,7 +75,43 @@ export default function Login() {
           <div ref={buttonRef}></div>
         </div>
 
-        <Link to="/" className="block text-center text-gray-600 mt-8 hover:text-white uppercase text-sm">
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-gray-700"></div>
+          <span className="text-gray-500 text-sm uppercase">or</span>
+          <div className="flex-1 border-t border-gray-700"></div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            placeholder="EMAIL"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-black border-2 border-white text-white px-4 py-3 uppercase text-sm placeholder-gray-600 focus:outline-none"
+            required
+          />
+          <input
+            type="password"
+            placeholder="PASSWORD"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-black border-2 border-white text-white px-4 py-3 uppercase text-sm placeholder-gray-600 focus:outline-none"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full border-2 border-white px-4 py-3 text-sm font-bold uppercase hover:bg-white hover:text-black transition"
+          >
+            SIGN IN
+          </button>
+        </form>
+
+        <p className="text-center text-gray-600 mt-6 uppercase text-sm">
+          No account?{' '}
+          <Link to="/register" className="text-white hover:underline">SIGN UP</Link>
+        </p>
+
+        <Link to="/" className="block text-center text-gray-600 mt-4 hover:text-white uppercase text-sm">
           BACK TO HOME
         </Link>
       </div>
