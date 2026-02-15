@@ -29,7 +29,11 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (username, email, password) => {
-    const res = await auth.register(username, email, password);
+    // If there's a token but no username, it's a guest session — send as claimToken
+    const existingToken = localStorage.getItem('token');
+    const existingUsername = localStorage.getItem('username');
+    const claimToken = (existingToken && !existingUsername) ? existingToken : null;
+    const res = await auth.register(username, email, password, claimToken);
     return handleAuthResponse(res);
   };
 

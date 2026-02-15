@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { lineups } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import ArtistSearch from '../components/ArtistSearch';
 import LineupSlotWithNote from '../components/LineupSlotWithNote';
 import TagInput from '../components/TagInput';
@@ -16,15 +16,10 @@ export default function CreateLineup() {
   const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [skipGate, setSkipGate] = useState(false);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
-    }
-  }, [user, loading, navigate]);
 
   // Remix pre-fill
   useEffect(() => {
@@ -115,7 +110,13 @@ export default function CreateLineup() {
           note: artist.note || null,
         })),
       });
-      navigate(`/lineup/${res.data.id}`);
+
+      // Store guest token so subsequent creates reuse the same guest account
+      if (res.data.claimToken) {
+        localStorage.setItem('token', res.data.claimToken);
+      }
+
+      navigate(`/lineup/${res.data.id}`, res.data.claimToken ? { state: { anonymous: true } } : undefined);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to save lineup');
     } finally {
@@ -123,17 +124,38 @@ export default function CreateLineup() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl uppercase">LOADING...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />
+
+      {!loading && !user && !skipGate ? (
+        <div className="container mx-auto px-4 py-8 max-w-lg text-center">
+          <h1 className="text-4xl font-bold mb-6 uppercase tracking-tight">CREATE YOUR LINEUP</h1>
+          <p className="text-gray-400 mb-8 uppercase text-sm leading-relaxed">
+            SIGN UP TO EDIT YOUR LINEUPS LATER, TRACK THEM ALL IN ONE PLACE, AND BUILD A PROFILE.
+          </p>
+          <div className="space-y-4">
+            <button
+              onClick={() => navigate('/register')}
+              className="w-full bg-white text-black py-3 font-bold uppercase hover:bg-gray-200 transition"
+            >
+              SIGN UP
+            </button>
+            <button
+              onClick={() => navigate('/login')}
+              className="w-full bg-black text-white py-3 font-bold uppercase border-2 border-white hover:bg-white hover:text-black transition"
+            >
+              SIGN IN
+            </button>
+            <button
+              onClick={() => setSkipGate(true)}
+              className="w-full text-gray-500 py-3 text-sm uppercase hover:text-white transition"
+            >
+              CONTINUE WITHOUT ACCOUNT
+            </button>
+          </div>
+        </div>
+      ) : (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold mb-8 text-center uppercase tracking-tight">CREATE YOUR LINEUP</h1>
 
@@ -239,6 +261,7 @@ export default function CreateLineup() {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { OAuth2Client } from 'google-auth-library';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import db from '../db/index.js';
-import { generateToken } from '../middleware/auth.js';
+import { generateToken, JWT_SECRET } from '../middleware/auth.js';
 
 const router = Router();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -13,7 +14,7 @@ const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { er
 // --- Username / password ---
 
 router.post('/register', authLimiter, async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, claimToken } = req.body;
 
   if (!username || !email || !password) {
     return res.status(400).json({ error: 'All fields are required' });
@@ -23,6 +24,38 @@ router.post('/register', authLimiter, async (req, res) => {
   }
 
   try {
+    // If claiming a guest account, upgrade that user row instead of creating a new one
+    if (claimToken) {
+      try {
+        const decoded = jwt.verify(claimToken, JWT_SECRET);
+        const guestUser = await db.get(
+          'SELECT * FROM users WHERE id = ? AND password_hash = ?',
+          decoded.id, 'guest'
+        );
+        if (guestUser) {
+          const conflict = await db.get(
+            'SELECT 1 FROM users WHERE (username = ? OR email = ?) AND id != ?',
+            username, email, guestUser.id
+          );
+          if (conflict) {
+            return res.status(409).json({ error: 'Username or email already taken' });
+          }
+
+          const hash = await bcrypt.hash(password, 10);
+          await db.run(
+            'UPDATE users SET username = ?, email = ?, password_hash = ? WHERE id = ?',
+            username, email, hash, guestUser.id
+          );
+
+          const user = { id: guestUser.id, username, email };
+          const token = generateToken(user);
+          return res.status(201).json({ token, user });
+        }
+      } catch {
+        // Invalid/expired claim token — fall through to normal registration
+      }
+    }
+
     const existing = await db.get(
       'SELECT 1 FROM users WHERE username = ? OR email = ?',
       username, email

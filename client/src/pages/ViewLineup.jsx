@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { lineups } from '../api/client';
 import Navbar from '../components/Navbar';
@@ -15,7 +15,15 @@ export default function ViewLineup() {
   const [likeCount, setLikeCount] = useState(0);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const posterRef = useRef(null);
+  const [showSignUpBanner, setShowSignUpBanner] = useState(location.state?.anonymous && !user);
+
+  useEffect(() => {
+    if (location.state?.anonymous) {
+      window.history.replaceState({}, '');
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const fetchLineup = async () => {
@@ -118,6 +126,30 @@ export default function ViewLineup() {
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />
+
+      {showSignUpBanner && (
+        <div className="border-b-2 border-white bg-black">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <p className="text-gray-400 uppercase text-sm">
+              YOUR LINEUP IS LIVE &mdash; <span className="text-white">SIGN UP TO KEEP IT ON YOUR ACCOUNT</span>
+            </p>
+            <div className="flex items-center gap-4">
+              <Link
+                to="/register"
+                className="bg-white text-black px-4 py-2 text-xs font-bold uppercase hover:bg-gray-200 transition"
+              >
+                SIGN UP
+              </Link>
+              <button
+                onClick={() => setShowSignUpBanner(false)}
+                className="text-gray-600 hover:text-white transition text-xs uppercase"
+              >
+                DISMISS
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">

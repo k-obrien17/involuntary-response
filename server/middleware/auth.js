@@ -5,6 +5,17 @@ if (!process.env.JWT_SECRET) {
 }
 export const JWT_SECRET = process.env.JWT_SECRET;
 
+export function optionalAuth(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (token) {
+    try {
+      req.user = jwt.verify(token, JWT_SECRET);
+    } catch {}
+  }
+  next();
+}
+
 export function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];

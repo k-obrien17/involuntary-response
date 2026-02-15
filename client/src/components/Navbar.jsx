@@ -12,8 +12,8 @@ export default function Navbar() {
   const navLinks = [
     { path: '/discover', label: 'DISCOVER' },
     { path: '/leaderboard', label: 'LEADERBOARD' },
+    { path: '/create', label: 'CREATE' },
     ...(user ? [
-      { path: '/create', label: 'CREATE' },
       { path: '/my-lineups', label: 'MY LINEUPS' },
     ] : []),
   ];

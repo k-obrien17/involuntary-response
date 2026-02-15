@@ -1,8 +1,9 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import db from '../db/index.js';
-import { authenticateToken, JWT_SECRET } from '../middleware/auth.js';
+import { authenticateToken, optionalAuth, generateToken, JWT_SECRET } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -113,8 +114,8 @@ async function insertTags(lineupId, tags) {
   }
 }
 
-// Create lineup
-router.post('/', authenticateToken, createLimiter, async (req, res) => {
+// Create lineup (authenticated or anonymous — guest account created on the fly)
+router.post('/', optionalAuth, createLimiter, async (req, res) => {
   const { is_public, artists, tags } = req.body;
   const title = sanitize(req.body.title, 100);
   const description = sanitize(req.body.description, 500);
@@ -128,6 +129,19 @@ router.post('/', authenticateToken, createLimiter, async (req, res) => {
   }
 
   try {
+    let claimToken = null;
+
+    if (!req.user) {
+      const guestTag = crypto.randomBytes(4).toString('hex');
+      const guestUsername = `guest_${guestTag}`;
+      const guestResult = await db.run(
+        'INSERT INTO users (username, password_hash) VALUES (?, ?)',
+        guestUsername, 'guest'
+      );
+      req.user = { id: guestResult.lastInsertRowid };
+      claimToken = generateToken({ id: guestResult.lastInsertRowid, email: null });
+    }
+
     const result = await db.run('INSERT INTO lineups (user_id, title, description, is_public) VALUES (?, ?, ?, ?)', req.user.id, title, description || null, is_public ? 1 : 0);
     const lineupId = result.lastInsertRowid;
 
@@ -148,7 +162,9 @@ router.post('/', authenticateToken, createLimiter, async (req, res) => {
 
     await insertTags(lineupId, tags);
 
-    res.status(201).json({ id: lineupId, title, description, is_public });
+    const response = { id: lineupId, title, description, is_public };
+    if (claimToken) response.claimToken = claimToken;
+    res.status(201).json(response);
   } catch (err) {
     console.error('Create lineup error:', err);
     res.status(500).json({ error: 'Failed to create lineup' });
