@@ -25,7 +25,7 @@ export default function ArtistDetail() {
     fetchArtist();
   }, [name]);
 
-  const slotLabels = ['GOING FIRST', 'SECOND', 'THIRD', 'FOURTH', 'GOING LAST'];
+  const slotLabels = ['OPENER', 'SECOND', 'THIRD', 'FOURTH', 'HEADLINER'];
 
   if (loading) {
     return (
@@ -88,11 +88,11 @@ export default function ArtistDetail() {
 
               <div className="space-y-4">
                 {[
-                  { label: 'FIRST', count: artistStats.headliner_count },
-                  { label: 'SECOND', count: artistStats.coheadliner_count },
+                  { label: 'HEADLINER', count: artistStats.headliner_count },
+                  { label: 'FOURTH', count: artistStats.coheadliner_count },
                   { label: 'THIRD', count: artistStats.special_guest_count },
-                  { label: 'FOURTH', count: artistStats.opener_count },
-                  { label: 'LAST', count: artistStats.local_opener_count },
+                  { label: 'SECOND', count: artistStats.opener_count },
+                  { label: 'OPENER', count: artistStats.local_opener_count },
                 ].map(slot => (
                   <div key={slot.label} className="flex items-center justify-between">
                     <span className="text-gray-500 uppercase">{slot.label}</span>
@@ -158,8 +158,8 @@ export default function ArtistDetail() {
                       </p>
                     </div>
                     <span className={`px-3 py-1 text-sm font-bold uppercase border ${
-                      lineup.slot_position === 0 ? 'border-white bg-white text-black' :
-                      lineup.slot_position === 1 ? 'border-white/70' :
+                      lineup.slot_position === 4 ? 'border-white bg-white text-black' :
+                      lineup.slot_position === 3 ? 'border-white/70' :
                       'border-white/30 text-gray-500'
                     }`}>
                       {slotLabels[lineup.slot_position]}

@@ -1,5 +1,5 @@
 export default function LineupSlot({ position, artist, onRemove }) {
-  const slotLabels = ['GOING FIRST', 'SECOND', 'THIRD', 'FOURTH', 'GOING LAST'];
+  const slotLabels = ['OPENER', 'SECOND', 'THIRD', 'FOURTH', 'HEADLINER'];
 
   return (
     <div

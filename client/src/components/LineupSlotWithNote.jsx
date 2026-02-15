@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export default function LineupSlotWithNote({ position, artist, onRemove, onNoteChange, onMoveUp, onMoveDown, isFirst, isLast }) {
-  const slotLabels = ['GOING FIRST', 'SECOND', 'THIRD', 'FOURTH', 'GOING LAST'];
+  const slotLabels = ['OPENER', 'SECOND', 'THIRD', 'FOURTH', 'HEADLINER'];
   const [showNote, setShowNote] = useState(false);
 
   return (

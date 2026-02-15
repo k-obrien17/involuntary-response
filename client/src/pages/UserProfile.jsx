@@ -97,13 +97,13 @@ export default function UserProfile() {
                     {lineup.artists.map((artist, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <span className={`w-6 font-bold text-sm ${
-                          index === 0 ? 'text-white' :
-                          index === 1 ? 'text-gray-300' :
+                          index === lineup.artists.length - 1 ? 'text-white' :
+                          index === lineup.artists.length - 2 ? 'text-gray-300' :
                           'text-gray-500'
                         }`}>
                           {String(index + 1).padStart(2, '0')}
                         </span>
-                        <span className={`flex-1 uppercase ${index < 2 ? 'font-bold' : 'text-gray-500'}`}>
+                        <span className={`flex-1 uppercase ${index >= lineup.artists.length - 2 ? 'font-bold' : 'text-gray-500'}`}>
                           {artist.artist_name}
                         </span>
                       </div>

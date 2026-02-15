@@ -19,8 +19,8 @@ router.get('/leaderboard', async (req, res) => {
         artist_name,
         artist_image,
         COUNT(*) as lineup_count,
-        COUNT(CASE WHEN slot_position = 0 THEN 1 END) as headliner_count,
-        COUNT(CASE WHEN slot_position = 1 THEN 1 END) as coheadliner_count,
+        COUNT(CASE WHEN slot_position = 4 THEN 1 END) as headliner_count,
+        COUNT(CASE WHEN slot_position = 3 THEN 1 END) as coheadliner_count,
         ROUND(AVG(slot_position), 2) as avg_position
       FROM lineup_artists la
       JOIN lineups l ON la.lineup_id = l.id
@@ -55,11 +55,11 @@ router.get('/artist/:name', async (req, res) => {
         artist_name,
         artist_image,
         COUNT(*) as lineup_count,
-        COUNT(CASE WHEN slot_position = 0 THEN 1 END) as headliner_count,
-        COUNT(CASE WHEN slot_position = 1 THEN 1 END) as coheadliner_count,
+        COUNT(CASE WHEN slot_position = 4 THEN 1 END) as headliner_count,
+        COUNT(CASE WHEN slot_position = 3 THEN 1 END) as coheadliner_count,
         COUNT(CASE WHEN slot_position = 2 THEN 1 END) as special_guest_count,
-        COUNT(CASE WHEN slot_position = 3 THEN 1 END) as opener_count,
-        COUNT(CASE WHEN slot_position = 4 THEN 1 END) as local_opener_count,
+        COUNT(CASE WHEN slot_position = 1 THEN 1 END) as opener_count,
+        COUNT(CASE WHEN slot_position = 0 THEN 1 END) as local_opener_count,
         ROUND(AVG(slot_position), 2) as avg_position
       FROM lineup_artists la
       JOIN lineups l ON la.lineup_id = l.id

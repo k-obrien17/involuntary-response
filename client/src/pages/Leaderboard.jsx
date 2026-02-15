@@ -28,11 +28,11 @@ export default function Leaderboard() {
   }, [page]);
 
   const getPositionLabel = (avgPosition) => {
-    if (avgPosition <= 0.5) return 'USUALLY FIRST';
+    if (avgPosition <= 0.5) return 'USUALLY OPENER';
     if (avgPosition <= 1.5) return 'USUALLY EARLY';
     if (avgPosition <= 2.5) return 'USUALLY MIDDLE';
     if (avgPosition <= 3.5) return 'USUALLY LATE';
-    return 'USUALLY LAST';
+    return 'USUALLY HEADLINER';
   };
 
   return (
@@ -101,7 +101,7 @@ export default function Leaderboard() {
                         <div className="flex items-center gap-4 text-sm text-gray-500 uppercase">
                           <span>{artist.lineup_count} LINEUP{artist.lineup_count !== 1 ? 'S' : ''}</span>
                           <span>/</span>
-                          <span>{artist.headliner_count}X FIRST</span>
+                          <span>{artist.headliner_count}X HEADLINER</span>
                         </div>
                       </div>
 

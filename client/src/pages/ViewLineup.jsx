@@ -175,65 +175,61 @@ export default function ViewLineup() {
 
             {/* Lineup */}
             <div className="p-6">
-              {lineup.artists.map((artist, index) => (
-                <div
-                  key={index}
-                  className={`py-4 ${index < lineup.artists.length - 1 ? 'border-b border-white/30' : ''}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="text-gray-500 font-bold w-8">{String(index + 1).padStart(2, '0')}</span>
-                    {artist.artist_image && (
-                      <img
-                        src={artist.artist_image}
-                        alt={artist.artist_name}
-                        className={`object-cover border border-white ${
-                          index === 0 ? 'w-16 h-16' : 'w-12 h-12'
-                        }`}
-                      />
-                    )}
-                    <div className="flex items-baseline gap-2">
-                      {artist.artist_spotify_url ? (
-                        <a
-                          href={artist.artist_spotify_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`font-bold uppercase tracking-wide hover:underline ${
-                            index === 0
-                              ? 'text-3xl md:text-4xl'
-                              : index === 1
-                              ? 'text-2xl md:text-3xl text-gray-200'
-                              : index === 2
-                              ? 'text-xl md:text-2xl text-gray-300'
-                              : 'text-lg md:text-xl text-gray-400'
+              {lineup.artists.map((artist, index) => {
+                const fromEnd = lineup.artists.length - 1 - index;
+                const sizeClass = fromEnd === 0 ? 'text-3xl md:text-4xl'
+                  : fromEnd === 1 ? 'text-2xl md:text-3xl text-gray-200'
+                  : fromEnd === 2 ? 'text-xl md:text-2xl text-gray-300'
+                  : 'text-lg md:text-xl text-gray-400';
+                const isHeadliner = fromEnd === 0;
+
+                return (
+                  <div
+                    key={index}
+                    className={`py-4 ${index < lineup.artists.length - 1 ? 'border-b border-white/30' : ''}`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-gray-500 font-bold w-8">{String(index + 1).padStart(2, '0')}</span>
+                      {artist.artist_image && (
+                        <img
+                          src={artist.artist_image}
+                          alt={artist.artist_name}
+                          className={`object-cover border border-white ${
+                            isHeadliner ? 'w-16 h-16' : 'w-12 h-12'
                           }`}
-                        >
-                          {artist.artist_name}
-                        </a>
-                      ) : (
-                        <span className={`font-bold uppercase tracking-wide ${
-                          index === 0
-                            ? 'text-3xl md:text-4xl'
-                            : index === 1
-                            ? 'text-2xl md:text-3xl text-gray-200'
-                            : index === 2
-                            ? 'text-xl md:text-2xl text-gray-300'
-                            : 'text-lg md:text-xl text-gray-400'
-                        }`}>
-                          {artist.artist_name}
-                        </span>
+                        />
                       )}
-                      {artist.artist_spotify_url && (
-                        <span className="text-gray-600 text-[9px] tracking-wide normal-case">on Spotify</span>
-                      )}
+                      <div className="flex items-baseline gap-2">
+                        {artist.artist_spotify_url ? (
+                          <a
+                            href={artist.artist_spotify_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`font-bold uppercase tracking-wide hover:underline ${sizeClass}`}
+                          >
+                            {artist.artist_name}
+                          </a>
+                        ) : (
+                          <span className={`font-bold uppercase tracking-wide ${sizeClass}`}>
+                            {artist.artist_name}
+                          </span>
+                        )}
+                        {isHeadliner && (
+                          <span className="text-xs text-gray-500 tracking-wide uppercase">(HEADLINER)</span>
+                        )}
+                        {artist.artist_spotify_url && (
+                          <span className="text-gray-600 text-[9px] tracking-wide normal-case">on Spotify</span>
+                        )}
+                      </div>
                     </div>
+                    {artist.note && (
+                      <p className="text-gray-500 text-sm mt-2 ml-12 italic">
+                        "{artist.note}"
+                      </p>
+                    )}
                   </div>
-                  {artist.note && (
-                    <p className="text-gray-500 text-sm mt-2 ml-12 italic">
-                      "{artist.note}"
-                    </p>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Tags */}
