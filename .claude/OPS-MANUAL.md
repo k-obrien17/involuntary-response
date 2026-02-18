@@ -245,6 +245,42 @@ Any multi-file modification
 | Review | `/review` |
 | Test | `/test` |
 
+### Vault Scripts
+
+Located in `vault/000-OS/Claude/scripts/`. Dry run by default (`--execute` to apply).
+
+**Data Quality**
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `audit.py` | Combined audit (schema + tags + topics + mismatches) | `audit.py [schema\|tags\|topics\|mismatches\|all]` |
+| `find_duplicates.py` | Find duplicate contacts and orgs (fuzzy matching) | `find_duplicates.py [contacts\|orgs\|all] [--cross-org] [--threshold 0.9] [--csv]` |
+| `fix_lead_tiers.py` | Recalculate lead_tier from lead_score | After score changes |
+| `normalize_tags.py` | Normalize tag casing, spaces, canonical forms | After new contacts added |
+| `fix_dates.py` | Normalize dates to YYYY-MM-DD | After imports |
+| `lead_score.py` | Recalculate all lead scores, export CSV | After schema/weight changes |
+
+**Contact & Org Management**
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `infer_contact_tags.py` | Auto-tag contacts from title/industry | After new contacts; supports `--path` |
+| `infer_org_type.py` | Infer org_type from description/industry | After new orgs added |
+| `move_contact_to_org.py` | Move contact between orgs (job change) | `"Name" "Old Org" "New Org"` |
+| `merge_duplicate_orgs.py` | Merge duplicate org folders | Edit PAIRS list first |
+| `propagate.py` | Propagate fields from orgs to contacts | `propagate.py [status\|industry\|org_type\|all]` |
+| `apply_template.py` | Add missing template fields to files | `apply_template.py [contact\|organization\|meeting]` |
+
+**Operations**
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `daily_summary.py` | Morning briefing: stale contacts, meetings, stats | Daily / cron |
+| `vault_stats.py` | Quick vault overview by relationship/stage | Anytime |
+| `sync_calendar.py` | Create meeting notes from Google Calendar ICS | After meetings; `--execute` to create |
+| `sync_last_contact.py` | Update last_contact from meeting attendance | After creating meeting notes |
+| `setup_week.py` | Create weekly + daily note templates | Start of each week |
+
 ### Environment
 macOS, zsh, homebrew, node, python, ripgrep, bun available.
 
