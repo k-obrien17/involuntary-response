@@ -268,7 +268,7 @@ Located in `vault/000-OS/Claude/scripts/`. Dry run by default (`--execute` to ap
 |--------|---------|-------|
 | `infer_contact_tags.py` | Auto-tag contacts from title/industry | After new contacts; supports `--path` |
 | `infer_org_type.py` | Infer org_type from description/industry | After new orgs added |
-| `move_contact_to_org.py` | Move contact between orgs (job change) | `"Name" "Old Org" "New Org"` |
+| `move_contact_to_org.py` | Move contact between orgs (job change) | `"Name" "New Org"` |
 | `merge_duplicate_orgs.py` | Merge duplicate org folders | Edit PAIRS list first |
 | `propagate.py` | Propagate fields from orgs to contacts | `propagate.py [status\|industry\|org_type\|all]` |
 | `apply_template.py` | Add missing template fields to files | `apply_template.py [contact\|organization\|meeting]` |
