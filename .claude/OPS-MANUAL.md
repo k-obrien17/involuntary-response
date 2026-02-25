@@ -261,6 +261,7 @@ Located in `vault/000-OS/Claude/scripts/`. Dry run by default (`--execute` to ap
 | `lead_score.py` | Recalculate all lead scores, export CSV | After schema/weight changes |
 | `evidence_quality.py` | Evidence data quality fixes (5 phases: citation YAML, topics, articles, books, use_cases) | `evidence_quality.py [--phase 1-5] [--execute]` |
 | `process_captures.py` | Process status:capture citations (create Source notes, link, promote) | `process_captures.py [--execute] [--stats]` |
+| `schema_migrate_v2.py` | Purge legacy keys, inject new fields (business, topics, platforms, rapport, context) on contacts | `schema_migrate_v2.py [--execute] [--path ORG]` |
 
 **Contact & Org Management**
 
