@@ -259,6 +259,8 @@ Located in `vault/000-OS/Claude/scripts/`. Dry run by default (`--execute` to ap
 | `normalize_tags.py` | Normalize tag casing, spaces, canonical forms | After new contacts added |
 | `fix_dates.py` | Normalize dates to YYYY-MM-DD | After imports |
 | `lead_score.py` | Recalculate all lead scores, export CSV | After schema/weight changes |
+| `evidence_quality.py` | Evidence data quality fixes (5 phases: citation YAML, topics, articles, books, use_cases) | `evidence_quality.py [--phase 1-5] [--execute]` |
+| `process_captures.py` | Process status:capture citations (create Source notes, link, promote) | `process_captures.py [--execute] [--stats]` |
 
 **Contact & Org Management**
 
