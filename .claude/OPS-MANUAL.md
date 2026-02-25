@@ -278,6 +278,7 @@ Located in `vault/000-OS/Claude/scripts/`. Dry run by default (`--execute` to ap
 | Script | Purpose | Usage |
 |--------|---------|-------|
 | `daily_summary.py` | Morning briefing: stale contacts, meetings, stats | Daily / cron |
+| `draft_pipeline.py` | Voice draft pipeline report (stages, aging, overdue) | `draft_pipeline.py [--speaker X] [--days 60] [--age-threshold 7]` |
 | `vault_stats.py` | Quick vault overview by relationship/stage | Anytime |
 | `sync_calendar.py` | Create meeting notes from Google Calendar ICS | After meetings; `--execute` to create |
 | `sync_last_contact.py` | Update last_contact from meeting attendance | After creating meeting notes |
