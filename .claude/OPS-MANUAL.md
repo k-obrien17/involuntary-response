@@ -1,7 +1,7 @@
 # OPS-MANUAL.md - Extended Reference
 
 **Core contract:** CLAUDE.md  
-**Last updated:** 2026-01-31
+**Last updated:** 2026-02-25
 
 ---
 
