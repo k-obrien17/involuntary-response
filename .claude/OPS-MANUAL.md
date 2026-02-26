@@ -259,6 +259,7 @@ Located in `vault/000-OS/Claude/scripts/`. Dry run by default (`--execute` to ap
 | `fix_dates.py` | Normalize dates to YYYY-MM-DD | After imports |
 | `fix_lead_tiers.py` | Recalculate lead_tier from lead_score | After score changes |
 | `fix_malformed_tags.py` | Re-indent root-level array items in frontmatter (tags, previous_orgs, etc.) + fix plain-text locations | `fix_malformed_tags.py [--execute] [--path ORG] [--fix-locations]` |
+| `fix_missing_org_key.py` | Reattach missing `organization:` key to bare wikilink values in contact frontmatter | `fix_missing_org_key.py [--execute] [--path ORG]` |
 | `lead_score.py` | Recalculate all lead scores, export CSV | After schema/weight changes |
 | `normalize_tags.py` | Normalize tag casing, spaces, canonical forms | After new contacts added |
 | `process_captures.py` | Process status:capture citations (create Source notes, link, promote) | `process_captures.py [--execute] [--stats]` |
@@ -283,6 +284,7 @@ Located in `vault/000-OS/Claude/scripts/`. Dry run by default (`--execute` to ap
 | `daily_summary.py` | Morning briefing: stale contacts, meetings, stats | Daily / cron |
 | `draft_pipeline.py` | Voice draft pipeline report (stages, aging, overdue) | `draft_pipeline.py [--speaker X] [--days 60] [--age-threshold 7]` |
 | `setup_week.py` | Create weekly + daily note templates | Start of each week |
+| `backfill_meeting_attendees.py` | Backfill missing attendees from filenames and body content into frontmatter | `backfill_meeting_attendees.py [--execute] [--path ORG]` |
 | `sync_calendar.py` | Create meeting notes from Google Calendar ICS | After meetings; `--execute` to create |
 | `sync_last_contact.py` | Update last_contact from meeting attendance | After creating meeting notes |
 | `vault_stats.py` | Quick vault overview by relationship/stage | Anytime |
