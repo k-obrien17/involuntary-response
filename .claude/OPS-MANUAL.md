@@ -254,26 +254,27 @@ Located in `vault/000-OS/Claude/scripts/`. Dry run by default (`--execute` to ap
 | Script | Purpose | Usage |
 |--------|---------|-------|
 | `audit.py` | Combined audit (schema + tags + topics + mismatches) | `audit.py [schema\|tags\|topics\|mismatches\|all]` |
-| `find_duplicates.py` | Find duplicate contacts and orgs (fuzzy matching) | `find_duplicates.py [contacts\|orgs\|all] [--cross-org] [--threshold 0.9] [--csv]` |
-| `fix_lead_tiers.py` | Recalculate lead_tier from lead_score | After score changes |
-| `normalize_tags.py` | Normalize tag casing, spaces, canonical forms | After new contacts added |
-| `fix_dates.py` | Normalize dates to YYYY-MM-DD | After imports |
-| `lead_score.py` | Recalculate all lead scores, export CSV | After schema/weight changes |
 | `evidence_quality.py` | Evidence data quality fixes (5 phases: citation YAML, topics, articles, books, use_cases) | `evidence_quality.py [--phase 1-5] [--execute]` |
+| `find_duplicates.py` | Find duplicate contacts and orgs (fuzzy matching) | `find_duplicates.py [contacts\|orgs\|all] [--cross-org] [--threshold 0.9] [--csv]` |
+| `fix_dates.py` | Normalize dates to YYYY-MM-DD | After imports |
+| `fix_lead_tiers.py` | Recalculate lead_tier from lead_score | After score changes |
+| `fix_malformed_tags.py` | Re-indent root-level array items in frontmatter (tags, previous_orgs, etc.) + fix plain-text locations | `fix_malformed_tags.py [--execute] [--path ORG] [--fix-locations]` |
+| `lead_score.py` | Recalculate all lead scores, export CSV | After schema/weight changes |
+| `normalize_tags.py` | Normalize tag casing, spaces, canonical forms | After new contacts added |
 | `process_captures.py` | Process status:capture citations (create Source notes, link, promote) | `process_captures.py [--execute] [--stats]` |
 | `schema_migrate_v2.py` | Purge legacy keys, inject new fields (business, topics, platforms, rapport, context) on contacts | `schema_migrate_v2.py [--execute] [--path ORG]` |
-| `fix_malformed_tags.py` | Re-indent root-level array items in frontmatter (tags, previous_orgs, etc.) + fix plain-text locations | `fix_malformed_tags.py [--execute] [--path ORG] [--fix-locations]` |
 
 **Contact & Org Management**
 
 | Script | Purpose | Usage |
 |--------|---------|-------|
+| `apply_template.py` | Add missing template fields to files | `apply_template.py [contact\|organization\|meeting]` |
 | `infer_contact_tags.py` | Auto-tag contacts from title/industry | After new contacts; supports `--path` |
 | `infer_org_type.py` | Infer org_type from description/industry | After new orgs added |
-| `move_contact_to_org.py` | Move contact between orgs (job change) | `"Name" "New Org"` |
 | `merge_duplicate_orgs.py` | Merge duplicate org folders | Edit PAIRS list first |
+| `move_contact_to_org.py` | Move contact between orgs (job change) | `"Name" "New Org"` |
 | `propagate.py` | Propagate fields from orgs to contacts | `propagate.py [status\|industry\|org_type\|all]` |
-| `apply_template.py` | Add missing template fields to files | `apply_template.py [contact\|organization\|meeting]` |
+| `update_contact.py` | Natural language contact updater via Claude API (voice note → field updates) | `update_contact.py "Name" "note" [--apply] [--interaction] [--guide]` |
 
 **Operations**
 
@@ -281,10 +282,10 @@ Located in `vault/000-OS/Claude/scripts/`. Dry run by default (`--execute` to ap
 |--------|---------|-------|
 | `daily_summary.py` | Morning briefing: stale contacts, meetings, stats | Daily / cron |
 | `draft_pipeline.py` | Voice draft pipeline report (stages, aging, overdue) | `draft_pipeline.py [--speaker X] [--days 60] [--age-threshold 7]` |
-| `vault_stats.py` | Quick vault overview by relationship/stage | Anytime |
+| `setup_week.py` | Create weekly + daily note templates | Start of each week |
 | `sync_calendar.py` | Create meeting notes from Google Calendar ICS | After meetings; `--execute` to create |
 | `sync_last_contact.py` | Update last_contact from meeting attendance | After creating meeting notes |
-| `setup_week.py` | Create weekly + daily note templates | Start of each week |
+| `vault_stats.py` | Quick vault overview by relationship/stage | Anytime |
 
 ### Environment
 macOS, zsh, homebrew, node, python, ripgrep, bun available.
