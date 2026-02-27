@@ -9,17 +9,22 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
-    if (token && username) {
-      setUser({ username });
+    const storedUser = localStorage.getItem('user');
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
     setLoading(false);
   }, []);
 
   const handleAuthResponse = (res) => {
     localStorage.setItem('token', res.data.token);
-    localStorage.setItem('username', res.data.user.username);
-    setUser({ username: res.data.user.username });
+    localStorage.setItem('user', JSON.stringify(res.data.user));
+    setUser(res.data.user);
     return res.data;
   };
 
@@ -28,28 +33,19 @@ export function AuthProvider({ children }) {
     return handleAuthResponse(res);
   };
 
-  const register = async (username, email, password) => {
-    // If there's a token but no username, it's a guest session — send as claimToken
-    const existingToken = localStorage.getItem('token');
-    const existingUsername = localStorage.getItem('username');
-    const claimToken = (existingToken && !existingUsername) ? existingToken : null;
-    const res = await auth.register(username, email, password, claimToken);
-    return handleAuthResponse(res);
-  };
-
-  const googleLogin = async (credential) => {
-    const res = await auth.google(credential);
+  const register = async (email, password, displayName, token) => {
+    const res = await auth.register(email, password, displayName, token);
     return handleAuthResponse(res);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.removeItem('user');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, googleLogin, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
