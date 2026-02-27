@@ -236,6 +236,12 @@ router.get('/:slug', async (req, res) => {
       post.id
     );
 
+    // Fetch artists
+    const artistRows = await db.all(
+      'SELECT artist_name, spotify_id FROM post_artists WHERE post_id = ?',
+      post.id
+    );
+
     res.json({
       id: post.id,
       slug: post.slug,
@@ -259,6 +265,7 @@ router.get('/:slug', async (req, res) => {
           }
         : null,
       tags: tagRows.map((r) => r.tag),
+      artists: artistRows.map((a) => ({ name: a.artist_name, spotifyId: a.spotify_id })),
     });
   } catch (err) {
     console.error('Get post error:', err);
