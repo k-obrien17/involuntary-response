@@ -34,4 +34,11 @@ export const users = {
   promote: (id) => api.patch(`/users/admin/${id}/promote`),
 };
 
+export const posts = {
+  create: (data) => api.post('/posts', data),
+  getBySlug: (slug) => api.get(`/posts/${slug}`),
+  update: (slug, data) => api.put(`/posts/${slug}`, data),
+  delete: (slug) => api.delete(`/posts/${slug}`),
+};
+
 export default api;
