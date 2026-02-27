@@ -8,6 +8,10 @@
 !.claude/CLAUDE.md
 !.claude/OPS-MANUAL.md
 
+# Track planning docs
+!.planning/
+!.planning/**
+
 # Track app source
 !client/
 !client/**
