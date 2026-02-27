@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import { authenticateToken } from '../middleware/auth.js';
 import db from '../db/index.js';
 import { resolveEmbed } from '../lib/oembed.js';
+import { getArtistsForSpotifyUrl } from '../lib/spotify.js';
 
 const router = Router();
 
@@ -82,6 +83,7 @@ router.get('/', async (req, res) => {
     const postIds = rows.map((p) => p.id);
     let embedMap = {};
     let tagMap = {};
+    let artistMap = {};
 
     if (postIds.length > 0) {
       const ph = postIds.map(() => '?').join(',');
@@ -110,6 +112,17 @@ router.get('/', async (req, res) => {
       for (const t of tags) {
         (tagMap[t.post_id] ||= []).push(t.tag);
       }
+
+      const artistRows = await db.all(
+        `SELECT post_id, artist_name, spotify_id FROM post_artists WHERE post_id IN (${ph})`,
+        ...postIds
+      );
+      for (const a of artistRows) {
+        (artistMap[a.post_id] ||= []).push({
+          name: a.artist_name,
+          spotifyId: a.spotify_id,
+        });
+      }
     }
 
     const posts = rows.map((p) => ({
@@ -125,6 +138,7 @@ router.get('/', async (req, res) => {
       },
       embed: embedMap[p.id] || null,
       tags: tagMap[p.id] || [],
+      artists: artistMap[p.id] || [],
     }));
 
     const lastPost = rows[rows.length - 1];
@@ -157,14 +171,28 @@ router.post('/', authenticateToken, createLimiter, async (req, res) => {
     const postId = result.lastInsertRowid;
 
     // Handle embed
+    let resolved = null;
     if (embedUrl) {
-      const resolved = await resolveEmbed(embedUrl);
+      resolved = await resolveEmbed(embedUrl);
       if (resolved) {
         await db.run(
           'INSERT INTO post_embeds (post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
           postId, resolved.provider, resolved.embedType, resolved.embedUrl, resolved.originalUrl,
           resolved.title || null, resolved.thumbnailUrl || null, resolved.embedHtml || null
         );
+      }
+
+      // Extract and store artist data from Spotify embeds (non-fatal)
+      try {
+        const artists = await getArtistsForSpotifyUrl(embedUrl);
+        for (const artist of artists) {
+          await db.run(
+            'INSERT OR IGNORE INTO post_artists (post_id, artist_name, artist_image, spotify_id) VALUES (?, ?, ?, ?)',
+            postId, artist.name, resolved?.thumbnailUrl || null, artist.spotifyId
+          );
+        }
+      } catch (err) {
+        console.error('Artist extraction error (non-fatal):', err);
       }
     }
 
@@ -264,14 +292,31 @@ router.put('/:slug', authenticateToken, updateLimiter, async (req, res) => {
 
     // Replace embed
     await db.run('DELETE FROM post_embeds WHERE post_id = ?', post.id);
+    let resolvedEmbed = null;
     if (embedUrl) {
-      const resolved = await resolveEmbed(embedUrl);
-      if (resolved) {
+      resolvedEmbed = await resolveEmbed(embedUrl);
+      if (resolvedEmbed) {
         await db.run(
           'INSERT INTO post_embeds (post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-          post.id, resolved.provider, resolved.embedType, resolved.embedUrl, resolved.originalUrl,
-          resolved.title || null, resolved.thumbnailUrl || null, resolved.embedHtml || null
+          post.id, resolvedEmbed.provider, resolvedEmbed.embedType, resolvedEmbed.embedUrl, resolvedEmbed.originalUrl,
+          resolvedEmbed.title || null, resolvedEmbed.thumbnailUrl || null, resolvedEmbed.embedHtml || null
         );
+      }
+    }
+
+    // Replace artist data (non-fatal)
+    await db.run('DELETE FROM post_artists WHERE post_id = ?', post.id);
+    if (embedUrl) {
+      try {
+        const artists = await getArtistsForSpotifyUrl(embedUrl);
+        for (const artist of artists) {
+          await db.run(
+            'INSERT OR IGNORE INTO post_artists (post_id, artist_name, artist_image, spotify_id) VALUES (?, ?, ?, ?)',
+            post.id, artist.name, resolvedEmbed?.thumbnailUrl || null, artist.spotifyId
+          );
+        }
+      } catch (err) {
+        console.error('Artist extraction error (non-fatal):', err);
       }
     }
 

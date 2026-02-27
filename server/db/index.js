@@ -139,6 +139,22 @@ export async function initDatabase() {
       name: 'add_embed_html_column',
       sql: `ALTER TABLE post_embeds ADD COLUMN embed_html TEXT;`,
     },
+    {
+      id: 3,
+      name: 'add_post_artists_and_user_bio',
+      sql: `
+        CREATE TABLE IF NOT EXISTS post_artists (
+          post_id INTEGER NOT NULL,
+          artist_name TEXT NOT NULL,
+          artist_image TEXT,
+          spotify_id TEXT,
+          PRIMARY KEY (post_id, artist_name),
+          FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_post_artists_name ON post_artists(artist_name COLLATE NOCASE);
+        ALTER TABLE users ADD COLUMN bio TEXT;
+      `,
+    },
   ];
 
   for (const m of migrations) {
