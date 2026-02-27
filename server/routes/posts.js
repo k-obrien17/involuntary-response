@@ -44,6 +44,100 @@ async function insertTags(postId, tags) {
 
 // --- Routes ---
 
+// GET / — List posts (reverse chronological, cursor-paginated)
+router.get('/', async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
+    const cursor = req.query.cursor;
+
+    let rows;
+    if (cursor) {
+      const [cursorDate, cursorId] = cursor.split('|');
+      rows = await db.all(
+        `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at,
+                u.display_name AS author_display_name, u.username AS author_username
+         FROM posts p
+         JOIN users u ON p.author_id = u.id
+         WHERE (p.created_at < ? OR (p.created_at = ? AND p.id < ?))
+         ORDER BY p.created_at DESC, p.id DESC
+         LIMIT ?`,
+        cursorDate, cursorDate, parseInt(cursorId), limit + 1
+      );
+    } else {
+      rows = await db.all(
+        `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at,
+                u.display_name AS author_display_name, u.username AS author_username
+         FROM posts p
+         JOIN users u ON p.author_id = u.id
+         ORDER BY p.created_at DESC, p.id DESC
+         LIMIT ?`,
+        limit + 1
+      );
+    }
+
+    const hasMore = rows.length > limit;
+    if (hasMore) rows.pop();
+
+    // Batch-fetch embeds and tags (avoid N+1)
+    const postIds = rows.map((p) => p.id);
+    let embedMap = {};
+    let tagMap = {};
+
+    if (postIds.length > 0) {
+      const ph = postIds.map(() => '?').join(',');
+
+      const embeds = await db.all(
+        `SELECT post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html
+         FROM post_embeds WHERE post_id IN (${ph})`,
+        ...postIds
+      );
+      for (const e of embeds) {
+        embedMap[e.post_id] = {
+          provider: e.provider,
+          embedType: e.embed_type,
+          embedUrl: e.embed_url,
+          originalUrl: e.original_url,
+          title: e.title,
+          thumbnailUrl: e.thumbnail_url,
+          embedHtml: e.embed_html,
+        };
+      }
+
+      const tags = await db.all(
+        `SELECT post_id, tag FROM post_tags WHERE post_id IN (${ph}) ORDER BY tag`,
+        ...postIds
+      );
+      for (const t of tags) {
+        (tagMap[t.post_id] ||= []).push(t.tag);
+      }
+    }
+
+    const posts = rows.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      body: p.body,
+      authorId: p.author_id,
+      createdAt: p.created_at,
+      updatedAt: p.updated_at,
+      author: {
+        displayName: p.author_display_name,
+        username: p.author_username,
+      },
+      embed: embedMap[p.id] || null,
+      tags: tagMap[p.id] || [],
+    }));
+
+    const lastPost = rows[rows.length - 1];
+    const nextCursor =
+      hasMore && lastPost ? `${lastPost.created_at}|${lastPost.id}` : null;
+
+    res.json({ posts, nextCursor });
+  } catch (err) {
+    console.error('List posts error:', err);
+    res.status(500).json({ error: 'Failed to load posts' });
+  }
+});
+
 // POST / — Create post
 router.post('/', authenticateToken, createLimiter, async (req, res) => {
   try {
