@@ -60,11 +60,11 @@ Plans:
   1. Visitor sees a reverse-chronological feed of posts on the home page with embedded music players rendered as click-to-load placeholders
   2. Each post has a clean permalink URL that loads the full post on its own page
   3. The layout is text-first with large type, generous whitespace, and a single content column -- on both desktop and mobile
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md -- Feed API, feed page, PostCard, EmbedPlaceholder, ViewPost rewrite, typography system, date utility
+- [ ] 03-02-PLAN.md -- Visual verification: feed, permalinks, text-first responsive layout
 
 ### Phase 4: Browse, Discovery, and Profiles
 **Goal**: Visitors can discover posts by tag, by artist, and by contributor -- and contributor profiles show identity and collected work
@@ -103,6 +103,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Foundation and Auth | 3/3 | Complete    | 2026-02-27 |
 | 2. Post Creation and Embeds | 2/2 | Complete   | 2026-02-27 |
-| 3. Feed and Post Display | 0/0 | Not started | - |
+| 3. Feed and Post Display | 0/2 | In progress | - |
 | 4. Browse, Discovery, and Profiles | 0/0 | Not started | - |
 | 5. Sharing and Distribution | 0/0 | Not started | - |
