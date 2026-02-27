@@ -5,6 +5,8 @@ import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import invitesRoutes from './routes/invites.js';
 import usersRoutes from './routes/users.js';
+import profileRoutes from './routes/profile.js';
+import browseRoutes from './routes/browse.js';
 import postsRoutes from './routes/posts.js';
 import embedsRoutes from './routes/embeds.js';
 import { initDatabase } from './db/index.js';
@@ -20,7 +22,9 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/invites', invitesRoutes);
-app.use('/api/users', usersRoutes);
+app.use('/api/users', profileRoutes);  // Profile routes first (PUT /me, GET /:username/profile)
+app.use('/api/users', usersRoutes);    // Admin routes second (all require admin middleware)
+app.use('/api/browse', browseRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/embeds', embedsRoutes);
 
