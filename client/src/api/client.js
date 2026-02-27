@@ -46,4 +46,20 @@ export const posts = {
   delete: (slug) => api.delete(`/posts/${slug}`),
 };
 
+export const browse = {
+  byTag: (tag, params) =>
+    api.get(`/browse/tag/${encodeURIComponent(tag)}`, { params }),
+  byArtist: (name, params) =>
+    api.get(`/browse/artist/${encodeURIComponent(name)}`, { params }),
+  byContributor: (username, params) =>
+    api.get(`/browse/contributor/${encodeURIComponent(username)}`, { params }),
+  explore: () => api.get('/browse/explore'),
+};
+
+export const profile = {
+  get: (username) =>
+    api.get(`/users/${encodeURIComponent(username)}/profile`),
+  updateBio: (bio) => api.put('/users/me', { bio }),
+};
+
 export default api;

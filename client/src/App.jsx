@@ -14,6 +14,10 @@ import AdminContributors from './pages/admin/Contributors';
 import CreatePost from './pages/CreatePost';
 import EditPost from './pages/EditPost';
 import ViewPost from './pages/ViewPost';
+import TagBrowse from './pages/TagBrowse';
+import ArtistPage from './pages/ArtistPage';
+import Explore from './pages/Explore';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -58,6 +62,10 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/tag/:tag" element={<TagBrowse />} />
+          <Route path="/artist/:name" element={<ArtistPage />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/@:username" element={<Profile />} />
           <Route path="/posts/:slug" element={<ViewPost />} />
           <Route
             path="/posts/:slug/edit"
