@@ -5,6 +5,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import invitesRoutes from './routes/invites.js';
 import usersRoutes from './routes/users.js';
+import postsRoutes from './routes/posts.js';
 import { initDatabase } from './db/index.js';
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/invites', invitesRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/posts', postsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
