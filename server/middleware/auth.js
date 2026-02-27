@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import db from '../db/index.js';
 
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is required');
@@ -16,7 +17,7 @@ export function optionalAuth(req, res, next) {
   next();
 }
 
-export function authenticateToken(req, res, next) {
+export async function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -25,8 +26,13 @@ export function authenticateToken(req, res, next) {
   }
 
   try {
-    const user = jwt.verify(token, JWT_SECRET);
-    req.user = user;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    // Check if user is still active in the database
+    const user = await db.get('SELECT is_active FROM users WHERE id = ?', decoded.id);
+    if (!user || user.is_active === 0) {
+      return res.status(403).json({ error: 'Account deactivated' });
+    }
+    req.user = decoded;
     next();
   } catch {
     return res.status(403).json({ error: 'Invalid or expired token' });
@@ -35,8 +41,8 @@ export function authenticateToken(req, res, next) {
 
 export function generateToken(user) {
   return jwt.sign(
-    { id: user.id, email: user.email },
+    { id: user.id, email: user.email, role: user.role, username: user.username },
     JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: '365d' }
   );
 }

@@ -1,5 +1,5 @@
 {
-  "name": "backyard-marquee-server",
+  "name": "involuntary-response-server",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -13,7 +13,7 @@
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
-    "google-auth-library": "^10.5.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^8.0.1"
   }
 }
