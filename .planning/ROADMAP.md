@@ -75,11 +75,11 @@ Plans:
   2. Visitor can click an artist name and see all posts about that artist
   3. Visitor can click a contributor name and see their profile page with bio and all their posts
   4. Browse pages maintain the same text-first, responsive design as the feed
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md -- Server: migrations (post_artists, users.bio), shared Spotify utility, artist extraction in posts, browse/explore/profile API endpoints
+- [ ] 04-02-PLAN.md -- Client: PostListItem, TagBrowse, ArtistPage, Profile (with inline bio editing), Explore hub, Navbar update, PostCard navigation, visual verification
 
 ### Phase 5: Sharing and Distribution
 **Goal**: Posts shared on social media show rich previews with album art, the site has an RSS feed for subscribers, and readers can toggle dark mode
