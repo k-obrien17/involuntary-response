@@ -22,16 +22,16 @@ export const auth = {
 };
 
 export const invites = {
-  create: (note) => api.post('/admin/invites', { note }),
-  list: () => api.get('/admin/invites'),
-  revoke: (id) => api.delete(`/admin/invites/${id}`),
+  create: (note) => api.post('/invites', { note }),
+  list: () => api.get('/invites'),
+  revoke: (id) => api.patch(`/invites/${id}/revoke`),
 };
 
 export const users = {
-  listContributors: () => api.get('/admin/contributors'),
-  deactivate: (id) => api.put(`/admin/contributors/${id}/deactivate`),
-  activate: (id) => api.put(`/admin/contributors/${id}/activate`),
-  promote: (id) => api.put(`/admin/contributors/${id}/promote`),
+  listContributors: () => api.get('/users/admin/contributors'),
+  deactivate: (id) => api.patch(`/users/admin/${id}/deactivate`),
+  activate: (id) => api.patch(`/users/admin/${id}/activate`),
+  promote: (id) => api.patch(`/users/admin/${id}/promote`),
 };
 
 export default api;
