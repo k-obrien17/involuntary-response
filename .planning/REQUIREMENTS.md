@@ -18,12 +18,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Posts
 
-- [ ] **POST-01**: Contributor can create a text post with ~800 character soft limit
-- [ ] **POST-02**: Contributor can embed a Spotify track/album by pasting a URL
-- [ ] **POST-03**: Contributor can embed an Apple Music track/album by pasting a URL
-- [ ] **POST-04**: Contributor can add up to 5 tags per post
-- [ ] **POST-05**: Contributor can edit their own published posts
-- [ ] **POST-06**: Contributor can delete their own posts
+- [x] **POST-01**: Contributor can create a text post with ~800 character soft limit
+- [x] **POST-02**: Contributor can embed a Spotify track/album by pasting a URL
+- [x] **POST-03**: Contributor can embed an Apple Music track/album by pasting a URL
+- [x] **POST-04**: Contributor can add up to 5 tags per post
+- [x] **POST-05**: Contributor can edit their own published posts
+- [x] **POST-06**: Contributor can delete their own posts
 
 ### Discovery
 
@@ -103,12 +103,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Complete |
 | AUTH-06 | Phase 1 | Complete |
-| POST-01 | Phase 2 | Pending |
-| POST-02 | Phase 2 | Pending |
-| POST-03 | Phase 2 | Pending |
-| POST-04 | Phase 2 | Pending |
-| POST-05 | Phase 2 | Pending |
-| POST-06 | Phase 2 | Pending |
+| POST-01 | Phase 2 | Complete |
+| POST-02 | Phase 2 | Complete |
+| POST-03 | Phase 2 | Complete |
+| POST-04 | Phase 2 | Complete |
+| POST-05 | Phase 2 | Complete |
+| POST-06 | Phase 2 | Complete |
 | DISC-01 | Phase 3 | Pending |
 | DISC-02 | Phase 4 | Pending |
 | DISC-03 | Phase 4 | Pending |
