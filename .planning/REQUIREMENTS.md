@@ -97,37 +97,37 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| AUTH-06 | — | Pending |
-| POST-01 | — | Pending |
-| POST-02 | — | Pending |
-| POST-03 | — | Pending |
-| POST-04 | — | Pending |
-| POST-05 | — | Pending |
-| POST-06 | — | Pending |
-| DISC-01 | — | Pending |
-| DISC-02 | — | Pending |
-| DISC-03 | — | Pending |
-| DISC-04 | — | Pending |
-| PROF-01 | — | Pending |
-| PROF-02 | — | Pending |
-| PROF-03 | — | Pending |
-| SHAR-01 | — | Pending |
-| SHAR-02 | — | Pending |
-| SHAR-03 | — | Pending |
-| DSGN-01 | — | Pending |
-| DSGN-02 | — | Pending |
-| DSGN-03 | — | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| AUTH-06 | Phase 1 | Pending |
+| POST-01 | Phase 2 | Pending |
+| POST-02 | Phase 2 | Pending |
+| POST-03 | Phase 2 | Pending |
+| POST-04 | Phase 2 | Pending |
+| POST-05 | Phase 2 | Pending |
+| POST-06 | Phase 2 | Pending |
+| DISC-01 | Phase 3 | Pending |
+| DISC-02 | Phase 4 | Pending |
+| DISC-03 | Phase 4 | Pending |
+| DISC-04 | Phase 4 | Pending |
+| PROF-01 | Phase 1 | Pending |
+| PROF-02 | Phase 4 | Pending |
+| PROF-03 | Phase 4 | Pending |
+| SHAR-01 | Phase 3 | Pending |
+| SHAR-02 | Phase 5 | Pending |
+| SHAR-03 | Phase 5 | Pending |
+| DSGN-01 | Phase 3 | Pending |
+| DSGN-02 | Phase 3 | Pending |
+| DSGN-03 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 25 total
-- Mapped to phases: 0
-- Unmapped: 25 ⚠️
+- Mapped to phases: 25
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-26*
-*Last updated: 2026-02-26 after initial definition*
+*Last updated: 2026-02-26 after roadmap creation*
