@@ -46,11 +46,11 @@ Plans:
   2. Contributor can paste a Spotify track or album URL and see an inline embed preview before publishing
   3. Contributor can paste an Apple Music track or album URL and see an inline embed preview before publishing
   4. Contributor can add up to 5 tags to a post, edit a published post, and delete their own posts
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Server: DB migration (posts, post_embeds, post_tags), post CRUD API with embed validation and tag management
+- [ ] 02-02-PLAN.md — Client: Post creation/edit UI with embed parser, live Spotify/Apple Music preview, tag input, route wiring
 
 ### Phase 3: Feed and Post Display
 **Goal**: Anyone on the internet can visit the site, scroll through a clean reverse-chronological feed of posts, and click into individual posts -- with a minimal, text-first, responsive layout
@@ -102,7 +102,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Auth | 3/3 | Complete    | 2026-02-27 |
-| 2. Post Creation and Embeds | 0/0 | Not started | - |
+| 2. Post Creation and Embeds | 0/2 | Planned | - |
 | 3. Feed and Post Display | 0/0 | Not started | - |
 | 4. Browse, Discovery, and Profiles | 0/0 | Not started | - |
 | 5. Sharing and Distribution | 0/0 | Not started | - |
