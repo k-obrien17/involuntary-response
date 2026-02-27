@@ -94,8 +94,47 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_invite_tokens_token ON invite_tokens(token);
   `);
 
-  // Migration runner — start fresh, no migrations needed yet
-  const migrations = [];
+  // Migration runner
+  const migrations = [
+    {
+      id: 1,
+      name: 'create_posts_tables',
+      sql: `
+        CREATE TABLE IF NOT EXISTS posts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          slug TEXT UNIQUE NOT NULL,
+          body TEXT NOT NULL,
+          author_id INTEGER NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (author_id) REFERENCES users(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS post_embeds (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          post_id INTEGER UNIQUE NOT NULL,
+          provider TEXT NOT NULL,
+          embed_type TEXT NOT NULL,
+          embed_url TEXT NOT NULL,
+          original_url TEXT NOT NULL,
+          title TEXT,
+          thumbnail_url TEXT,
+          FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS post_tags (
+          post_id INTEGER NOT NULL,
+          tag TEXT NOT NULL,
+          PRIMARY KEY (post_id, tag),
+          FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_posts_author_id ON posts(author_id);
+        CREATE INDEX IF NOT EXISTS idx_post_tags_tag ON post_tags(tag);
+      `,
+    },
+  ];
 
   for (const m of migrations) {
     const applied = await db.get('SELECT 1 FROM migrations WHERE name = ?', m.name);
