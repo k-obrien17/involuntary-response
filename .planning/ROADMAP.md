@@ -104,5 +104,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Foundation and Auth | 3/3 | Complete    | 2026-02-27 |
 | 2. Post Creation and Embeds | 2/2 | Complete   | 2026-02-27 |
 | 3. Feed and Post Display | 0/2 | In progress | - |
-| 4. Browse, Discovery, and Profiles | 0/0 | Not started | - |
+| 4. Browse, Discovery, and Profiles | 1/2 | In Progress | - |
 | 5. Sharing and Distribution | 0/0 | Not started | - |

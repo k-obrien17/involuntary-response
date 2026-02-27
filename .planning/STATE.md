@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-02-27T16:51:58.000Z"
+status: in-progress
+last_updated: "2026-02-27T18:58:00.000Z"
 progress:
-  total_phases: 3
+  total_phases: 5
   completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 9
+  completed_plans: 8
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** Phase 3 in progress. Feed and Post Display -- feed API and display components done (plan 1 of 2 complete).
+**Current focus:** Phase 4 in progress. Browse, Discovery, and Profiles -- API layer done (plan 1 of 2 complete).
 
 ## Current Position
 
-Phase: 3 of 5 (Feed and Post Display)
-Plan: 1 of 2 in current phase (03-01 complete)
-Status: Phase 3 plan 1 complete, ready for plan 2
-Last activity: 2026-02-27 -- Completed 03-01-PLAN.md (feed and post display)
+Phase: 4 of 5 (Browse, Discovery, and Profiles)
+Plan: 1 of 2 in current phase (04-01 complete)
+Status: Phase 4 plan 1 complete, ready for plan 2
+Last activity: 2026-02-27 -- Completed 04-01-PLAN.md (browse/discovery/profile API)
 
-Progress: [#######...] 70%
+Progress: [########..] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 8
 - Average duration: 4min
-- Total execution time: 0.35 hours
+- Total execution time: 0.42 hours
 
 **By Phase:**
 
@@ -53,6 +53,7 @@ Progress: [#######...] 70%
 | Phase 02 P01 | 2min | 2 tasks | 4 files |
 | Phase 02 P02 | 8min | 3 tasks | 12 files |
 | Phase 03 P01 | 2min | 2 tasks | 8 files |
+| Phase 04 P01 | 4min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,11 @@ Recent decisions affecting current work:
 - [Phase 03]: Batch IN() queries for embeds and tags to avoid N+1 in feed endpoint
 - [Phase 03]: Click-to-load facade in feed, full iframe on permalink -- balances performance with engagement
 - [Phase 03]: Tags rendered as #text not pill badges -- text-first design, minimal chrome
+- [Phase 04]: Separate Spotify token cache in lib/spotify.js to avoid breaking existing artist search
+- [Phase 04]: Artist extraction Spotify-only; Apple Music posts have no post_artists entries
+- [Phase 04]: Consistent post response shape with artists array across feed, browse, and profile endpoints
+- [Phase 04]: Explore endpoint ranks by recency (MAX created_at) not count -- surfaces fresh content
+- [Phase 04]: Profile routes mounted before admin user routes for correct Express route matching
 
 ### Pending Todos
 
@@ -93,5 +99,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 03-01-PLAN.md (feed and post display)
-Resume file: .planning/phases/03-feed-and-post-display/03-01-SUMMARY.md
+Stopped at: Completed 04-01-PLAN.md (browse/discovery/profile API)
+Resume file: .planning/phases/04-browse-discovery-and-profiles/04-01-SUMMARY.md

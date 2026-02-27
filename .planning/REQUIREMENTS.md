@@ -28,15 +28,15 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Discovery
 
 - [x] **DISC-01**: Visitor can view a reverse-chronological feed of all posts
-- [ ] **DISC-02**: Visitor can browse posts filtered by tag
-- [ ] **DISC-03**: Visitor can browse posts filtered by artist
-- [ ] **DISC-04**: Visitor can view all posts by a specific contributor
+- [x] **DISC-02**: Visitor can browse posts filtered by tag
+- [x] **DISC-03**: Visitor can browse posts filtered by artist
+- [x] **DISC-04**: Visitor can view all posts by a specific contributor
 
 ### Profiles
 
 - [x] **PROF-01**: Contributor has a display name and username
-- [ ] **PROF-02**: Contributor can write a bio (~300 characters)
-- [ ] **PROF-03**: Visitor can view a contributor's profile page
+- [x] **PROF-02**: Contributor can write a bio (~300 characters)
+- [x] **PROF-03**: Visitor can view a contributor's profile page
 
 ### Sharing
 
@@ -110,12 +110,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | POST-05 | Phase 2 | Complete |
 | POST-06 | Phase 2 | Complete |
 | DISC-01 | Phase 3 | Complete |
-| DISC-02 | Phase 4 | Pending |
-| DISC-03 | Phase 4 | Pending |
-| DISC-04 | Phase 4 | Pending |
+| DISC-02 | Phase 4 | Complete |
+| DISC-03 | Phase 4 | Complete |
+| DISC-04 | Phase 4 | Complete |
 | PROF-01 | Phase 1 | Complete |
-| PROF-02 | Phase 4 | Pending |
-| PROF-03 | Phase 4 | Pending |
+| PROF-02 | Phase 4 | Complete |
+| PROF-03 | Phase 4 | Complete |
 | SHAR-01 | Phase 3 | Complete |
 | SHAR-02 | Phase 5 | Pending |
 | SHAR-03 | Phase 5 | Pending |
