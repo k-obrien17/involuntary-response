@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import rateLimit from 'express-rate-limit';
 import { authenticateToken } from '../middleware/auth.js';
 import db from '../db/index.js';
+import { resolveEmbed } from '../lib/oembed.js';
 
 const router = Router();
 
@@ -41,67 +42,6 @@ async function insertTags(postId, tags) {
   }
 }
 
-function parseEmbedUrl(url) {
-  if (!url) return null;
-
-  // Spotify: track, album, or playlist
-  const spotifyMatch = url.match(
-    /https?:\/\/open\.spotify\.com\/(track|album|playlist)\/([a-zA-Z0-9]+)/
-  );
-  if (spotifyMatch) {
-    const [, type, id] = spotifyMatch;
-    return {
-      provider: 'spotify',
-      type,
-      id,
-      embedUrl: `https://open.spotify.com/embed/${type}/${id}`,
-      originalUrl: url,
-    };
-  }
-
-  // Apple Music: album, playlist, or song
-  const appleMatch = url.match(
-    /https?:\/\/music\.apple\.com\/([a-z]{2})\/(album|playlist|song)\/[^/]+\/([0-9]+)(\?i=([0-9]+))?/
-  );
-  if (appleMatch) {
-    const [, region, type, collectionId, , songId] = appleMatch;
-    const finalType = songId ? 'song' : type;
-    let embedUrl = `https://embed.music.apple.com/${region}/${type}/x/${collectionId}`;
-    if (songId) {
-      embedUrl += `?i=${songId}`;
-    }
-    return {
-      provider: 'apple',
-      type: finalType,
-      id: songId || collectionId,
-      embedUrl,
-      originalUrl: url,
-    };
-  }
-
-  return null;
-}
-
-async function fetchSpotifyMetadata(spotifyUrl) {
-  try {
-    const response = await fetch(
-      `https://open.spotify.com/oembed?url=${encodeURIComponent(spotifyUrl)}`
-    );
-    if (!response.ok) return null;
-    const data = await response.json();
-    return { title: data.title || null, thumbnailUrl: data.thumbnail_url || null };
-  } catch {
-    return null;
-  }
-}
-
-function validateEmbedDomain(embedUrl) {
-  return (
-    embedUrl.startsWith('https://open.spotify.com/embed/') ||
-    embedUrl.startsWith('https://embed.music.apple.com/')
-  );
-}
-
 // --- Routes ---
 
 // POST / — Create post
@@ -124,16 +64,12 @@ router.post('/', authenticateToken, createLimiter, async (req, res) => {
 
     // Handle embed
     if (embedUrl) {
-      const parsed = parseEmbedUrl(embedUrl);
-      if (parsed && validateEmbedDomain(parsed.embedUrl)) {
-        let metadata = {};
-        if (parsed.provider === 'spotify') {
-          metadata = (await fetchSpotifyMetadata(parsed.originalUrl)) || {};
-        }
+      const resolved = await resolveEmbed(embedUrl);
+      if (resolved) {
         await db.run(
-          'INSERT INTO post_embeds (post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          postId, parsed.provider, parsed.type, parsed.embedUrl, parsed.originalUrl,
-          metadata.title || null, metadata.thumbnailUrl || null
+          'INSERT INTO post_embeds (post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          postId, resolved.provider, resolved.embedType, resolved.embedUrl, resolved.originalUrl,
+          resolved.title || null, resolved.thumbnailUrl || null, resolved.embedHtml || null
         );
       }
     }
@@ -168,7 +104,7 @@ router.get('/:slug', async (req, res) => {
 
     // Fetch embed
     const embed = await db.get(
-      'SELECT provider, embed_type, embed_url, original_url, title, thumbnail_url FROM post_embeds WHERE post_id = ?',
+      'SELECT provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html FROM post_embeds WHERE post_id = ?',
       post.id
     );
 
@@ -197,6 +133,7 @@ router.get('/:slug', async (req, res) => {
             originalUrl: embed.original_url,
             title: embed.title,
             thumbnailUrl: embed.thumbnail_url,
+            embedHtml: embed.embed_html,
           }
         : null,
       tags: tagRows.map((r) => r.tag),
@@ -234,16 +171,12 @@ router.put('/:slug', authenticateToken, updateLimiter, async (req, res) => {
     // Replace embed
     await db.run('DELETE FROM post_embeds WHERE post_id = ?', post.id);
     if (embedUrl) {
-      const parsed = parseEmbedUrl(embedUrl);
-      if (parsed && validateEmbedDomain(parsed.embedUrl)) {
-        let metadata = {};
-        if (parsed.provider === 'spotify') {
-          metadata = (await fetchSpotifyMetadata(parsed.originalUrl)) || {};
-        }
+      const resolved = await resolveEmbed(embedUrl);
+      if (resolved) {
         await db.run(
-          'INSERT INTO post_embeds (post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          post.id, parsed.provider, parsed.type, parsed.embedUrl, parsed.originalUrl,
-          metadata.title || null, metadata.thumbnailUrl || null
+          'INSERT INTO post_embeds (post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          post.id, resolved.provider, resolved.embedType, resolved.embedUrl, resolved.originalUrl,
+          resolved.title || null, resolved.thumbnailUrl || null, resolved.embedHtml || null
         );
       }
     }

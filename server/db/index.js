@@ -134,6 +134,11 @@ export async function initDatabase() {
         CREATE INDEX IF NOT EXISTS idx_post_tags_tag ON post_tags(tag);
       `,
     },
+    {
+      id: 2,
+      name: 'add_embed_html_column',
+      sql: `ALTER TABLE post_embeds ADD COLUMN embed_html TEXT;`,
+    },
   ];
 
   for (const m of migrations) {

@@ -1,13 +1,24 @@
 export default function EmbedPreview({ embed }) {
   if (!embed) return null;
 
+  // Primary path: server-resolved oEmbed HTML
+  if (embed.embedHtml) {
+    return (
+      <div
+        className="rounded-lg overflow-hidden [&>iframe]:w-full"
+        dangerouslySetInnerHTML={{ __html: embed.embedHtml }}
+      />
+    );
+  }
+
+  // Legacy fallback for old DB rows without embed_html
   if (embed.provider === 'spotify') {
     return (
       <div className="rounded-lg overflow-hidden">
         <iframe
           src={embed.embedUrl}
           width="100%"
-          height={embed.type === 'track' ? 152 : 352}
+          height={embed.embedType === 'track' ? 152 : 352}
           frameBorder="0"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"
@@ -23,7 +34,7 @@ export default function EmbedPreview({ embed }) {
         <iframe
           src={embed.embedUrl}
           width="100%"
-          height={embed.type === 'song' ? 175 : 450}
+          height={embed.embedType === 'song' ? 175 : 450}
           frameBorder="0"
           sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
           allow="autoplay *; encrypted-media *; fullscreen *; picture-in-picture *"

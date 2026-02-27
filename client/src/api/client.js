@@ -34,6 +34,10 @@ export const users = {
   promote: (id) => api.patch(`/users/admin/${id}/promote`),
 };
 
+export const embeds = {
+  resolve: (url) => api.post('/embeds/resolve', { url }),
+};
+
 export const posts = {
   create: (data) => api.post('/posts', data),
   getBySlug: (slug) => api.get(`/posts/${slug}`),
