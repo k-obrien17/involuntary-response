@@ -1,84 +1,122 @@
 import { Router } from 'express';
-import { OAuth2Client } from 'google-auth-library';
-import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import db from '../db/index.js';
-import { generateToken, JWT_SECRET } from '../middleware/auth.js';
+import { generateToken } from '../middleware/auth.js';
+import { sendResetEmail } from '../lib/email.js';
 
 const router = Router();
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many attempts, try again later' } });
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: 'Too many attempts, try again later' },
+});
 
-// --- Username / password ---
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many attempts, try again later' },
+});
 
+// Username generation from display name
+function generateUsername(displayName) {
+  const base = displayName
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 20);
+
+  return base || 'user';
+}
+
+async function ensureUniqueUsername(displayName) {
+  let username = generateUsername(displayName);
+  let existing = await db.get('SELECT 1 FROM users WHERE username = ?', username);
+  let suffix = 1;
+  while (existing) {
+    const truncated = generateUsername(displayName).substring(0, 17);
+    username = `${truncated}-${suffix}`;
+    existing = await db.get('SELECT 1 FROM users WHERE username = ?', username);
+    suffix++;
+  }
+  return username;
+}
+
+// Basic email format check
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// POST /api/auth/register
 router.post('/register', authLimiter, async (req, res) => {
-  const { username, email, password, claimToken } = req.body;
+  const { email, password, displayName, token } = req.body;
 
-  if (!username || !email || !password) {
+  if (!email || !password || !displayName || !token) {
     return res.status(400).json({ error: 'All fields are required' });
   }
-  if (password.length < 6) {
-    return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
   }
 
   try {
-    // If claiming a guest account, upgrade that user row instead of creating a new one
-    if (claimToken) {
-      try {
-        const decoded = jwt.verify(claimToken, JWT_SECRET);
-        const guestUser = await db.get(
-          'SELECT * FROM users WHERE id = ? AND password_hash = ?',
-          decoded.id, 'guest'
-        );
-        if (guestUser) {
-          const conflict = await db.get(
-            'SELECT 1 FROM users WHERE (username = ? OR email = ?) AND id != ?',
-            username, email, guestUser.id
-          );
-          if (conflict) {
-            return res.status(409).json({ error: 'Username or email already taken' });
-          }
-
-          const hash = await bcrypt.hash(password, 10);
-          await db.run(
-            'UPDATE users SET username = ?, email = ?, password_hash = ? WHERE id = ?',
-            username, email, hash, guestUser.id
-          );
-
-          const user = { id: guestUser.id, username, email };
-          const token = generateToken(user);
-          return res.status(201).json({ token, user });
-        }
-      } catch {
-        // Invalid/expired claim token — fall through to normal registration
-      }
-    }
-
-    const existing = await db.get(
-      'SELECT 1 FROM users WHERE username = ? OR email = ?',
-      username, email
+    // Validate invite token
+    const invite = await db.get(
+      'SELECT * FROM invite_tokens WHERE token = ? AND used_by IS NULL AND revoked_at IS NULL',
+      token
     );
-    if (existing) {
-      return res.status(409).json({ error: 'Username or email already taken' });
+    if (!invite) {
+      return res.status(400).json({ error: 'Invalid or expired invite' });
     }
 
+    // Check 7-day expiry in JavaScript (add 'Z' for UTC per pitfall #2)
+    if (Date.now() - new Date(invite.created_at + 'Z').getTime() > 7 * 24 * 60 * 60 * 1000) {
+      return res.status(400).json({ error: 'This invite has expired' });
+    }
+
+    // Check email uniqueness
+    const existingEmail = await db.get('SELECT 1 FROM users WHERE email = ?', email);
+    if (existingEmail) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    // Generate unique username from display name
+    const username = await ensureUniqueUsername(displayName);
+
+    // Hash password and create user
     const hash = await bcrypt.hash(password, 10);
     const result = await db.run(
-      'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
-      username, email, hash
+      'INSERT INTO users (email, password_hash, display_name, username, role) VALUES (?, ?, ?, ?, ?)',
+      email, hash, displayName, username, 'contributor'
     );
 
-    const user = { id: result.lastInsertRowid, username, email };
-    const token = generateToken(user);
-    res.status(201).json({ token, user });
+    // Mark invite as used atomically (per pitfall #3 — race condition protection)
+    const updateResult = await db.run(
+      'UPDATE invite_tokens SET used_by = ?, used_at = CURRENT_TIMESTAMP WHERE token = ? AND used_by IS NULL AND revoked_at IS NULL',
+      result.lastInsertRowid, token
+    );
+    if (updateResult.changes === 0) {
+      // Race condition — invite was used between our check and update
+      // Roll back user creation by deactivating the account
+      await db.run('DELETE FROM users WHERE id = ?', result.lastInsertRowid);
+      return res.status(400).json({ error: 'Invalid or already used invite' });
+    }
+
+    const user = { id: result.lastInsertRowid, email, displayName, username, role: 'contributor' };
+    const jwtToken = generateToken(user);
+    res.status(201).json({ token: jwtToken, user });
   } catch (err) {
     console.error('Register error:', err);
     res.status(500).json({ error: 'Registration failed' });
   }
 });
 
+// POST /api/auth/login
 router.post('/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
 
@@ -88,7 +126,7 @@ router.post('/login', authLimiter, async (req, res) => {
 
   try {
     const user = await db.get('SELECT * FROM users WHERE email = ?', email);
-    if (!user || user.password_hash === 'google_oauth') {
+    if (!user || user.is_active === 0) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
@@ -97,67 +135,83 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const token = generateToken(user);
-    res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+    const jwtToken = generateToken(user);
+    res.json({
+      token: jwtToken,
+      user: { id: user.id, email: user.email, displayName: user.display_name, username: user.username, role: user.role },
+    });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });
   }
 });
 
-// --- Google OAuth ---
+// POST /api/auth/forgot-password
+router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
+  const { email } = req.body;
 
-router.post('/google', authLimiter, async (req, res) => {
-  const { credential } = req.body;
+  // Always respond 200 to prevent email enumeration
+  res.json({ message: 'If an account exists, a reset link has been sent' });
 
-  if (!credential) {
-    return res.status(400).json({ error: 'Missing credential' });
+  try {
+    if (!email) return;
+
+    const user = await db.get('SELECT id FROM users WHERE email = ? AND is_active = 1', email);
+    if (!user) return;
+
+    const token = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
+    await db.run(
+      'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
+      user.id, token, expiresAt
+    );
+
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${token}`;
+    await sendResetEmail(email, resetUrl);
+  } catch (err) {
+    console.error('Password reset error:', err);
+  }
+});
+
+// POST /api/auth/reset-password
+router.post('/reset-password', async (req, res) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ error: 'Token and password are required' });
+  }
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
   }
 
   try {
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    const googleId = payload.sub;
-    const email = payload.email;
-
-    // Check for existing user by google_id
-    let user = await db.get('SELECT * FROM users WHERE google_id = ?', googleId);
-
-    if (!user) {
-      // Check if an account with this email already exists (e.g. registered with password)
-      user = await db.get('SELECT * FROM users WHERE email = ?', email);
-
-      if (user) {
-        // Link Google ID to existing account
-        await db.run('UPDATE users SET google_id = ? WHERE id = ?', googleId, user.id);
-      } else {
-        // Auto-generate username from email prefix
-        const prefix = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_').substring(0, 17);
-        let username = prefix;
-        let suffix = 0;
-
-        while (await db.get('SELECT 1 FROM users WHERE username = ?', username)) {
-          suffix++;
-          username = `${prefix.substring(0, 17)}${suffix}`;
-        }
-
-        const result = await db.run(
-          'INSERT INTO users (username, email, password_hash, google_id) VALUES (?, ?, ?, ?)',
-          username, email, 'google_oauth', googleId
-        );
-
-        user = { id: result.lastInsertRowid, username, email, google_id: googleId };
-      }
+    const resetToken = await db.get(
+      'SELECT * FROM password_reset_tokens WHERE token = ? AND used_at IS NULL',
+      token
+    );
+    if (!resetToken) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
     }
 
-    const token = generateToken(user);
-    res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+    // Check expiry
+    if (new Date(resetToken.expires_at + 'Z').getTime() < Date.now()) {
+      return res.status(400).json({ error: 'Reset token has expired' });
+    }
+
+    // Hash new password and update user
+    const hash = await bcrypt.hash(password, 10);
+    await db.run('UPDATE users SET password_hash = ? WHERE id = ?', hash, resetToken.user_id);
+
+    // Mark reset token as used
+    await db.run(
+      'UPDATE password_reset_tokens SET used_at = CURRENT_TIMESTAMP WHERE id = ?',
+      resetToken.id
+    );
+
+    res.json({ message: 'Password reset successful' });
   } catch (err) {
-    console.error('Google auth error:', err);
-    res.status(401).json({ error: 'Invalid Google credential' });
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Password reset failed' });
   }
 });
 
