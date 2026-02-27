@@ -39,6 +39,7 @@ export const embeds = {
 };
 
 export const posts = {
+  list: (params) => api.get('/posts', { params }),
   create: (data) => api.post('/posts', data),
   getBySlug: (slug) => api.get(`/posts/${slug}`),
   update: (slug, data) => api.put(`/posts/${slug}`, data),

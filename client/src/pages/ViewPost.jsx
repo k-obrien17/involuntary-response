@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { posts } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import EmbedPreview from '../components/EmbedPreview';
+import { fullDate } from '../utils/formatDate';
 
 export default function ViewPost() {
   const { slug } = useParams();
@@ -27,20 +28,22 @@ export default function ViewPost() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 text-center text-gray-500">
-        Loading...
-      </div>
+      <main className="max-w-2xl mx-auto px-4 py-12">
+        <p className="text-gray-400 text-center">Loading...</p>
+      </main>
     );
   }
 
   if (!post) return null;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <p className="text-lg leading-relaxed whitespace-pre-wrap">{post.body}</p>
+    <main className="max-w-2xl mx-auto px-4 py-12">
+      <article className="prose prose-lg md:prose-xl lg:prose-2xl prose-gray max-w-none">
+        <p className="whitespace-pre-wrap leading-relaxed">{post.body}</p>
+      </article>
 
       {post.embed && (
-        <div className="mt-6">
+        <div className="mt-8">
           <EmbedPreview embed={post.embed} />
         </div>
       )}
@@ -48,30 +51,27 @@ export default function ViewPost() {
       {post.tags && post.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-6">
           {post.tags.map((tag) => (
-            <span
-              key={tag}
-              className="bg-gray-100 text-gray-700 text-sm px-2 py-1 rounded-full"
-            >
-              {tag}
+            <span key={tag} className="text-sm text-gray-500">
+              #{tag}
             </span>
           ))}
         </div>
       )}
 
-      <div className="mt-6 text-sm text-gray-500">
-        <span>By {post.author?.displayName || 'Unknown'}</span>
+      <div className="mt-6 text-sm text-gray-400">
+        <span>{post.author?.displayName || 'Unknown'}</span>
         <span className="mx-2">&middot;</span>
-        <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+        <span>{fullDate(post.createdAt)}</span>
       </div>
 
       {user && user.id === post.authorId && (
         <Link
           to={`/posts/${slug}/edit`}
-          className="inline-block mt-4 text-sm text-gray-600 hover:text-gray-900"
+          className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-900 transition"
         >
           Edit
         </Link>
       )}
-    </div>
+    </main>
   );
 }

@@ -1,38 +1,73 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
+import { posts as postsApi } from '../api/client';
+import PostCard from '../components/PostCard';
 
 export default function Home() {
-  const { user } = useAuth();
+  const [posts, setPosts] = useState([]);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await postsApi.list();
+        setPosts(res.data.posts);
+        setNextCursor(res.data.nextCursor);
+      } catch (err) {
+        console.error('Failed to load feed:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
+
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const res = await postsApi.list({ cursor: nextCursor });
+      setPosts((prev) => [...prev, ...res.data.posts]);
+      setNextCursor(res.data.nextCursor);
+    } catch (err) {
+      console.error('Failed to load more:', err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-12">
+        <p className="text-gray-400 text-center">Loading...</p>
+      </main>
+    );
+  }
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4">
-      <div className="text-center max-w-lg">
-        {user ? (
-          <>
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">
-              Welcome, {user.displayName}
-            </h1>
-            <p className="text-gray-500 text-lg">
-              Short-form music takes from people who care about music.
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Involuntary Response
-            </h1>
-            <p className="text-gray-500 text-lg mb-8">
-              Short-form music takes from people who care about music.
-            </p>
-            <Link
-              to="/login"
-              className="inline-block bg-gray-900 text-white px-6 py-3 text-sm font-medium rounded hover:bg-gray-800 transition"
-            >
-              Log in
-            </Link>
-          </>
-        )}
-      </div>
-    </div>
+    <main className="max-w-2xl mx-auto px-4 py-12">
+      {posts.length === 0 ? (
+        <p className="text-gray-400 text-center text-lg">Nothing here yet.</p>
+      ) : (
+        <div className="space-y-16">
+          {posts.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      )}
+
+      {nextCursor && (
+        <div className="mt-16 text-center">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="text-gray-500 hover:text-gray-900 text-sm transition"
+          >
+            {loadingMore ? 'Loading...' : 'Older posts'}
+          </button>
+        </div>
+      )}
+    </main>
   );
 }
