@@ -12,7 +12,7 @@ Involuntary Response is a curated music micro-blogging platform where invite-onl
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation and Auth** - Project scaffolding, database schema, invite-only auth system, admin invite management
+- [x] **Phase 1: Foundation and Auth** - Project scaffolding, database schema, invite-only auth system, admin invite management (completed 2026-02-27)
 - [ ] **Phase 2: Post Creation and Embeds** - Post CRUD with Spotify and Apple Music embed pipeline, tags, edit/delete
 - [ ] **Phase 3: Feed and Post Display** - Reverse-chronological feed, post permalinks, text-first responsive design
 - [ ] **Phase 4: Browse, Discovery, and Profiles** - Browse by tag/artist/contributor, contributor profiles with bio
@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Contributor can log in, close the browser, reopen it, and still be logged in
   4. Contributor can log out from any page and is redirected appropriately
   5. Admin can view all active/used invite tokens and revoke unused ones
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 01-01-PLAN.md — Server foundation: Turso schema, auth middleware, auth routes (register/login/forgot-password/reset-password), admin seed
@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Auth | 0/3 | Planning complete | - |
+| 1. Foundation and Auth | 3/3 | Complete   | 2026-02-27 |
 | 2. Post Creation and Embeds | 0/0 | Not started | - |
 | 3. Feed and Post Display | 0/0 | Not started | - |
 | 4. Browse, Discovery, and Profiles | 0/0 | Not started | - |

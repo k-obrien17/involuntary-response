@@ -9,12 +9,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Authentication
 
-- [ ] **AUTH-01**: Admin can generate invite links with unique tokens
+- [x] **AUTH-01**: Admin can generate invite links with unique tokens
 - [x] **AUTH-02**: Contributor can register using an invite token with email and password
 - [x] **AUTH-03**: Contributor can log in with email and password
 - [x] **AUTH-04**: Contributor session persists across browser refresh
 - [x] **AUTH-05**: Contributor can log out from any page
-- [ ] **AUTH-06**: Admin can view and manage active invite tokens via web dashboard
+- [x] **AUTH-06**: Admin can view and manage active invite tokens via web dashboard
 
 ### Posts
 
@@ -97,12 +97,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
 | AUTH-02 | Phase 1 | Complete |
 | AUTH-03 | Phase 1 | Complete |
 | AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Complete |
-| AUTH-06 | Phase 1 | Pending |
+| AUTH-06 | Phase 1 | Complete |
 | POST-01 | Phase 2 | Pending |
 | POST-02 | Phase 2 | Pending |
 | POST-03 | Phase 2 | Pending |
