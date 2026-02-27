@@ -71,7 +71,7 @@ function parseEmbedUrl(url) {
       embedUrl += `?i=${songId}`;
     }
     return {
-      provider: 'apple-music',
+      provider: 'apple',
       type: finalType,
       id: songId || collectionId,
       embedUrl,
