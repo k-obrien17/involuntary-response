@@ -30,11 +30,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Contributor can log in, close the browser, reopen it, and still be logged in
   4. Contributor can log out from any page and is redirected appropriately
   5. Admin can view all active/used invite tokens and revoke unused ones
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — Server foundation: Turso schema, auth middleware, auth routes (register/login/forgot-password/reset-password), admin seed
+- [ ] 01-02-PLAN.md — Client foundation: React shell, AuthContext, API client, route guards, Navbar, auth pages
+- [ ] 01-03-PLAN.md — Admin dashboard: invite CRUD API, contributor management API, admin UI pages
 
 ### Phase 2: Post Creation and Embeds
 **Goal**: Contributors can write short-form music takes with inline Spotify and Apple Music embeds, manage tags, and edit or delete their posts
@@ -100,7 +101,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Auth | 0/0 | Not started | - |
+| 1. Foundation and Auth | 0/3 | Planning complete | - |
 | 2. Post Creation and Embeds | 0/0 | Not started | - |
 | 3. Feed and Post Display | 0/0 | Not started | - |
 | 4. Browse, Discovery, and Profiles | 0/0 | Not started | - |
