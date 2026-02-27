@@ -27,7 +27,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Discovery
 
-- [ ] **DISC-01**: Visitor can view a reverse-chronological feed of all posts
+- [x] **DISC-01**: Visitor can view a reverse-chronological feed of all posts
 - [ ] **DISC-02**: Visitor can browse posts filtered by tag
 - [ ] **DISC-03**: Visitor can browse posts filtered by artist
 - [ ] **DISC-04**: Visitor can view all posts by a specific contributor
@@ -40,14 +40,14 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Sharing
 
-- [ ] **SHAR-01**: Each post has a clean permalink URL
+- [x] **SHAR-01**: Each post has a clean permalink URL
 - [ ] **SHAR-02**: Shared post links show rich previews on social media (OG meta tags with artist image + excerpt)
 - [ ] **SHAR-03**: Site provides an RSS feed of recent posts
 
 ### Design
 
-- [ ] **DSGN-01**: Minimal text-first layout with large type, whitespace, and single content column
-- [ ] **DSGN-02**: Fully responsive and mobile-friendly
+- [x] **DSGN-01**: Minimal text-first layout with large type, whitespace, and single content column
+- [x] **DSGN-02**: Fully responsive and mobile-friendly
 - [ ] **DSGN-03**: Dark mode with system preference detection and manual toggle
 
 ## v2 Requirements
@@ -109,18 +109,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | POST-04 | Phase 2 | Complete |
 | POST-05 | Phase 2 | Complete |
 | POST-06 | Phase 2 | Complete |
-| DISC-01 | Phase 3 | Pending |
+| DISC-01 | Phase 3 | Complete |
 | DISC-02 | Phase 4 | Pending |
 | DISC-03 | Phase 4 | Pending |
 | DISC-04 | Phase 4 | Pending |
 | PROF-01 | Phase 1 | Complete |
 | PROF-02 | Phase 4 | Pending |
 | PROF-03 | Phase 4 | Pending |
-| SHAR-01 | Phase 3 | Pending |
+| SHAR-01 | Phase 3 | Complete |
 | SHAR-02 | Phase 5 | Pending |
 | SHAR-03 | Phase 5 | Pending |
-| DSGN-01 | Phase 3 | Pending |
-| DSGN-02 | Phase 3 | Pending |
+| DSGN-01 | Phase 3 | Complete |
+| DSGN-02 | Phase 3 | Complete |
 | DSGN-03 | Phase 5 | Pending |
 
 **Coverage:**
