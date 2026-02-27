@@ -11,6 +11,9 @@ import ResetPassword from './pages/ResetPassword';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminInvites from './pages/admin/Invites';
 import AdminContributors from './pages/admin/Contributors';
+import CreatePost from './pages/CreatePost';
+import EditPost from './pages/EditPost';
+import ViewPost from './pages/ViewPost';
 
 function App() {
   return (
@@ -45,6 +48,23 @@ function App() {
               <AdminRoute>
                 <AdminContributors />
               </AdminRoute>
+            }
+          />
+          <Route
+            path="/posts/new"
+            element={
+              <ProtectedRoute>
+                <CreatePost />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/posts/:slug" element={<ViewPost />} />
+          <Route
+            path="/posts/:slug/edit"
+            element={
+              <ProtectedRoute>
+                <EditPost />
+              </ProtectedRoute>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

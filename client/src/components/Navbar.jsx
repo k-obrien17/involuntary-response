@@ -20,6 +20,12 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {user ? (
             <>
+              <Link
+                to="/posts/new"
+                className="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800"
+              >
+                New post
+              </Link>
               {user.role === 'admin' && (
                 <Link
                   to="/admin"
