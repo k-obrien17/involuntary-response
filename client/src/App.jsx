@@ -8,6 +8,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminInvites from './pages/admin/Invites';
+import AdminContributors from './pages/admin/Contributors';
 
 function App() {
   return (
@@ -21,13 +24,26 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route
-            path="/admin/*"
+            path="/admin"
             element={
               <AdminRoute>
-                <div className="max-w-4xl mx-auto px-4 py-12">
-                  <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-                  <p className="mt-2 text-gray-500">Coming in Plan 03</p>
-                </div>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/invites"
+            element={
+              <AdminRoute>
+                <AdminInvites />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/contributors"
+            element={
+              <AdminRoute>
+                <AdminContributors />
               </AdminRoute>
             }
           />
