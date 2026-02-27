@@ -1,0 +1,156 @@
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { profile } from '../api/client';
+import PostListItem from '../components/PostListItem';
+
+export default function Profile() {
+  const { username } = useParams();
+  const { user } = useAuth();
+  const [profileData, setProfileData] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  const [editing, setEditing] = useState(false);
+  const [bio, setBio] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const isOwnProfile = user?.username === username;
+
+  useEffect(() => {
+    setLoading(true);
+    setNotFound(false);
+    setProfileData(null);
+    setPosts([]);
+    setEditing(false);
+
+    const fetchProfile = async () => {
+      try {
+        const res = await profile.get(username);
+        setProfileData(res.data.user);
+        setPosts(res.data.posts);
+        setBio(res.data.user.bio || '');
+      } catch (err) {
+        if (err.response?.status === 404) {
+          setNotFound(true);
+        } else {
+          console.error('Failed to load profile:', err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [username]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await profile.updateBio(bio);
+      setProfileData((prev) => ({ ...prev, bio: res.data.bio }));
+      setEditing(false);
+    } catch (err) {
+      console.error('Failed to update bio:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-8">
+        <p className="text-gray-400 text-center">Loading...</p>
+      </main>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-8">
+        <p className="text-gray-400 text-center">User not found.</p>
+      </main>
+    );
+  }
+
+  return (
+    <main className="max-w-2xl mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">
+          {profileData.displayName}
+        </h1>
+        <p className="text-sm text-gray-500">@{profileData.username}</p>
+
+        <div className="mt-4">
+          {isOwnProfile ? (
+            editing ? (
+              <div>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  maxLength={300}
+                  autoFocus
+                  className="w-full border border-gray-200 rounded p-2 text-base resize-none"
+                  rows={3}
+                  placeholder="Write a short bio..."
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs text-gray-400">
+                    {bio.length}/300
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setEditing(false);
+                        setBio(profileData.bio || '');
+                      }}
+                      className="text-sm text-gray-500 hover:text-gray-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="bg-gray-900 text-white px-3 py-1 rounded text-sm hover:bg-gray-800 disabled:opacity-50"
+                    >
+                      {saving ? 'Saving...' : 'Save'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-gray-600">
+                  {profileData.bio || 'No bio yet.'}
+                </p>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="text-sm text-gray-400 hover:text-gray-600 mt-1"
+                >
+                  Edit bio
+                </button>
+              </div>
+            )
+          ) : (
+            <p className="text-gray-600">
+              {profileData.bio || 'No bio yet.'}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Posts</h2>
+        {posts.length === 0 ? (
+          <p className="text-gray-400">No posts yet.</p>
+        ) : (
+          <div>
+            {posts.map((post) => (
+              <PostListItem key={post.slug} post={post} />
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
