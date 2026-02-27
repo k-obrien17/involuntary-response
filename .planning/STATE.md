@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-last_updated: "2026-02-27T06:32:03Z"
+last_updated: "2026-02-27T14:08:00Z"
 progress:
   total_phases: 2
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** Phase 2 in progress. Post Creation and Embeds -- API complete, client UI next.
+**Current focus:** Phase 2 complete. Post Creation and Embeds -- API and client UI done. Ready for Phase 3 (Feed and Post Display).
 
 ## Current Position
 
-Phase: 2 of 5 (Post Creation and Embeds)
-Plan: 1 of 2 in current phase (02-01 complete)
-Status: In progress
-Last activity: 2026-02-27 -- Completed 02-01-PLAN.md (post CRUD API)
+Phase: 2 of 5 (Post Creation and Embeds) -- COMPLETE
+Plan: 2 of 2 in current phase (all complete)
+Status: Phase 2 complete, ready for Phase 3
+Last activity: 2026-02-27 -- Completed 02-02-PLAN.md (post creation UI)
 
-Progress: [####......] 40%
+Progress: [######....] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 3min
-- Total execution time: 0.15 hours
+- Total plans completed: 5
+- Average duration: 4min
+- Total execution time: 0.32 hours
 
 **By Phase:**
 
@@ -51,6 +51,7 @@ Progress: [####......] 40%
 | Phase 01 P02 | 3min | 2 tasks | 15 files |
 | Phase 01 P03 | 3min | 3 tasks | 8 files |
 | Phase 02 P01 | 2min | 2 tasks | 4 files |
+| Phase 02 P02 | 8min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Embed domain validation via prefix allowlist (open.spotify.com/embed, embed.music.apple.com)
 - [Phase 02]: Spotify oEmbed metadata fetch is non-fatal -- embed works without title/thumbnail
 - [Phase 02]: Tags sanitized to [a-z0-9- ] with max 30 chars, max 5 per post
+- [Phase 02]: Navbar shows @username instead of displayName to avoid duplicate "Admin" label
+- [Phase 02]: ViewPost is a functional placeholder -- Phase 3 builds the proper post display
+- [Phase 02]: PostForm sends originalUrl to API (server re-parses), not parsed embed object
 
 ### Pending Todos
 
@@ -84,5 +88,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 02-01-PLAN.md (post CRUD API)
-Resume file: .planning/phases/02-post-creation-and-embeds/02-01-SUMMARY.md
+Stopped at: Completed 02-02-PLAN.md (post creation UI) -- Phase 2 complete
+Resume file: .planning/phases/02-post-creation-and-embeds/02-02-SUMMARY.md
