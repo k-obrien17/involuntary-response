@@ -10,9 +10,9 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Authentication
 
 - [ ] **AUTH-01**: Admin can generate invite links with unique tokens
-- [ ] **AUTH-02**: Contributor can register using an invite token with email and password
-- [ ] **AUTH-03**: Contributor can log in with email and password
-- [ ] **AUTH-04**: Contributor session persists across browser refresh
+- [x] **AUTH-02**: Contributor can register using an invite token with email and password
+- [x] **AUTH-03**: Contributor can log in with email and password
+- [x] **AUTH-04**: Contributor session persists across browser refresh
 - [ ] **AUTH-05**: Contributor can log out from any page
 - [ ] **AUTH-06**: Admin can view and manage active invite tokens via web dashboard
 
@@ -34,7 +34,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Profiles
 
-- [ ] **PROF-01**: Contributor has a display name and username
+- [x] **PROF-01**: Contributor has a display name and username
 - [ ] **PROF-02**: Contributor can write a bio (~300 characters)
 - [ ] **PROF-03**: Visitor can view a contributor's profile page
 
@@ -98,9 +98,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Complete |
+| AUTH-03 | Phase 1 | Complete |
+| AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Pending |
 | AUTH-06 | Phase 1 | Pending |
 | POST-01 | Phase 2 | Pending |
@@ -113,7 +113,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DISC-02 | Phase 4 | Pending |
 | DISC-03 | Phase 4 | Pending |
 | DISC-04 | Phase 4 | Pending |
-| PROF-01 | Phase 1 | Pending |
+| PROF-01 | Phase 1 | Complete |
 | PROF-02 | Phase 4 | Pending |
 | PROF-03 | Phase 4 | Pending |
 | SHAR-01 | Phase 3 | Pending |
