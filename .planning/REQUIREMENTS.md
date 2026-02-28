@@ -41,8 +41,8 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Sharing
 
 - [x] **SHAR-01**: Each post has a clean permalink URL
-- [ ] **SHAR-02**: Shared post links show rich previews on social media (OG meta tags with artist image + excerpt)
-- [ ] **SHAR-03**: Site provides an RSS feed of recent posts
+- [x] **SHAR-02**: Shared post links show rich previews on social media (OG meta tags with artist image + excerpt)
+- [x] **SHAR-03**: Site provides an RSS feed of recent posts
 
 ### Design
 
@@ -117,8 +117,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROF-02 | Phase 4 | Complete |
 | PROF-03 | Phase 4 | Complete |
 | SHAR-01 | Phase 3 | Complete |
-| SHAR-02 | Phase 5 | Pending |
-| SHAR-03 | Phase 5 | Pending |
+| SHAR-02 | Phase 5 | Complete |
+| SHAR-03 | Phase 5 | Complete |
 | DSGN-01 | Phase 3 | Complete |
 | DSGN-02 | Phase 3 | Complete |
 | DSGN-03 | Phase 5 | Pending |
