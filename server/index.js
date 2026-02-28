@@ -9,6 +9,7 @@ import profileRoutes from './routes/profile.js';
 import browseRoutes from './routes/browse.js';
 import postsRoutes from './routes/posts.js';
 import embedsRoutes from './routes/embeds.js';
+import feedRoutes from './routes/feed.js';
 import { initDatabase } from './db/index.js';
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/api/users', usersRoutes);    // Admin routes second (all require admin
 app.use('/api/browse', browseRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/embeds', embedsRoutes);
+app.use('/api/feed', feedRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
