@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: "Polish & Gaps"
-status: ready_to_plan
-last_updated: "2026-02-28"
+milestone: v1.0
+milestone_name: Polish & Gaps
+status: unknown
+last_updated: "2026-02-28T14:36:21.990Z"
 progress:
-  total_phases: 4
+  total_phases: 1
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 6 of 9 (Deployment and Avatars) -- first phase of v2.0
-Plan: --
-Status: Ready to plan
-Last activity: 2026-02-28 -- Roadmap created for v2.0 milestone
+Plan: 02 of 2 (Plan 01 complete)
+Status: Executing
+Last activity: 2026-02-28 -- Plan 06-01 complete (Vercel API proxy rewrite)
 
-Progress: [############░░░░░░░░] 58% (v1.0 complete, v2.0 starting)
+Progress: [#############░░░░░░░] 62% (v1.0 complete, v2.0 Phase 6: 1/2 plans done)
 
 ## Performance Metrics
 
@@ -40,7 +40,7 @@ Progress: [############░░░░░░░░] 58% (v1.0 complete, v2.0 starti
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 6 | 0/? | -- | -- |
+| 6 | 1/2 | 1min | 1min |
 | 7 | 0/? | -- | -- |
 | 8 | 0/? | -- | -- |
 | 9 | 0/? | -- | -- |
@@ -57,6 +57,7 @@ Recent decisions affecting current work:
 - [Roadmap v2.0]: Phase 6 bundles deployment fix with avatars -- both are small, independent, and unblock production testing
 - [Roadmap v2.0]: Artist data (Phase 7) before search (Phase 9) -- search over artist names requires artist data to exist
 - [Roadmap v2.0]: Inline references (Phase 8) is a standalone phase despite only 2 requirements -- distinct post-creation workflow
+- [Phase 06]: Hardcoded placeholder URL in vercel.json -- Vercel Hobby plan does not support env vars in rewrite destinations
 
 ### Pending Todos
 
@@ -64,10 +65,11 @@ None yet.
 
 ### Blockers/Concerns
 
-- vercel.json API proxy must be configured before any v2.0 features can be verified in production
+- ~~vercel.json API proxy must be configured before any v2.0 features can be verified in production~~ (resolved: 06-01)
+- User must replace RENDER_BACKEND_URL placeholder in client/vercel.json with actual Render service URL before production deployment
 
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: v2.0 roadmap created, ready to plan Phase 6
+Stopped at: Completed 06-01-PLAN.md (Vercel API proxy rewrite)
 Resume file: None

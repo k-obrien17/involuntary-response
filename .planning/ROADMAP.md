@@ -41,11 +41,11 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   3. Contributor avatar appears on the post permalink page
   4. Contributor profile page displays their avatar
   5. Contributors without a Gravatar see their initials as a fallback avatar
-**Plans**: TBD
+**Plans**: 2 (Wave 1 parallel)
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [x] 06-01: Vercel API proxy rewrite (DEPL-01)
+- [ ] 06-02: Avatar system — server hash + component + integration (AVTR-01, AVTR-02, AVTR-03)
 
 ### Phase 7: Artist Data
 **Goal**: Every post reliably has an artist name -- auto-extracted from embeds or manually entered -- and browse-by-artist works across all embed types
@@ -104,7 +104,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 3. Feed and Post Display | v1.0 | 2/2 | Complete | 2026-02-27 |
 | 4. Browse, Discovery, and Profiles | v1.0 | 3/3 | Complete | 2026-02-28 |
 | 5. Sharing and Distribution | v1.0 | 2/2 | Complete | 2026-02-28 |
-| 6. Deployment and Avatars | v2.0 | 0/? | Not started | - |
+| 6. Deployment and Avatars | v2.0 | 1/2 | In Progress | - |
 | 7. Artist Data | v2.0 | 0/? | Not started | - |
 | 8. Inline References | v2.0 | 0/? | Not started | - |
 | 9. Full-Text Search | v2.0 | 0/? | Not started | - |

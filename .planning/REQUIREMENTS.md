@@ -35,7 +35,7 @@ Requirements for v2.0 Polish & Gaps. Each maps to roadmap phases.
 
 ### Deployment
 
-- [ ] **DEPL-01**: `vercel.json` configured with `/api/*` proxy rewrite to Render backend
+- [x] **DEPL-01**: `vercel.json` configured with `/api/*` proxy rewrite to Render backend
 
 ## Future Requirements
 
@@ -81,7 +81,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SRCH-04 | Phase 9 | Pending |
 | REF-01 | Phase 8 | Pending |
 | REF-02 | Phase 8 | Pending |
-| DEPL-01 | Phase 6 | Pending |
+| DEPL-01 | Phase 6 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 15 total
