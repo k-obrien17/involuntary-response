@@ -1,217 +1,235 @@
 # Project Research Summary
 
-**Project:** Involuntary Response
-**Domain:** Music micro-blogging platform (short-form commentary with streaming embeds)
-**Researched:** 2026-02-26
+**Project:** Involuntary Response v2.1 — Reader Engagement & Editorial
+**Domain:** Adding reader participation and contributor editorial tools to an existing music micro-blogging platform
+**Researched:** 2026-02-28
 **Confidence:** HIGH
 
 ## Executive Summary
 
-Involuntary Response is a curated, invite-only music micro-blogging platform where hand-picked contributors write short-form takes (500-800 characters) about music, with inline Spotify and Apple Music embeds. The product is closer to a group zine than a social network -- the constraint on length and contributor access is the brand, not a limitation. The entire existing Backyard Marquee stack (React 18, Vite 5, Tailwind, Express 5, Turso) carries forward unchanged, and the two genuinely new technical domains -- music embed integration and invite-only auth -- are both well-documented and low-complexity. Spotify and Apple Music both offer free, no-auth iframe embeds that cover the core use case without touching restricted APIs.
+Involuntary Response v2.1 adds two independent feature groups to an already-working Express/Turso/React platform: reader accounts with engagement features (likes and comments), and contributor editorial tools (drafts, scheduled publishing, and post editing UI). Research confirms that nearly everything needed already exists in the codebase — the same JWT/bcrypt auth, rate limiting, sanitization, and toggle-like/flat-comment patterns proven in the Backyard Marquee side of the same monorepo can be directly reused here. The only new infrastructure dependency is `node-cron@3.0.3` for scheduled publishing, and four database migrations for new tables and columns. This is a low-risk, high-confidence build grounded entirely in existing patterns.
 
-The recommended approach is a monolith SPA with server-side OG meta tag injection, the same architecture already proven in Backyard Marquee. The critical new pattern is the embed pipeline: contributors paste a Spotify or Apple Music URL, the client parses it for instant preview, the server re-parses and fetches oEmbed metadata at write time, and the resolved embed data is stored alongside the post as structured data. Post bodies are plain text (no markdown, no rich text editor) stored in a textarea, rendered with react-markdown for minimal formatting. The posting flow should take under 60 seconds.
+The recommended approach treats the two feature groups as sequentially ordered but internally parallel: reader accounts must exist before likes and comments work, and the post status schema must be in place before drafts or scheduling can function. The architecture research derives a clear 6-phase build order driven by hard dependency constraints — starting with schema and status filtering (a cross-cutting safety concern), then reader accounts, then engagement features (likes first, comments second), then contributor editorial tools (drafts, then scheduling). This order ensures the system is always in a releasable state at the end of each phase.
 
-The top risks are: (1) embed performance killing feed pages when multiple Spotify iframes load simultaneously -- solved by lazy-loading with click-to-play placeholders, decided before any UI is built; (2) content drought on an invite-only platform -- solved by securing 3-5 committed contributors and seeding 20-30 posts before public launch; (3) the temptation to use the Spotify Web API (now heavily restricted as of February 2026) when the free oEmbed/embed approach covers all needs. Every critical pitfall can be avoided by making the right architectural decisions in Phase 1 rather than retrofitting later.
+The dominant risk is not technical complexity — it is the scope of the status filter change. Adding `status = 'published'` to the `posts` schema is a one-line migration, but that filter must be applied to at least 10 distinct query sites across 5 route files plus the RSS feed. Missing any one of them causes unpublished content to leak publicly — in the feed, in RSS, in search results, in browse-by-tag results. Ghost CMS had exactly this bug in production (GitHub issue #11266). Prevention requires a systematic query audit before any code is written. All other pitfalls (role confusion, N+1 queries, scheduler persistence, cursor pagination breakage) are well-understood with clear prevention strategies.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The stack is deliberately conservative -- nearly everything is carried forward from Backyard Marquee. The only new dependencies are for markdown rendering and embed display. See [STACK.md](STACK.md) for full details.
+The existing stack handles everything. No new client-side dependencies are needed. The only server addition is `node-cron@3.0.3` for scheduled post publishing. All auth, rate limiting, sanitization, bcrypt hashing, JWT generation, and database access patterns remain unchanged.
 
-**Core technologies (carried forward):**
-- **React 18 + Vite 5 + Tailwind 3** -- Frontend stack, proven, no reason to change
-- **Express 5 + Node.js** -- API server, familiar patterns for auth, routing, middleware
-- **Turso (@libsql/client)** -- Hosted SQLite, existing migration pattern, handles read-heavy workloads well
+**Core technologies (unchanged):**
+- **React 18 + Vite 5 + Tailwind 3 + React Router 6 + Axios**: Existing frontend stack, no changes
+- **Express 5 + Node.js**: Existing API server, existing middleware patterns extended not replaced
+- **Turso (@libsql/client)**: Existing database, append-only migration pattern, 4 new migrations
 
-**New dependencies:**
-- **react-markdown 10.x + remark-gfm + rehype-sanitize** -- Safe-by-default markdown rendering for post bodies. ESM only, handled natively by Vite
-- **react-textarea-autosize** -- Auto-growing textarea for the compose experience. Drop-in replacement
-- **Spotify oEmbed API** -- No auth required. Server-side GET to fetch embed metadata (title, thumbnail, iframe HTML)
-- **Apple Music iframe embeds** -- No API key required. URL-format construction from parsed contributor links
-- **nanoid + date-fns** -- Short unique IDs for slugs/tokens, tree-shakeable date formatting
-- **Odesli (song.link) API** -- Optional cross-platform link resolution, 10 req/min free tier
+**New dependency (server only):**
+- **node-cron@3.0.3**: In-process scheduled task runner — recommended over Render Cron Jobs (extra cost, separate deployment) and `node-schedule` (more complex API, wrong tool for a repeating poller). Alternatively, a simple `setInterval` with startup catch-up achieves the same result with zero new dependencies.
 
-**Critical version note:** react-markdown 10.x, remark-gfm 4.x, and rehype-sanitize 6.x are ESM-only. This is fine for the Vite frontend. The Express server (CommonJS) should not render markdown -- keep markdown rendering client-side only.
+**Schema additions (no new libraries):**
+- `posts.status TEXT DEFAULT 'published'` — values: `draft`, `published`, `scheduled`
+- `posts.published_at DATETIME` — set on publish, used for feed ordering (not `created_at`)
+- `post_likes` table — composite PK `(post_id, user_id)`, identical pattern to `lineup_likes`
+- `post_comments` table — flat only (no `parent_id`), identical pattern to `lineup_comments`
+
+**What NOT to add:** DOMPurify (existing `sanitize()` covers plain text), WebSockets, React Query, social login for readers, autosave, or profanity filters. The existing stack handles all of these at this platform's scale.
 
 ### Expected Features
 
 See [FEATURES.md](FEATURES.md) for the full prioritization matrix and competitor analysis.
 
-**Must have (table stakes -- P1):**
-- Invite-only contributor auth with admin-generated invite tokens
-- Post creation: plain text, ~800 char soft limit, ~1000 hard limit
-- Spotify embed support (paste URL, resolve via oEmbed, render inline player)
-- Apple Music embed support (paste URL, construct iframe embed URL)
-- Reverse-chronological feed with cursor-based pagination
-- Tags on posts (up to 5, browse-by-tag pages)
-- Artist linking (extracted from embeds, browse-by-artist pages)
-- Contributor profiles (username, display name, bio, their posts)
-- Post permalinks with OG meta tags (rich social previews with album art)
-- Public read access (no login required to read anything)
-- Minimal text-first responsive design (large type, whitespace, single column)
+**Must have (table stakes — P1):**
+- Reader signup (email + password + display name, no invite token) — identity required before any engagement is possible
+- Post likes (toggle, one per reader per post, count visible to all) — universal engagement signal
+- Flat top-level comments — standard reader feedback mechanism; flat only per project scope
+- Contributor post editing UI — backend PUT route already exists; frontend edit button is the missing piece
+- Draft save (unpublished posts) — every publishing platform distinguishes draft from published
 
-**Should have (differentiators -- P2):**
-- Likes (requires lightweight reader accounts)
-- Comments with flat threading and basic moderation
-- Dark mode (Tailwind dark: classes, system preference detection)
-- RSS feed (high value for the music-nerd target audience)
-- Music references without embed (styled inline link, no iframe)
-- Artist detail pages with aggregated stats
+**Should have (differentiators — P2):**
+- Scheduled publishing with datetime picker — Substack and Ghost both offer this; editorial cadence value
+- "My Posts" contributor dashboard — published/draft/scheduled views; significantly improves contributor UX
+- Like count + comment count in feed — makes the platform feel alive, guides reader attention
+- Reader liked-state in feed (when logged in) — prevents re-liking confusion, shows participation
+- "Edited" indicator on posts — transparency when content changes after publish
 
-**Defer (v2+):**
-- Full-text search (premature for low post volume)
-- Email notifications (unnecessary for <10 contributors)
-- "Most liked" pages, share analytics, contributor mentions
-
-**Anti-features (explicitly avoid):**
-- Star ratings or numerical scores (undermines "words are the review" ethos)
-- Rich text editor (overkill for paragraph-length posts; complexity creep)
-- Algorithmic/trending feed (perverse incentives, chronological is the constraint)
-- Threaded comments (fragments discussion on short posts)
-- User-uploaded images (expensive, pulls focus from text)
-- Open registration (destroys curatorial identity)
-- YouTube/video embeds (out of scope, audio-first identity)
+**Defer to v2.2+:**
+- Email notifications for likes/comments — infrastructure overhead not justified at current contributor count
+- Reader profile pages — readers are consumers; display name on comments is sufficient
+- Social login (Google/GitHub) for readers — add only if signup friction is measured to be a problem
+- Comment editing — delete and re-post; 500-char comments are not polished content
+- Autosave drafts — posts are ~800 chars; manual save is fine; losing a draft is 2 minutes of work
+- Version history for edits — show "edited" badge with timestamp, no full diff needed
 
 ### Architecture Approach
 
-Standard React SPA + Express API monolith with Turso, the same pattern as Backyard Marquee. The Express server operates in dual mode: API routes for the SPA, and bot-detected HTML responses with OG meta tags for social crawlers. Three auth levels -- public (no middleware), contributor (JWT), admin (JWT + role check) -- gate all write operations behind the invite system. See [ARCHITECTURE.md](ARCHITECTURE.md) for the full system diagram and recommended project structure.
+All new features integrate into the existing Express/middleware/Turso stack without introducing new architectural layers. The integration surface is wide (10 query sites, 5 route files, multiple client components) but each individual change is small and additive. The single most important structural recommendation from the architecture research is extracting the existing `batchLoadPostData` helper from `browse.js` into a shared `server/lib/post-helpers.js` module, so like and comment count batch-loading is written once and imported across all 4 places that need it.
 
-**Major components:**
-1. **React SPA** -- Feed, Post, Browse (artist/tag), CreatePost, Profile, AcceptInvite pages. PostCard and MusicEmbed as core reusable components
-2. **Express API** -- Routes split by auth level: `browse.js` (public reads), `posts.js` (contributor CRUD), `embeds.js` (Spotify oEmbed proxy), `admin.js` (invite management)
-3. **Embed Pipeline** -- `embedParser.js` utility shared between client (instant preview) and server (source-of-truth resolution). Stores structured data (provider, type, ID, embed URL, metadata) not raw HTML
-4. **Turso Database** -- 7 tables: `posts`, `post_embeds`, `post_tags`, `post_likes`, `post_comments`, `users`, `invites`. Indexes on `created_at`, `tag`, and foreign keys for feed performance
-5. **OG Meta Handler** -- Bot user-agent detection in Express, serves post-specific meta tags (title, excerpt, album art thumbnail) for social sharing
+**Major new components:**
+1. `server/lib/scheduler.js` (NEW): `setInterval` polling every 60 seconds to flip `scheduled` posts to `published` when `publish_at <= now`; runs immediately on startup to catch missed publishes from process restarts
+2. `server/lib/post-helpers.js` (NEW): Extracted `batchLoadPostData` + `formatPosts` helpers extended with like/comment counts — imported by `posts.js`, `browse.js`, `profile.js`, `search.js` to eliminate N+1 query risk
+3. `middleware/auth.js` + `requireContributor` (MODIFIED): New export that wraps `authenticateToken` and checks `req.user.role`; protects post create/update routes from reader access
+4. `client/src/components/LikeButton.jsx` (NEW): Heart icon + count + toggle with optimistic update
+5. `client/src/components/CommentSection.jsx` (NEW): Comment list + add form + delete; reader auth required; author/admin/self moderation
+6. `client/src/pages/Drafts.jsx` (NEW): Contributor's draft and scheduled post management view
+7. `client/src/components/ContributorRoute.jsx` (NEW): Route guard requiring contributor or admin role
+
+**New routes summary:**
+- `POST /api/auth/register-reader` — open reader signup, separate from invite-protected contributor registration
+- `GET /api/posts/drafts` — contributor's own drafts and scheduled posts
+- `POST /api/posts/:slug/like` and `DELETE /api/posts/:slug/like` — toggle like
+- `GET /api/posts/:slug/comments`, `POST /api/posts/:slug/comments`, `DELETE /api/posts/:slug/comments/:id` — comment CRUD
 
 ### Critical Pitfalls
 
-See [PITFALLS.md](PITFALLS.md) for the full pitfall-to-phase mapping and recovery strategies.
+See [PITFALLS.md](PITFALLS.md) for the full pitfall-to-phase mapping, security mistakes, UX pitfalls, and recovery strategies.
 
-1. **Embed performance death on feed pages** -- 15 Spotify iframes = 5-8 MB payload, layout shifts, frozen scrolling. Solve with click-to-load placeholders (album art thumbnail + play button); never render iframes eagerly in a feed. Decide this in Phase 1 before any UI exists.
+1. **Draft/scheduled posts leaking into public queries** — Before writing any code, enumerate all 10 query sites across `posts.js`, `browse.js`, `feed.js`, `search.js`, `profile.js`. Add `AND p.status = 'published'` to every one. The RSS feed (`feed.js`) is the most commonly missed location. Single-post GET requires special handling: show drafts only to their author via `optionalAuth`.
 
-2. **Apple Music country code lock-in** -- Embed URLs contain a hardcoded storefront (`/us/`, `/gb/`). Non-matching readers get "not available in your country." Normalize away the country code at write time, default to `us` storefront (broadest catalog), show fallback link for failed embeds.
+2. **AuthContext assuming a single user type** — Audit every `if (user)` check in the frontend before reader registration is built. Add explicit `isContributor`, `isReader`, `isAdmin` helpers to `AuthContext`. Add `requireContributor` middleware server-side. A reader's JWT must produce 403 from `POST /api/posts`, not 201.
 
-3. **Spotify Web API vs. Embed confusion** -- The Web API is now heavily restricted (Feb 2026: Premium required, 5-user limit, 1 Client ID per dev). The oEmbed API and iframe embeds require zero auth. Design the posting flow around URL pasting, not artist search, to avoid the Web API entirely.
+3. **Reader registration conflicting with the invite flow** — Use a separate `/register-reader` endpoint; do not touch the existing `/register` endpoint. Change the `role` column default from `'contributor'` to `'reader'` (or remove the default entirely). The current default becomes a security hole the moment open registration exists.
 
-4. **SPA without server-side OG tags kills social sharing** -- Social crawlers don't execute JavaScript. Without server-side meta tag injection, shared links show nothing. Implement bot detection + dynamic meta tags in Express, same pattern as Backyard Marquee.
+4. **Cursor pagination breaking on status change** — Add a `published_at` column in the same migration as `status`. Change all public feed cursors to use `(published_at, id)` instead of `(created_at, id)`. A scheduled post that publishes must appear at the top of the feed at its publish time, not buried at its draft creation date.
 
-5. **Content drought on invite-only platform** -- The biggest non-technical risk. Secure 3-5 committed contributors before building. Seed 20-30 posts before public launch. Make posting take <60 seconds.
+5. **N+1 queries on like/comment counts** — Follow the existing `batchLoadPostData` pattern in `browse.js`. A single `GROUP BY post_id` query for likes and one for comments replaces N per-post subqueries. With 20 posts per page, this is 40 queries vs. 2 — a correctness issue even at small scale.
+
+6. **Scheduled publishing silent failures** — `node-cron` schedules exist only in process memory. If the Render process restarts, scheduled posts miss their window. Solution: make the scheduler stateless. The database IS the schedule (`publish_at` column). The scheduler just runs `UPDATE ... WHERE status = 'scheduled' AND publish_at <= NOW()` — this query is safe to run repeatedly, and running it on startup catches any missed publishes from downtime.
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+The dependency graph is clear and suggests 6 phases. Reader engagement (Phases 2-4) and editorial tools (Phases 5-6) are fully independent of each other after Phase 1 and could be parallelized. The sequential ordering below is correct for a solo developer and leaves the system in a working state after each phase.
 
-### Phase 1: Foundation (Database, Auth, Post CRUD with Embeds)
+### Phase 1: Schema Foundation + Status Filtering
 
-**Rationale:** Everything depends on the database schema, invite-only auth, and the post creation pipeline. The embed system is inseparable from post creation -- it is not a separate phase. The data model decisions made here (structured embed data, cursor-based pagination, role column) prevent the costliest pitfalls.
+**Rationale:** Cross-cutting safety concern that must come first. The `status` and `published_at` columns must exist before any draft feature is built. The status filter must be applied to all public queries before any draft can be created — otherwise any draft saved in Phase 5 would immediately appear in public feeds, RSS, and search. This phase sets up the safety net for the entire remaining build.
 
-**Delivers:** A working backend where an admin can generate invites, contributors can register and create posts with Spotify/Apple Music embeds, and posts are stored with structured embed metadata. No frontend yet.
+**Delivers:** Single database migration (posts.status, posts.published_at, post_likes, post_comments tables); `requireContributor` middleware export; `batchLoadPostData` extracted to `server/lib/post-helpers.js`; `AND p.status = 'published'` filter applied to all 10 public query sites
 
-**Addresses:** Invite-only auth, post creation, Spotify embeds, Apple Music embeds, artist linking (extracted from embeds), tags on posts
+**Addresses:** Query audit across posts.js, browse.js, feed.js, search.js, profile.js
 
-**Avoids:** Storing raw embed HTML (store structured data instead), offset pagination (cursor from day one), Spotify Web API dependency (oEmbed only), Apple Music country code lock-in (normalize at write time), missing server-side validation (enforce char limits in API)
+**Avoids:** Draft leak (Pitfall 1), cursor pagination breakage (Pitfall 4), N+1 setup (Pitfall 5)
 
-### Phase 2: Public Reading Experience (Feed, Post Pages, Browse, OG Tags)
+**Research flag:** Standard patterns — pure migration and query modification. No additional research needed.
 
-**Rationale:** With content storable via API, the next priority is making it readable. The feed is the core read path and must be performant with multiple embeds. OG meta tags enable social sharing -- the primary distribution mechanism. Browse-by-artist and browse-by-tag are table-stakes discovery features.
+### Phase 2: Reader Accounts
 
-**Delivers:** A fully functional public-facing site: chronological feed with lazy-loaded embeds, individual post pages with OG meta tags, browse-by-artist pages, browse-by-tag pages, contributor profile pages. The site is publicly readable with no login required.
+**Rationale:** Likes and comments require authenticated reader identity. Reader accounts must exist before any engagement feature is built or tested. The role model — and all its client-side and server-side guards — must be established before any code assumes user type.
 
-**Addresses:** Reverse-chronological feed, post permalinks, OG meta tags, browse by artist, browse by tag, contributor profiles, public read access, text-first responsive design
+**Delivers:** `POST /api/auth/register-reader` endpoint; `ReaderRegister.jsx` page; `AuthContext` role helpers (`isContributor`, `isReader`, `isAdmin`); `ContributorRoute.jsx` guard; Navbar conditional rendering; role enforcement on all contributor-only routes; `role` column default changed to `'reader'`
 
-**Avoids:** Embed performance death (click-to-load placeholders from the start), SPA without OG tags (bot detection in Express), embed iframes overflowing on mobile (responsive container component)
+**Addresses:** Reader signup (P1 table stake), role-based UI gating, security audit of all `if (user)` checks
 
-### Phase 3: Contributor Experience (Create Post UI, Edit, Dashboard)
+**Avoids:** AuthContext single-user-type assumption (Pitfall 2), reader registration conflicting with invite flow (Pitfall 3 / security section)
 
-**Rationale:** With the read path complete, build the write path UI. The compose experience must be fast and frictionless -- paste a link, write a take, publish. The contributor dashboard provides gentle accountability (days since last post).
+**Research flag:** Standard patterns — direct reuse of existing auth route. No additional research needed.
 
-**Delivers:** Full contributor workflow: create post page with embed preview, edit posts, view own posts, simple contributor dashboard. The posting flow takes under 60 seconds.
+### Phase 3: Likes
 
-**Addresses:** Post creation UI (react-textarea-autosize), embed input with instant preview, contributor dashboard, post editing
+**Rationale:** Simplest engagement feature. Proves the reader auth flow works end-to-end in a real use case before tackling the more complex comments system. High user value at lowest implementation cost. The `post_likes` table already exists from Phase 1.
 
-**Avoids:** Rich text editor complexity (plain textarea + character counter), posting flow taking >3 steps (paste link, write, publish)
+**Delivers:** `POST/DELETE /api/posts/:slug/like` toggle endpoints; `LikeButton.jsx` component on `ViewPost`; batch-loaded like counts in feed/browse/search/profile via the shared `post-helpers.js`; `likedByMe` boolean for authenticated readers on single post view via `optionalAuth`
 
-### Phase 4: Social Features (Likes, Comments, Reader Engagement)
+**Addresses:** Post likes P1 feature, like count in feed P1/P2 feature
 
-**Rationale:** Social features depend on posts and readers existing. They are P2 features -- valuable but not launch-blocking. Likes require lightweight reader accounts. Comments require moderation. Build after the core content loop is proven.
+**Avoids:** N+1 query explosion (Pitfall 5) — batch-loading required from the start; like count inflation — UNIQUE constraint on `(user_id, post_id)` enforced at DB level
 
-**Delivers:** Like/unlike on posts, flat comments with contributor + admin moderation, lightweight reader accounts (for engagement only, not posting).
+**Research flag:** Standard patterns — direct reuse of `lineup_likes` from Backyard Marquee. Validate Turso `INSERT OR IGNORE` behavior in staging before shipping (known edge case with transactions in Turso #2713).
 
-**Addresses:** Likes, comments, comment moderation, reader accounts
+### Phase 4: Comments
 
-**Avoids:** Threaded comments (flat only), comments overshadowing posts (collapsed by default), missing comment length limits
+**Rationale:** More complex than likes — text input, sanitization, display list, moderation, delete permissions for three parties (comment author, post author, admin). Builds on reader auth proven in Phase 3. The `post_comments` table already exists from Phase 1.
 
-### Phase 5: Polish and Distribution (RSS, Dark Mode, Sharing, Content Seeding)
+**Delivers:** `GET/POST/DELETE /api/posts/:slug/comments` endpoints; `CommentSection.jsx` component on `ViewPost`; comment count in feed via `post-helpers.js`; post author + admin + comment author delete permissions; rate limiting (20 comments per 15 min); 500-char limit with existing `sanitize()` function
 
-**Rationale:** With all core features functional, add distribution and polish features. RSS is high-value for the target audience. Dark mode is easy with Tailwind. Content seeding happens here or earlier, but must be complete before public launch.
+**Addresses:** Post comments P1 feature, comment moderation, comment count in feed
 
-**Delivers:** RSS feed, dark mode toggle, share/copy-link button, human-readable post slugs, 20-30 seeded posts, public launch readiness.
+**Avoids:** Comment spam — rate limiting + auth required + account age minimum (add 5-min account age check as a 3-line addition to the comment creation route); missing HTML sanitization; missing post author moderation capability
 
-**Addresses:** RSS feed, dark mode, share posts, post slugs, content seeding
+**Research flag:** Standard patterns — direct reuse of `lineup_comments` from Backyard Marquee. No additional research needed.
 
-**Avoids:** Launching with empty content (seed before sharing URL)
+### Phase 5: Drafts + Post Editing
+
+**Rationale:** Only affects contributors, fully independent of Phases 2-4. The schema (status column, published_at) is already in place from Phase 1. The backend PUT route already exists and is implemented. This phase is primarily about surfacing status management in the UI, adding the draft listing endpoint, and ensuring `published_at` is set correctly when status transitions to `published`.
+
+**Delivers:** `GET /api/posts/drafts` endpoint; `PostForm.jsx` status selector (draft/publish); `Drafts.jsx` contributor dashboard page; draft preview via `optionalAuth` on `GET /:slug` (author sees their own drafts); publish-from-draft action; "edited" indicator when `updated_at > published_at`; `published_at` set on publish transition (ensures correct feed ordering from Phase 1's cursor logic)
+
+**Addresses:** Draft save P1 feature, draft preview P1, publish from draft P1, post edit UI P1, "My Posts" dashboard P2, edited indicator P2
+
+**Avoids:** Draft slug accessible to public without auth (security); scheduled post appearing deep in feed rather than at top (cursor uses `published_at` from Phase 1)
+
+**Research flag:** Standard patterns — well-understood CMS workflow (WordPress, Ghost, Payload CMS all document this). No additional research needed.
+
+### Phase 6: Scheduled Publishing
+
+**Rationale:** Scheduling is drafts with a future `publish_at` date. Entirely dependent on the draft/status system from Phase 5. Smallest scope of all phases: a datetime picker in the form, the scheduler module, and the scheduled post display in the contributor dashboard.
+
+**Delivers:** `server/lib/scheduler.js` with immediate startup catch-up + 60-second polling interval; datetime picker in `PostForm.jsx`; scheduled post display with `publish_at` time in `Drafts.jsx`; `publish_at` column already exists from Phase 1 migration
+
+**Addresses:** Scheduled publishing P2 feature, "Scheduled for [date]" badge in contributor view, cancel/reschedule from dashboard
+
+**Avoids:** Scheduler silent failures on process restart (Pitfall 6) — stateless poll approach with startup catch-up; scheduled post missing its window by >60 seconds
+
+**Research flag:** Low complexity. Validate Render's process restart behavior to confirm `setInterval` catch-up is sufficient. If restarts are more frequent than expected, add the poll-on-request pattern (run the publish check inside the feed request handler) as a secondary mechanism with no infrastructure cost.
 
 ### Phase Ordering Rationale
 
-- **Phase 1 before everything:** The database schema, auth model, and embed pipeline are the foundation. Every pitfall rated "Phase 1" in the research (6 of 11 pitfalls) must be addressed here. Getting the data model wrong requires painful migrations later.
-- **Phase 2 before Phase 3:** Build the read path before the write path UI. This lets you test data display, pagination, and embed rendering with seed data before the compose UI exists. It also ensures OG tags work before any content is shared publicly.
-- **Phase 3 before Phase 4:** The contributor posting experience must be excellent before adding engagement features. If posting is clunky, contributors won't use it, and likes/comments on zero content are meaningless.
-- **Phase 4 is independent of Phase 5:** Social features and polish/distribution can be built in parallel or in either order. They are separated because they have different dependency profiles.
-- **Embeds are NOT a separate phase:** Research unanimously confirms that embed parsing, storage, and rendering are integral to post creation and display. They must be built into Phases 1-3, not bolted on afterward.
+- Phase 1 must be first: the status filter is a security/correctness concern that applies to every subsequent phase. Any draft created before this filter is in place would be publicly visible.
+- Phases 2-4 follow strict dependency order: accounts enable engagement, and likes are simpler than comments (proving reader auth flow before tackling moderation complexity).
+- Phases 5-6 (editorial tools) are fully independent of Phases 2-4 and could be built in parallel. In a solo build, they follow Phase 4 because they depend on Phase 1 schema and are lower urgency than reader-facing features.
+- All schema changes are batched into a single Phase 1 migration. This is intentional: Turso's ALTER TABLE is available but multiple migrations that alter the same table are more fragile than one comprehensive migration.
+- The `batchLoadPostData` extraction in Phase 1 prevents the N+1 pattern from being established in Phases 3 and 4. Extracting it after would require refactoring 4 files simultaneously.
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 1:** The embed URL parsing regex for both Spotify and Apple Music needs thorough testing with edge cases (playlists, artist pages, regional Apple Music URLs, v2 embed URLs). Architecture research provides starter regex but production use demands more coverage.
-- **Phase 2:** Lazy-loading embed strategy (Intersection Observer vs. Spotify iFrame API vs. click-to-load) needs a proof-of-concept before committing. The Spotify community reports that `loading="lazy"` on iframes can break embed interaction.
+All 6 phases use well-documented patterns grounded in code that already runs in production. No phase requires a research spike before implementation planning.
 
-Phases with standard patterns (skip research-phase):
-- **Phase 3:** Post creation UI with textarea + character counter is a well-established pattern. No novel complexity.
-- **Phase 4:** Likes and comments are identical to the Backyard Marquee implementation. Direct port.
-- **Phase 5:** RSS generation, dark mode, and share buttons are all thoroughly documented patterns.
+**Validate during implementation (not blocking):**
+- **Phase 3 (Likes):** Test Turso `INSERT OR IGNORE` behavior in a staging environment. A known issue (#2713) affects this pattern in certain transaction contexts. The existing `lineup_likes` uses this pattern — if it works in production there, it will work here too.
+- **Phase 6 (Scheduling):** Confirm Render's actual process restart frequency and whether `setInterval` catch-up handles it adequately. The poll-on-request fallback (add the publish check to the feed handler) is a 3-line safety net if needed.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Core stack is proven (carried from Backyard Marquee). New dependencies verified against official docs and npm. Embed APIs confirmed auth-free. |
-| Features | MEDIUM-HIGH | Feature landscape well-researched with competitor analysis (RYM, AOTY, Musotic, Substack, Tumblr). Anti-features list is opinionated but aligned with product philosophy. Reader account strategy for likes/comments needs finalization. |
-| Architecture | HIGH | Architecture mirrors Backyard Marquee with targeted additions. Database schema, project structure, and data flows all documented with code examples. Embed pipeline pattern verified against Spotify official docs. |
-| Pitfalls | HIGH | Embed performance and Apple Music regionalization pitfalls verified against Spotify developer docs and community reports. Spotify Feb 2026 API restrictions confirmed via official migration guide. Content drought risk is real but non-technical. |
+| Stack | HIGH | Core stack unchanged and proven in production. node-cron is well-documented with 1.2M weekly downloads. All decisions are conservative and grounded in existing code. |
+| Features | HIGH | Feature scope is clear and bounded. Patterns from Backyard Marquee's likes/comments directly translate. Competitor analysis (Substack, Ghost, Medium, Tumblr) confirms the feature set is appropriate. |
+| Architecture | HIGH | All patterns derived from direct codebase review of what already runs in production. No speculative patterns. The integration surface is wide but each touch point is small and additive. |
+| Pitfalls | HIGH (internal analysis), MEDIUM (external precedents) | Critical pitfalls from direct codebase analysis are HIGH confidence. External precedents (Ghost RSS bug, Turso INSERT OR IGNORE issue) are MEDIUM — real but may not apply exactly to this environment. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Reader account model:** Research identifies that likes and comments require reader identity but does not fully specify the reader auth flow. Options: email-only (no password), social login, or anonymous with cookie-based identity. Decide during Phase 4 planning.
-- **Apple Music metadata fetching:** Spotify oEmbed returns title and thumbnail for free. Apple Music has no equivalent free metadata API -- you get the embed URL but not the track title or artwork without either the Apple Music API (requires developer account) or scraping. Decide whether to require contributors to manually enter the song/artist name for Apple Music embeds, or invest in Apple Developer account for metadata.
-- **Odesli API reliability:** The cross-platform link resolution API is v1-alpha and rate-limited to 10 req/min without a key. Fine for invite-only volume, but its long-term availability is uncertain. Treat as nice-to-have, not load-bearing.
-- **Content moderation scope:** With invite-only contributors, moderation is mainly about comments from readers. Research identifies flat comments with contributor/admin delete capability, but does not address spam prevention for unauthenticated or lightly-authenticated readers. Address during Phase 4 planning.
+- **Turso `INSERT OR IGNORE` behavior for likes:** A known issue exists with this pattern in certain Turso transaction contexts (#2713). The Backyard Marquee codebase already uses this for `lineup_likes` — verify it works in the current Turso version before assuming it is safe for `post_likes`. Manual test in staging: like the same post twice from the same account, confirm count is 1.
+
+- **`published_at` backfill:** The migration sets `published_at = created_at` for all existing posts via the column default. This is correct but means posts published over the past months will retain their original creation time as their `published_at` — which is accurate. No action needed, but worth confirming the feed ordering looks correct after migration before proceeding.
+
+- **Comment spam at scale:** The research recommends a minimum account age before commenting (5 minutes) as a lightweight anti-spam measure. This is not in the explicit feature list but is a 3-line addition to the comment creation route: `WHERE users.created_at <= datetime('now', '-5 minutes')`. Worth including in Phase 4 implementation.
+
+- **Render process restart frequency:** The scheduled publishing approach uses `setInterval` with a startup catch-up query. This is safe for infrequent restarts (daily or less). If Render restarts the process multiple times per hour (e.g., during deployments), the 60-second polling gap is irrelevant — the startup catch-up handles it. Confirm this assumption during Phase 6 implementation.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [Spotify oEmbed API Reference](https://developer.spotify.com/documentation/embeds/reference/oembed) -- Embed endpoint, no auth required
-- [Spotify Embeds Overview](https://developer.spotify.com/documentation/embeds) -- Embed types, iframe parameters, customization
-- [Spotify iFrame API](https://developer.spotify.com/documentation/embeds/tutorials/using-the-iframe-api) -- Programmatic embed control for lazy loading
-- [Spotify February 2026 Migration Guide](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide) -- Web API restrictions (Premium required, 5-user limit)
-- [Apple MusicKit Web](https://developer.apple.com/musickit/web/) -- Full SDK docs (confirmed overkill for basic embeds)
-- [react-markdown npm](https://www.npmjs.com/package/react-markdown) -- v10.1.0, safe-by-default rendering
-- [DOMPurify](https://github.com/cure53/DOMPurify) -- v3.3.1, XSS sanitization
+- Existing codebase: `server/routes/posts.js`, `server/routes/browse.js`, `server/routes/lineups.js`, `server/routes/auth.js`, `server/routes/feed.js`, `server/middleware/auth.js`, `server/db/index.js`, `client/src/context/AuthContext.jsx`, `client/src/api/client.js` — all architecture and integration patterns derived from direct code review
+- SQLite / Turso ALTER TABLE with DEFAULT behavior — well-documented; existing rows get the column default automatically, no data migration needed for `status = 'published'`
+- [Render Cron Jobs documentation](https://render.com/docs/cronjobs) — pricing ($1/mo minimum) and separate service model confirmed; why in-process scheduler is preferred
 
 ### Secondary (MEDIUM confidence)
-- [Apple Music embed format](https://discussions.apple.com/thread/252671168) -- iframe URL structure, community-verified
-- [Odesli/Songlink API](https://publicapi.dev/songlink-odesli-api) -- Cross-platform link resolution, v1-alpha
-- [Spotify Community: loading=lazy breaks embed](https://community.spotify.com/t5/Spotify-for-Developers/loading-lazy-breaks-embed-iframe/td-p/5166267) -- Critical lazy-loading caveat
-- [Spotify Community: oEmbed v2 URL problems](https://community.spotify.com/t5/Other-Podcasts-Partners-etc/Oembed-problems/td-p/5217628) -- Edge case with playlist-v2 URLs
-- [Cursor-based pagination patterns](https://learnersbucket.com/examples/interview/react-custom-hook-for-infinite-scroll-with-cursor-based-pagination/) -- Implementation reference
-- [Liveblocks Rich Text Editor Comparison 2025](https://liveblocks.io/blog/which-rich-text-editor-framework-should-you-choose-in-2025) -- Confirmed rich text editors are overkill for this use case
+- [node-cron npm (merencia)](https://www.npmjs.com/package/node-cron) — v3.0.3, 1.2M weekly downloads, pure JS, zero dependencies, GNU crontab syntax
+- [WordPress Post Statuses](https://wordpress.org/documentation/article/post-status/) — canonical CMS draft/publish workflow reference
+- [Payload CMS Drafts](https://payloadcms.com/docs/versions/drafts) — draft status pattern validation
+- [Ghost CMS RSS feed bug #11266](https://github.com/TryGhost/Ghost/issues/11266) — real-world precedent for draft leak in public RSS
+- [Turso UNIQUE constraint issue #2713](https://github.com/tursodatabase/turso/issues/2713) — known INSERT OR IGNORE edge case in Turso
+- [node-cron scheduled jobs (DigitalOcean)](https://www.digitalocean.com/community/tutorials/nodejs-cron-jobs-by-examples) — confirms in-memory schedule loss on process restart
+- [Better Stack node-cron guide](https://betterstack.com/community/guides/scaling-nodejs/node-cron-scheduled-tasks/) — implementation patterns
 
 ### Tertiary (LOW confidence)
-- [DMCA Compliance Checklist 2025](https://patentpc.com/blog/the-complete-dmca-compliance-checklist-for-online-platforms-in-2025) -- Not directly verified, may be relevant for music content platform
-- [Minimal Blog Design Examples](https://www.marketermilk.com/blog/best-blog-designs) -- Design inspiration, roundup article
+- [Liveblocks Commenting UX](https://liveblocks.io/blog/how-to-build-an-engaging-in-app-commenting-experience) — UX patterns for comment section design
+- [ResultFirst Comment Design Trends](https://www.resultfirst.com/blog/web-design/15-best-comment-designs-trends-for-web-designers/) — comment design reference
+- [Honeypot spam prevention](https://vibecodingwithfred.com/blog/honeypot-spam-protection/) — lightweight anti-spam strategy if rate limiting proves insufficient
 
 ---
-*Research completed: 2026-02-26*
+*Research completed: 2026-02-28*
 *Ready for roadmap: yes*

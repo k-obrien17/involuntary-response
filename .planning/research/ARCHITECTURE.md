@@ -1,501 +1,698 @@
-# Architecture Research
+# Architecture Research: v2.1 Reader Engagement & Editorial
 
-**Domain:** Music micro-blogging platform (short-form music commentary with streaming embeds)
-**Researched:** 2026-02-26
-**Confidence:** HIGH
+**Domain:** Reader participation + editorial workflow integration into existing music micro-blogging platform
+**Researched:** 2026-02-28
+**Confidence:** HIGH (all features integrate with known patterns in existing codebase)
 
-## Standard Architecture
+## Existing System Snapshot
 
-### System Overview
+Before defining integration points, here is what exists today and what each new feature touches.
+
+### Current Tables
+
+| Table | Purpose | Relevant to v2.1? |
+|-------|---------|-------------------|
+| `users` | Contributors + admin (role: contributor/admin) | YES -- must support `reader` role |
+| `invite_tokens` | Invite-only contributor registration | NO -- readers bypass invites |
+| `password_reset_tokens` | Password reset flow | YES -- readers need this too |
+| `posts` | Published posts (slug, body, author_id, created_at, updated_at) | YES -- needs `status` + `scheduled_at` columns |
+| `post_embeds` | One embed per post (Spotify/Apple Music oEmbed) | NO -- unchanged |
+| `post_tags` | Tags per post (max 5) | NO -- unchanged |
+| `post_artists` | Artist extraction results per post | NO -- unchanged |
+| `migrations` | Schema migration tracking | YES -- new migrations appended |
+
+### Current Auth Model
 
 ```
-                          PUBLIC READERS (no auth)
-                                  |
-                                  v
-  ┌──────────────────────────────────────────────────────────────────┐
-  │                        React SPA (Vite)                          │
-  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐    │
-  │  │   Feed   │  │  Single  │  │  Browse   │  │  Contributor │    │
-  │  │   Page   │  │   Post   │  │ (Artist/  │  │   Dashboard  │    │
-  │  │          │  │   Page   │  │   Tag)    │  │  (auth req)  │    │
-  │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └──────┬───────┘    │
-  │       │              │             │               │            │
-  │  ┌────┴──────────────┴─────────────┴───────────────┴──────┐     │
-  │  │              Axios API Client + Auth Interceptor         │     │
-  │  └─────────────────────────┬───────────────────────────────┘     │
-  └────────────────────────────┼─────────────────────────────────────┘
-                               │  /api/*
-                               v
-  ┌──────────────────────────────────────────────────────────────────┐
-  │                      Express API Server                          │
-  │                                                                  │
-  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐   │
-  │  │  Auth Routes  │  │ Post Routes  │  │  Browse/Feed Routes  │   │
-  │  │  (invite,     │  │ (CRUD, embed │  │  (feed, artist,      │   │
-  │  │   login)      │  │  parsing)    │  │   tag, search)       │   │
-  │  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘   │
-  │         │                 │                      │              │
-  │  ┌──────┴─────────────────┴──────────────────────┴──────────┐   │
-  │  │                    Middleware Layer                        │   │
-  │  │  auth.js (JWT verify) | sanitize.js | rate-limit.js       │   │
-  │  └──────────────────────────┬────────────────────────────────┘   │
-  │                             │                                   │
-  │  ┌──────────────────────────┴────────────────────────────────┐   │
-  │  │               OG Meta Tag Handler                          │   │
-  │  │  (bot detection -> serve meta tags for social previews)    │   │
-  │  └───────────────────────────────────────────────────────────┘   │
-  └──────────────────────────────┬───────────────────────────────────┘
-                                 │
-              ┌──────────────────┼──────────────────┐
-              v                  v                  v
-  ┌──────────────────┐  ┌──────────────┐  ┌──────────────────┐
-  │  Turso (libSQL)  │  │ Spotify API  │  │  Apple Music     │
-  │  - posts         │  │ (oEmbed for  │  │  (embed URL      │
-  │  - users         │  │  metadata)   │  │   construction)  │
-  │  - tags          │  │              │  │                  │
-  │  - likes         │  └──────────────┘  └──────────────────┘
-  │  - comments      │
-  │  - invites       │
-  └──────────────────┘
+users.role = 'admin' | 'contributor'
+Registration requires invite_token -> role = 'contributor'
+JWT payload: { id, email, role, username }
+Middleware: authenticateToken (required auth), optionalAuth (attach if present)
 ```
+
+### Current Route Files
+
+| Route File | Endpoints | Touched by v2.1? |
+|------------|-----------|-------------------|
+| `auth.js` | register, login, forgot/reset-password | YES -- reader registration (no invite) |
+| `posts.js` | CRUD + list | YES -- draft/schedule status, like/comment endpoints |
+| `feed.js` | RSS feed | YES -- must exclude drafts/scheduled |
+| `browse.js` | tag/artist/contributor/explore | YES -- must exclude drafts/scheduled, show like counts |
+| `search.js` | Full-text search | YES -- must exclude drafts/scheduled |
+| `profile.js` | Public profile + bio edit | MINOR -- post listing must exclude drafts |
+| `embeds.js` | oEmbed resolver | NO |
+| `invites.js` | Admin invite management | NO |
+| `users.js` | Admin user management | MINOR -- may list readers too |
+
+## Integration Architecture
+
+### New Database Tables (3 new, 1 altered)
+
+```sql
+-- Migration 5: Add reader accounts, likes, comments, and post status
+--
+-- ALTER existing table
+ALTER TABLE posts ADD COLUMN status TEXT NOT NULL DEFAULT 'published';
+ALTER TABLE posts ADD COLUMN scheduled_at DATETIME;
+
+-- New tables
+CREATE TABLE post_likes (
+  post_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (post_id, user_id),
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE post_comments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  post_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  body TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_post_likes_post ON post_likes(post_id);
+CREATE INDEX idx_post_comments_post ON post_comments(post_id, created_at);
+CREATE INDEX idx_posts_status ON posts(status);
+CREATE INDEX idx_posts_scheduled ON posts(status, scheduled_at);
+```
+
+**Why this schema:**
+
+- `post_likes` uses composite PK `(post_id, user_id)` -- same pattern as Backyard Marquee's `lineup_likes`. One like per user per post is enforced at the DB level. No separate `id` column needed.
+- `post_comments` is flat (no `parent_id`) -- PROJECT.md explicitly says "top-level only, flat" and threaded comments are out of scope.
+- `posts.status` uses TEXT not INTEGER because SQLite has no enum type. Values: `'published'`, `'draft'`, `'scheduled'`. Default `'published'` preserves backward compatibility -- existing rows automatically become `status = 'published'` without a data migration.
+- `posts.scheduled_at` is nullable -- only set when `status = 'scheduled'`.
+- No `edited_at` column needed -- `updated_at` already tracks this. The existing PUT route already sets `updated_at = CURRENT_TIMESTAMP`.
+
+### Users Table: Reader Role
+
+The existing `users` table already supports what readers need. No schema change required beyond using a new role value.
+
+```
+Existing columns sufficient:
+  id, email, password_hash, display_name, username, role, is_active, created_at
+
+New role value: 'reader'
+Reader has: email, password_hash, display_name, username (auto-generated)
+Reader lacks: invite token requirement (bypasses invite flow)
+```
+
+**No `bio` column needed for readers** -- readers do not have public profile pages. If this changes later, the `bio` column already exists on the table.
 
 ### Component Responsibilities
 
-| Component | Responsibility | Typical Implementation |
-|-----------|----------------|------------------------|
-| React SPA | Render UI, manage client state, handle routing | Vite + React Router 6 + Tailwind |
-| Axios Client | API communication, attach JWT, handle errors | Centralized client with auth interceptor |
-| Express API | Business logic, auth, CRUD, embed resolution | Route handlers + middleware chain |
-| Auth Middleware | Verify JWT, enforce contributor-only write access | `auth.js` with required/optional variants |
-| Sanitization | Strip HTML, enforce length limits, trim input | Server-side validation on all user input |
-| OG Meta Handler | Detect social crawlers, serve dynamic meta tags | Bot user-agent detection in Express |
-| Embed Parser | Extract Spotify/Apple Music URLs, resolve metadata | Regex extraction + oEmbed/URL construction |
-| Turso DB | Persistent storage for all application data | @libsql/client with parameterized queries |
-| Spotify oEmbed | Fetch embed metadata (title, thumbnail, iframe) | Server-side GET to `open.spotify.com/oembed` |
+| Component | Responsibility | New / Modified |
+|-----------|----------------|----------------|
+| `auth.js` routes | Reader registration (no invite), login (unchanged) | MODIFIED -- new `/register-reader` endpoint |
+| `posts.js` routes | Draft CRUD, publish, schedule, like, comment | MODIFIED -- status filtering, new sub-routes |
+| `feed.js` routes | RSS feed of published posts | MODIFIED -- add `WHERE p.status = 'published'` |
+| `browse.js` routes | Tag/artist/contributor browsing | MODIFIED -- add `WHERE p.status = 'published'` to all queries |
+| `search.js` routes | Full-text search | MODIFIED -- add `WHERE p.status = 'published'` |
+| `profile.js` routes | Public profile post list | MODIFIED -- add `WHERE p.status = 'published'` |
+| `middleware/auth.js` | Auth middleware | MODIFIED -- add `requireContributor` helper |
+| `AuthContext.jsx` | Client auth state | MODIFIED -- expose `isContributor` / `isReader` |
+| `PostForm.jsx` | Post creation/editing form | MODIFIED -- save-as-draft + schedule controls |
+| `ViewPost.jsx` | Single post view | MODIFIED -- add LikeButton + CommentSection |
+| `PostCard.jsx` | Post in feed lists | MODIFIED -- add like count display |
+| `Navbar.jsx` | Navigation bar | MODIFIED -- reader-specific nav items |
+| NEW: `LikeButton.jsx` | Like toggle with count | NEW component |
+| NEW: `CommentSection.jsx` | Comment list + form | NEW component |
+| NEW: `Drafts.jsx` | Contributor's draft management page | NEW page |
+| NEW: `ReaderRegister.jsx` | Reader signup page | NEW page |
+| NEW: `ContributorRoute.jsx` | Route guard requiring contributor role | NEW component |
+| NEW: `server/lib/scheduler.js` | Scheduled post publisher | NEW module |
 
-## Recommended Project Structure
+## System Overview (v2.1)
 
 ```
-client/src/
-├── pages/                 # Route-level components
-│   ├── Feed.jsx           # Main chronological feed (public)
-│   ├── Post.jsx           # Single post view (public)
-│   ├── BrowseArtist.jsx   # Posts filtered by artist (public)
-│   ├── BrowseTag.jsx      # Posts filtered by tag (public)
-│   ├── CreatePost.jsx     # Post composer (contributors only)
-│   ├── EditPost.jsx       # Post editor (contributors only)
-│   ├── Profile.jsx        # Contributor public profile
-│   ├── Login.jsx          # Contributor login
-│   └── AcceptInvite.jsx   # Invite acceptance + account setup
-├── components/            # Reusable UI components
-│   ├── PostCard.jsx       # Single post in feed context
-│   ├── MusicEmbed.jsx     # Spotify/Apple Music embed renderer
-│   ├── EmbedInput.jsx     # URL input + preview for post creation
-│   ├── TagList.jsx        # Tag display/navigation
-│   ├── Comments.jsx       # Comment thread
-│   ├── LikeButton.jsx     # Like interaction
-│   ├── ShareButton.jsx    # Share/copy link
-│   └── Navbar.jsx         # Site navigation
-├── context/
-│   └── AuthContext.jsx    # Auth state (contributor sessions)
-├── hooks/
-│   ├── useFeed.js         # Feed data fetching + pagination
-│   └── useEmbed.js        # Embed URL parsing + preview
-├── api/
-│   └── client.js          # Axios instance with interceptor
-├── utils/
-│   ├── embedParser.js     # Extract Spotify/Apple Music URLs from text
-│   └── formatDate.js      # Date formatting helpers
-└── App.jsx                # Router setup
-
-server/
-├── index.js               # Express app, CORS, static serve, OG handler
-├── db/
-│   └── index.js           # Turso client, schema, migrations
-├── middleware/
-│   ├── auth.js            # JWT verify, requireAuth, optionalAuth
-│   ├── sanitize.js        # Input sanitization middleware
-│   └── rateLimit.js       # Rate limiting per endpoint
-└── routes/
-    ├── auth.js            # Login, invite accept, token refresh
-    ├── posts.js           # CRUD, likes, comments
-    ├── embeds.js          # Spotify oEmbed proxy, embed metadata
-    ├── browse.js          # Feed, artist, tag, search queries
-    └── admin.js           # Invite management (admin only)
-```
-
-### Structure Rationale
-
-- **`pages/` vs `components/`:** Pages are route-level (one per URL), components are reusable across pages. This mirrors the Backyard Marquee pattern and keeps routing obvious.
-- **`hooks/`:** Custom hooks for data fetching and embed logic keep components declarative. Feed pagination logic belongs in a hook, not scattered across pages.
-- **`utils/embedParser.js`:** Centralized embed URL detection is critical. Both the post creation form and the post renderer need to identify and transform music URLs. One module, two consumers.
-- **Server `routes/` split:** Separate `posts.js` (CRUD), `browse.js` (read-only queries), `embeds.js` (external API proxy), and `admin.js` (invite management). This matches how auth requirements differ: browse is public, posts require contributor auth, admin requires admin role.
-- **`middleware/sanitize.js`:** Extracted from route handlers into dedicated middleware. Posts accept user-generated text that must be sanitized before storage. This is better as middleware than inline validation.
-
-## Architectural Patterns
-
-### Pattern 1: Embed URL Detection and Resolution
-
-**What:** When a contributor creates a post, they paste a Spotify or Apple Music URL. The system detects the URL type, fetches metadata (title, artist, thumbnail), and stores both the original URL and the resolved embed data.
-
-**When to use:** Every post creation and edit flow.
-
-**Trade-offs:** Resolving at write-time (not read-time) means faster page loads but stale metadata if the external service changes. This is the right trade-off -- music metadata rarely changes.
-
-**Example:**
-```javascript
-// utils/embedParser.js
-const SPOTIFY_REGEX = /https?:\/\/open\.spotify\.com\/(track|album|playlist|artist)\/([a-zA-Z0-9]+)/;
-const APPLE_MUSIC_REGEX = /https?:\/\/music\.apple\.com\/([a-z]{2})\/(album|playlist|song)\/[^/]+\/(\d+)(\?i=(\d+))?/;
-
-function parseEmbedUrl(url) {
-  const spotifyMatch = url.match(SPOTIFY_REGEX);
-  if (spotifyMatch) {
-    return {
-      provider: 'spotify',
-      type: spotifyMatch[1],       // track, album, playlist, artist
-      id: spotifyMatch[2],
-      embedUrl: `https://open.spotify.com/embed/${spotifyMatch[1]}/${spotifyMatch[2]}`
-    };
-  }
-
-  const appleMatch = url.match(APPLE_MUSIC_REGEX);
-  if (appleMatch) {
-    const region = appleMatch[1];
-    const type = appleMatch[2];
-    const collectionId = appleMatch[3];
-    const songId = appleMatch[5]; // from ?i= param
-    return {
-      provider: 'apple',
-      type: songId ? 'song' : type,
-      id: songId || collectionId,
-      embedUrl: `https://embed.music.apple.com/${region}/${type}/${collectionId}${songId ? '?i=' + songId : ''}`
-    };
-  }
-
-  return null;
-}
-```
-
-### Pattern 2: Dual-Mode Server (SPA + OG Meta Tags)
-
-**What:** Express serves the React SPA for normal requests but intercepts social crawler requests to inject dynamic OG meta tags. This lets social platforms (Twitter, iMessage, Slack) show rich link previews without full SSR.
-
-**When to use:** Every shareable post needs a social preview with title, excerpt, and optionally album art.
-
-**Trade-offs:** Adds complexity to the Express server but avoids the massive overhead of full SSR or a framework switch to Next.js. The builder already implemented this pattern in Backyard Marquee.
-
-**Example:**
-```javascript
-// index.js - OG meta tag injection
-const BOT_USER_AGENTS = /bot|crawl|spider|facebook|twitter|slack|discord|telegram|whatsapp|linkedin/i;
-
-app.get('/post/:slug', (req, res, next) => {
-  if (!BOT_USER_AGENTS.test(req.get('user-agent'))) {
-    return next(); // Let SPA handle it
-  }
-
-  // Fetch post data, return HTML with OG tags
-  const post = await db.getPost(req.params.slug);
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta property="og:title" content="${post.title || 'Involuntary Response'}" />
-      <meta property="og:description" content="${post.body.substring(0, 200)}" />
-      <meta property="og:image" content="${post.thumbnail_url || '/default-og.png'}" />
-      <meta property="og:url" content="https://involuntaryresponse.com/post/${post.slug}" />
-    </head>
-    <body></body>
-    </html>
-  `);
-});
-```
-
-### Pattern 3: Invite-Only Auth with Role Separation
-
-**What:** Three roles: admin (manages invites + posts), contributor (posts), reader (public, no account needed). Admins generate invite tokens. Contributors claim invites by setting username/password. Readers never authenticate.
-
-**When to use:** The entire auth system. No open registration.
-
-**Trade-offs:** Simpler than open registration (no email verification, no spam accounts, no abuse). Limits growth intentionally -- this is a feature, not a bug. The editorial quality depends on controlled access.
-
-**Example:**
-```javascript
-// Database: invites table
-// id | email | invite_token | role | created_by | claimed_at | claimed_by_user_id
-
-// Admin creates invite
-app.post('/api/admin/invites', requireAdmin, async (req, res) => {
-  const token = crypto.randomBytes(32).toString('hex');
-  await db.execute(
-    'INSERT INTO invites (email, invite_token, role, created_by) VALUES (?, ?, ?, ?)',
-    [req.body.email, token, req.body.role || 'contributor', req.user.id]
-  );
-  // Return invite link: /invite/{token}
-});
-
-// Contributor claims invite
-app.post('/api/auth/claim-invite', async (req, res) => {
-  const { token, username, password } = req.body;
-  const invite = await db.getInvite(token);
-  if (!invite || invite.claimed_at) return res.status(400).json({ error: 'Invalid invite' });
-  // Create user, mark invite claimed, return JWT
-});
+              PUBLIC READERS          READER ACCOUNTS          CONTRIBUTORS
+              (no auth)               (email signup)           (invite-only)
+                  |                        |                        |
+                  v                        v                        v
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           React SPA (Vite 5)                                │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
+│  │   Feed   │  │  Single  │  │  Browse   │  │  Drafts  │  │  Create  │     │
+│  │   Page   │  │  Post +  │  │ (Artist/  │  │  Page    │  │  / Edit  │     │
+│  │          │  │  Likes + │  │   Tag)    │  │ (contri- │  │  Post +  │     │
+│  │          │  │ Comments │  │          │  │  butor)  │  │ Schedule │     │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘     │
+│       │              │             │              │             │           │
+│  ┌────┴──────────────┴─────────────┴──────────────┴─────────────┴─────┐    │
+│  │              Axios API Client + Auth Interceptor                     │    │
+│  └───────────────────────────┬─────────────────────────────────────────┘    │
+└──────────────────────────────┼──────────────────────────────────────────────┘
+                               │  /api/*
+                               v
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        Express 5 API Server                                  │
+│                                                                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌────────────────┐  │
+│  │  Auth Routes  │  │ Post Routes  │  │  Browse/Feed │  │  Scheduler     │  │
+│  │  (invite +   │  │ (CRUD, like, │  │  (feed, tag, │  │  (setInterval  │  │
+│  │   reader     │  │  comment,    │  │   artist,    │  │   publishes    │  │
+│  │   register)  │  │  draft)      │  │   search)   │  │   scheduled)   │  │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └───────┬────────┘  │
+│         │                 │                  │                  │           │
+│  ┌──────┴─────────────────┴──────────────────┴──────────────────┴───────┐   │
+│  │                    Middleware Layer                                    │   │
+│  │  authenticateToken | optionalAuth | requireContributor | rate-limit   │   │
+│  └───────────────────────────┬───────────────────────────────────────────┘   │
+└──────────────────────────────┼───────────────────────────────────────────────┘
+                               │
+                               v
+                    ┌──────────────────┐
+                    │  Turso (libSQL)  │
+                    │  - users         │  (role: admin | contributor | reader)
+                    │  - posts         │  (status: published | draft | scheduled)
+                    │  - post_embeds   │
+                    │  - post_tags     │
+                    │  - post_artists  │
+                    │  - post_likes    │  (NEW)
+                    │  - post_comments │  (NEW)
+                    │  - invite_tokens │
+                    │  - migrations    │
+                    └──────────────────┘
 ```
 
 ## Data Flow
 
-### Request Flow
+### Reader Registration Flow
 
 ```
-[Browser Request]
-    |
-    v
-[Express Server]
-    |
-    ├── Is bot? ──YES──> [OG Meta Tag Response] (no SPA, just meta tags)
-    |
-    ├── Is /api/*? ──YES──> [Route Handler]
-    |       |
-    |       ├── [Auth Middleware] (verify JWT if present)
-    |       ├── [Rate Limit Middleware] (check request rate)
-    |       ├── [Sanitize Middleware] (clean input on writes)
-    |       ├── [Business Logic] (CRUD, embed resolution)
-    |       └── [Turso Query] ──> [JSON Response]
-    |
-    └── Else ──> [Serve React SPA] (client-side routing takes over)
+[Reader] -> POST /api/auth/register-reader
+              { email, password, displayName }
+              (NO invite token)
+         -> Server validates email/password
+         -> bcrypt hash, generate username
+         -> INSERT users (role: 'reader')
+         -> generateToken({ id, email, role: 'reader', username })
+         -> Return { token, user }
+         -> Client stores in localStorage, AuthContext updates
 ```
 
-### Post Creation Flow (the core write path)
+**Why a separate endpoint instead of modifying `/register`:**
+The existing `/register` validates an invite token, marks it as used, and sets `role = 'contributor'`. Mixing reader logic into that flow would add branching complexity and risk breaking the invite flow with its atomic race condition protection. A separate `/register-reader` endpoint is cleaner -- each endpoint does exactly one thing. The login endpoint is shared (readers and contributors use the same `/login`).
+
+### Post Status Flow
 
 ```
-[Contributor writes post in CreatePost.jsx]
-    |
-    v
-[EmbedInput: paste Spotify/Apple Music URL]
-    |
-    ├── [embedParser.js detects provider + type]
-    ├── [Preview embed in iframe immediately]  (client-side)
-    v
-[Submit: POST /api/posts]
-    |
-    ├── [auth.js: verify JWT, confirm contributor role]
-    ├── [sanitize.js: strip HTML, enforce 800 char limit, trim]
-    ├── [posts.js: validate, parse embed URL server-side too]
-    ├── [embeds.js: call Spotify oEmbed for metadata (title, thumbnail)]
-    │   (Apple Music: construct embed URL from parsed components, no API call needed)
-    ├── [Generate slug from title/content]
-    └── [INSERT into posts, post_tags, post_embeds tables]
-         |
-         v
-    [Return created post with embed metadata]
+                                  ┌─────────────┐
+                                  │   draft      │
+                                  └──────┬───────┘
+                                         │
+                          ┌──────────────┼──────────────┐
+                          │              │              │
+                          v              v              v
+                   ┌────────────┐ ┌───────────┐ ┌──────────────┐
+                   │ published  │ │ scheduled │ │  (delete)    │
+                   └────────────┘ └─────┬─────┘ └──────────────┘
+                          ^             │
+                          │             │ (scheduler fires when
+                          │             │  scheduled_at <= now)
+                          │             v
+                          │      ┌────────────┐
+                          └──────│ published  │
+                                 └────────────┘
 ```
 
-### Feed Read Flow (the core read path)
+**Status transitions:**
+- `draft` -> `published` (contributor clicks "Publish")
+- `draft` -> `scheduled` (contributor sets future date + clicks "Schedule")
+- `scheduled` -> `published` (server-side scheduler fires)
+- `published` -> `draft` (unpublish -- contributor can pull back a post)
+- Any status -> deleted (hard delete, same as current behavior)
+
+### Like Flow
 
 ```
-[Reader opens Feed page]
-    |
-    v
-[GET /api/browse/feed?cursor=<last_post_id>]
-    |
-    ├── [optionalAuth: identify user if logged in (for like state)]
-    ├── [browse.js: SELECT posts with embeds, authors, tag counts, like counts]
-    ├── [Cursor pagination: WHERE id < cursor ORDER BY created_at DESC LIMIT 20]
-    └── [Return posts array + next cursor]
-         |
-         v
-[Feed.jsx renders PostCard list]
-    |
-    ├── [PostCard: text content + author + timestamp + tags]
-    ├── [MusicEmbed: render Spotify/Apple Music iframe from stored embed URL]
-    ├── [LikeButton: show count, toggle on click]
-    └── [IntersectionObserver on last card triggers next page fetch]
+[Reader or Contributor] -> POST /api/posts/:slug/like
+                             (authenticateToken middleware)
+                        -> Check: post exists AND status = 'published'
+                        -> INSERT OR IGNORE into post_likes (post_id, user_id)
+                        -> Return { liked: true, count }
+
+[Reader or Contributor] -> DELETE /api/posts/:slug/like
+                             (authenticateToken middleware)
+                        -> DELETE FROM post_likes WHERE post_id = ? AND user_id = ?
+                        -> Return { liked: false, count }
 ```
 
-### Key Data Flows
+**Like count in feeds:** The list queries (posts.js GET /, browse.js, search.js) add a subquery to include `like_count`. This is a count, not per-user status, so it works without auth. The per-user `liked` boolean is only needed on the single post view (ViewPost) where `optionalAuth` can check `post_likes` for the current user.
 
-1. **Embed resolution:** Contributor pastes URL -> client parses for preview -> server re-parses and fetches oEmbed metadata -> stored alongside post. The client parse is for instant preview; the server parse is the source of truth.
+### Comment Flow
 
-2. **Social sharing:** User shares post link -> social platform crawler hits Express -> bot detection intercepts -> Express queries post from Turso -> returns HTML with OG meta tags (title, excerpt, thumbnail from embed metadata).
+```
+[Reader or Contributor] -> POST /api/posts/:slug/comments
+                             (authenticateToken middleware)
+                             { body } (max 500 chars, sanitized)
+                        -> Check: post exists AND status = 'published'
+                        -> INSERT INTO post_comments
+                        -> Return { id, body, user: { displayName, username }, createdAt }
 
-3. **Feed pagination:** Client requests feed with cursor -> server queries posts WHERE id < cursor with LIMIT -> returns posts + whether more exist. Cursor-based pagination prevents duplicate/missing posts when new content is added.
+[Any visitor]           -> GET /api/posts/:slug/comments
+                        -> SELECT comments + user display info
+                        -> Return { comments: [...] }
+
+[Comment author OR post author OR admin] -> DELETE /api/posts/:slug/comments/:id
+                        -> Verify ownership or post-author or admin role
+                        -> DELETE FROM post_comments WHERE id = ?
+                        -> Return { message: 'Comment deleted' }
+```
+
+### Draft/Schedule Flow
+
+```
+[Contributor] -> POST /api/posts (existing endpoint, enhanced)
+                   { body, embedUrl, tags, artistName, status: 'draft' }
+              -> status defaults to 'published' if not provided (backward compat)
+              -> If status = 'scheduled', scheduledAt is required and must be in the future
+
+[Contributor] -> GET /api/posts/drafts
+                   (authenticateToken, requireContributor)
+              -> Returns caller's drafts + scheduled posts, ordered by updated_at DESC
+
+[Contributor] -> PUT /api/posts/:slug (existing endpoint, enhanced)
+                   { ..., status: 'published' } (publish a draft)
+                   { ..., status: 'scheduled', scheduledAt: '2026-03-15T10:00:00Z' }
+```
+
+### Scheduled Post Publisher
+
+```
+Server startup (index.js):
+  -> Import startScheduler from lib/scheduler.js
+  -> startScheduler() called after initDatabase()
+
+startScheduler():
+  -> setInterval(publishScheduledPosts, 60_000)  // check every minute
+
+publishScheduledPosts():
+  -> SELECT id, slug FROM posts
+     WHERE status = 'scheduled' AND scheduled_at <= CURRENT_TIMESTAMP
+  -> For each: UPDATE posts SET status = 'published' WHERE id = ?
+  -> Log: "Published N scheduled posts"
+```
+
+**Why `setInterval` instead of cron/external scheduler:**
+- The app runs on Render as a single always-on process. `setInterval` is the simplest approach with zero infrastructure.
+- 60-second granularity is fine for a blog -- posts publishing within a minute of the target time is acceptable.
+- No dependency on external services (cron, scheduled tasks, message queues).
+- If the process restarts, the interval restarts and catches up immediately since it checks `scheduled_at <= now`.
+
+## Architectural Patterns
+
+### Pattern 1: Status-Filtered Queries (Critical)
+
+**What:** Every query that returns posts to public visitors must filter by `status = 'published'`.
+
+**Where it applies (10 query sites):**
+- `GET /api/posts` (main feed) -- posts.js
+- `GET /api/posts/:slug` (single post, special case) -- posts.js
+- `GET /api/browse/tag/:tag` -- browse.js
+- `GET /api/browse/artist/:name` -- browse.js
+- `GET /api/browse/contributor/:username` -- browse.js
+- `GET /api/browse/explore` -- browse.js
+- `GET /api/search` -- search.js
+- `GET /api/feed` (RSS) -- feed.js
+- `GET /api/users/:username/profile` -- profile.js
+- Vercel OG tag serverless function
+
+**Implementation:**
+```sql
+-- Before (every public query):
+SELECT ... FROM posts p WHERE ...
+
+-- After (add status filter):
+SELECT ... FROM posts p WHERE p.status = 'published' AND ...
+```
+
+**The single-post GET is special:** If the requesting user is the post's author, show the post regardless of status (so they can preview drafts). If not the author, require `status = 'published'`.
+
+```javascript
+// GET /api/posts/:slug -- modified to use optionalAuth
+router.get('/:slug', optionalAuth, async (req, res) => {
+  const post = await db.get('SELECT ... FROM posts p WHERE p.slug = ?', req.params.slug);
+  if (!post) return res.status(404).json({ error: 'Post not found' });
+
+  // Non-published posts are only visible to their author
+  if (post.status !== 'published' && (!req.user || req.user.id !== post.author_id)) {
+    return res.status(404).json({ error: 'Post not found' });
+  }
+  // ... rest of handler
+});
+```
+
+**Trade-offs:** Adding `AND p.status = 'published'` to every query is repetitive but explicit. A database view (`CREATE VIEW published_posts AS ...`) would reduce repetition but Turso/libsql views can be finicky and add indirection that makes the codebase harder to grep. Given 10 query sites, explicit filtering is the right call.
+
+### Pattern 2: Role-Based Access Layers
+
+**What:** Three tiers of access: anonymous, reader, contributor (+ admin).
+
+**Current middleware:**
+- `optionalAuth` -- attaches `req.user` if token present, continues regardless
+- `authenticateToken` -- requires valid token, checks `is_active`
+
+**New middleware:**
+```javascript
+// middleware/auth.js -- add this export
+export function requireContributor(req, res, next) {
+  if (!req.user || (req.user.role !== 'contributor' && req.user.role !== 'admin')) {
+    return res.status(403).json({ error: 'Contributor access required' });
+  }
+  next();
+}
+```
+
+**Where roles apply:**
+
+| Action | Anonymous | Reader | Contributor | Admin |
+|--------|-----------|--------|-------------|-------|
+| Read published posts | YES | YES | YES | YES |
+| Like a post | -- | YES | YES | YES |
+| Comment on a post | -- | YES | YES | YES |
+| Delete own comment | -- | YES | YES | YES |
+| Create a post | -- | -- | YES | YES |
+| Edit own post | -- | -- | YES | YES |
+| Save draft | -- | -- | YES | YES |
+| Schedule post | -- | -- | YES | YES |
+| Delete comments on own post | -- | -- | YES | YES |
+| Delete any comment | -- | -- | -- | YES |
+| Admin panel | -- | -- | -- | YES |
+
+**Client-side role checks:**
+```javascript
+// In AuthContext, expose helpers alongside existing user state
+const isContributor = user?.role === 'contributor' || user?.role === 'admin';
+const isReader = user?.role === 'reader';
+const isAdmin = user?.role === 'admin';
+```
+
+### Pattern 3: Batch-Load Counts (Avoid N+1)
+
+**What:** Like counts and comment counts for post lists must be batch-loaded, not per-post queried.
+
+The existing codebase already solves this exact pattern for embeds, tags, and artists via batch IN queries in both `posts.js` (GET /) and `browse.js` (via the `batchLoadPostData` helper). Likes and comments follow the same approach.
+
+```javascript
+// After fetching post rows, alongside existing embed/tag/artist batch loads:
+if (postIds.length > 0) {
+  const ph = postIds.map(() => '?').join(',');
+
+  // Existing batch loads: embeds, tags, artists (unchanged)
+
+  // New: like counts
+  const likeCounts = await db.all(
+    `SELECT post_id, COUNT(*) as count
+     FROM post_likes WHERE post_id IN (${ph}) GROUP BY post_id`,
+    ...postIds
+  );
+  const likeCountMap = {};
+  for (const lc of likeCounts) {
+    likeCountMap[lc.post_id] = lc.count;
+  }
+
+  // New: comment counts
+  const commentCounts = await db.all(
+    `SELECT post_id, COUNT(*) as count
+     FROM post_comments WHERE post_id IN (${ph}) GROUP BY post_id`,
+    ...postIds
+  );
+  const commentCountMap = {};
+  for (const cc of commentCounts) {
+    commentCountMap[cc.post_id] = cc.count;
+  }
+}
+
+// Add to post response shape:
+// likeCount: likeCountMap[p.id] || 0,
+// commentCount: commentCountMap[p.id] || 0,
+```
+
+**Where this applies:**
+- `posts.js` GET / (main feed) -- has its own batch-load inline
+- `browse.js` batchLoadPostData helper -- used by tag, artist, contributor, explore
+- `profile.js` GET /:username/profile -- has its own batch-load inline
+- `search.js` -- needs its own batch-load
+
+**Recommendation:** Extract the batch-load logic from `browse.js` (the `batchLoadPostData` + `formatPosts` helpers) into a shared module (`server/lib/post-helpers.js`) and import it across all four files. This avoids duplicating the like/comment count batch-load in 4 places.
+
+**Trade-offs:** Adds 2 additional queries per list request (likes + comments). At current data volume (tens of posts, single-digit readers) this is negligible. If it becomes a concern later, denormalized `like_count`/`comment_count` columns on `posts` with increment/decrement on like/unlike would eliminate these queries.
+
+## Recommended Project Structure Changes
+
+### Server (modified + new files)
+
+```
+server/
+├── index.js                  # MODIFIED: import + start scheduler
+├── db/index.js               # MODIFIED: append migration 5
+├── middleware/
+│   └── auth.js               # MODIFIED: add requireContributor export
+├── lib/
+│   ├── scheduler.js          # NEW: publishScheduledPosts interval
+│   ├── post-helpers.js       # NEW: extracted batchLoadPostData + formatPosts
+│   ├── email.js              # Unchanged
+│   ├── oembed.js             # Unchanged
+│   ├── spotify.js            # Unchanged
+│   └── apple-music.js        # Unchanged
+└── routes/
+    ├── auth.js               # MODIFIED: add /register-reader endpoint
+    ├── posts.js              # MODIFIED: status handling, /drafts, /:slug/like, /:slug/comments
+    ├── browse.js             # MODIFIED: add WHERE status='published', import shared helpers
+    ├── feed.js               # MODIFIED: add WHERE status='published'
+    ├── search.js             # MODIFIED: add WHERE status='published'
+    ├── profile.js            # MODIFIED: add WHERE status='published', import shared helpers
+    ├── invites.js            # Unchanged
+    ├── users.js              # Unchanged
+    └── embeds.js             # Unchanged
+```
+
+### Client (modified + new files)
+
+```
+client/src/
+├── pages/
+│   ├── Home.jsx              # Unchanged (feed already shows published posts)
+│   ├── ViewPost.jsx          # MODIFIED: add LikeButton + CommentSection
+│   ├── CreatePost.jsx        # MODIFIED: handle draft/schedule from PostForm
+│   ├── EditPost.jsx          # MODIFIED: handle status changes
+│   ├── Drafts.jsx            # NEW: contributor's draft + scheduled list
+│   ├── ReaderRegister.jsx    # NEW: reader signup form
+│   ├── Login.jsx             # Unchanged (works for all roles)
+│   ├── Register.jsx          # Unchanged (contributor invite flow)
+│   └── ...                   # Other pages unchanged
+├── components/
+│   ├── PostForm.jsx          # MODIFIED: add status selector + schedule date picker
+│   ├── PostCard.jsx          # MODIFIED: add like count + comment count display
+│   ├── LikeButton.jsx        # NEW: heart icon + count + toggle
+│   ├── CommentSection.jsx    # NEW: comment list + add form + delete
+│   ├── Navbar.jsx            # MODIFIED: conditional nav for reader vs contributor
+│   ├── ProtectedRoute.jsx    # Unchanged
+│   ├── ContributorRoute.jsx  # NEW: wrapper requiring contributor role
+│   └── ...                   # Other components unchanged
+├── context/
+│   └── AuthContext.jsx       # MODIFIED: add isContributor, isReader, registerReader
+├── api/
+│   └── client.js             # MODIFIED: add likes, comments, drafts, readerAuth methods
+└── App.jsx                   # MODIFIED: add routes /register/reader, /drafts
+```
+
+## Integration Points
+
+### Where New Code Touches Existing Code
+
+| Existing File | What Changes | Risk Level |
+|---------------|-------------|------------|
+| `server/db/index.js` | Append migration 5 (ALTER TABLE + CREATE TABLE) | LOW -- append-only pattern |
+| `server/middleware/auth.js` | Add `requireContributor` export | LOW -- additive |
+| `server/routes/auth.js` | Add `/register-reader` endpoint | LOW -- new endpoint, existing `/register` untouched |
+| `server/routes/posts.js` | Status param to create/update, /drafts, /:slug/like, /:slug/comments | MEDIUM -- most changes here |
+| `server/routes/browse.js` | Add `AND p.status = 'published'` to 4 queries, batch counts | LOW -- small additions |
+| `server/routes/feed.js` | Add `AND p.status = 'published'` to 1 query | LOW -- one-line addition |
+| `server/routes/search.js` | Add `AND p.status = 'published'` to query | LOW -- one-line addition |
+| `server/routes/profile.js` | Add `AND p.status = 'published'` to profile post query | LOW -- one-line addition |
+| `server/index.js` | Import + start scheduler (2 lines) | LOW |
+| `client/src/api/client.js` | Add `likes`, `comments`, `drafts`, `readerAuth` exports | LOW -- additive |
+| `client/src/context/AuthContext.jsx` | Add `isContributor`, `isReader`, `registerReader` | LOW -- additive |
+| `client/src/components/PostForm.jsx` | Add status selector + schedule date picker | MEDIUM -- modifying core form |
+| `client/src/pages/ViewPost.jsx` | Add LikeButton + CommentSection below post | LOW -- appending to layout |
+| `client/src/components/PostCard.jsx` | Add like count + comment count display | LOW -- small UI addition |
+| `client/src/components/Navbar.jsx` | Conditional items for reader vs contributor | MEDIUM -- nav logic complexity |
+| `client/src/App.jsx` | Add 3 new routes | LOW -- additive |
+
+### API Client Additions
+
+```javascript
+// client/src/api/client.js -- new exports appended
+
+export const readerAuth = {
+  register: (email, password, displayName) =>
+    api.post('/auth/register-reader', { email, password, displayName }),
+};
+
+export const likes = {
+  like: (slug) => api.post(`/posts/${slug}/like`),
+  unlike: (slug) => api.delete(`/posts/${slug}/like`),
+};
+
+export const comments = {
+  list: (slug) => api.get(`/posts/${slug}/comments`),
+  create: (slug, body) => api.post(`/posts/${slug}/comments`, { body }),
+  delete: (slug, commentId) =>
+    api.delete(`/posts/${slug}/comments/${commentId}`),
+};
+
+export const drafts = {
+  list: () => api.get('/posts/drafts'),
+};
+```
+
+### New Route Endpoints Summary
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| `POST` | `/api/auth/register-reader` | None | Reader signup |
+| `GET` | `/api/posts/drafts` | Contributor | List caller's drafts + scheduled |
+| `POST` | `/api/posts/:slug/like` | Any auth | Like a post |
+| `DELETE` | `/api/posts/:slug/like` | Any auth | Unlike a post |
+| `GET` | `/api/posts/:slug/comments` | None | List comments on a post |
+| `POST` | `/api/posts/:slug/comments` | Any auth | Add a comment |
+| `DELETE` | `/api/posts/:slug/comments/:id` | Auth + ownership | Delete a comment |
+
+All existing endpoints remain unchanged in their URL structure. The `POST /api/posts` and `PUT /api/posts/:slug` endpoints gain an optional `status` parameter (defaults to `'published'` for backward compatibility).
+
+### Rate Limiting for New Endpoints
+
+| Endpoint | Window | Max | Rationale |
+|----------|--------|-----|-----------|
+| `POST /auth/register-reader` | 15 min | 5 | Prevent registration abuse |
+| `POST /posts/:slug/like` | 15 min | 120 | Lightweight action, allow batch browsing |
+| `DELETE /posts/:slug/like` | 15 min | 120 | Same as like |
+| `POST /posts/:slug/comments` | 15 min | 20 | Prevent comment spam |
+| `DELETE /posts/:slug/comments/:id` | 15 min | 30 | Moderation shouldn't be throttled hard |
+
+## Anti-Patterns to Avoid
+
+### Anti-Pattern 1: Separate Tables per Role
+
+**What people do:** Create `reader_likes` separate from contributor likes, or `reader_comments` vs `contributor_comments`.
+
+**Why it's wrong:** The existing `users` table handles all roles in one table. Likes and comments should follow suit. A `user_id` FK to the unified `users` table is sufficient. Role checks happen in middleware, not in table structure.
+
+**Do this instead:** Single `post_likes` and `post_comments` tables with FK to `users`. Access control in application layer.
+
+### Anti-Pattern 2: Eager-Loading Per-User Like Status for All Posts in Feed
+
+**What people do:** For every post in the feed, query whether the current user has liked it (requiring auth + N extra queries or a complex LEFT JOIN).
+
+**Why it's wrong:** The feed is public and works without auth. Adding a per-user `liked` boolean to every post in every list query couples the feed to auth state unnecessarily.
+
+**Do this instead:** Show like *counts* in feeds (batch-loaded via GROUP BY, no auth needed). Show the per-user *liked* boolean only on the single post view (ViewPost), where `optionalAuth` + a single additional query is acceptable.
+
+### Anti-Pattern 3: Client-Side Draft Storage
+
+**What people do:** Store drafts in localStorage or IndexedDB to avoid server round-trips.
+
+**Why it's wrong:** Drafts disappear when the user clears browser data or switches devices. The point of drafts is persistence.
+
+**Do this instead:** Drafts are server-side, stored in the `posts` table with `status = 'draft'`. The server is the source of truth. Auto-save can debounce updates via PUT.
+
+### Anti-Pattern 4: Modifying the Existing `/register` Endpoint for Readers
+
+**What people do:** Add an `isReader` flag to the existing registration endpoint, making invite token conditional.
+
+**Why it's wrong:** The existing registration flow has careful invite token validation with race condition protection (atomic UPDATE with `WHERE used_by IS NULL`). Branching this flow for readers adds complexity to critical security code.
+
+**Do this instead:** Separate `/register-reader` endpoint. Simple, no invite logic, clearly different user flow.
+
+### Anti-Pattern 5: Conditional Status Column in Migration
+
+**What people do:** Run a data migration to set `status = 'published'` on all existing posts after adding the column.
+
+**Why it's wrong:** The column default handles this automatically. `ALTER TABLE posts ADD COLUMN status TEXT NOT NULL DEFAULT 'published'` sets every existing row's status to `'published'` -- no data migration needed.
+
+**Do this instead:** Use the column default. Trust SQLite's ALTER TABLE behavior with DEFAULT values.
 
 ## Scaling Considerations
 
 | Scale | Architecture Adjustments |
 |-------|--------------------------|
-| 0-1k readers | Monolith is perfect. Turso free tier handles this easily. No caching needed. Single Render instance for API. |
-| 1k-10k readers | Add response caching for feed/browse routes (in-memory or Redis). Feed queries are the hot path. Turso still handles this fine. |
-| 10k-100k readers | CDN for static assets (Vercel already does this). Consider Turso read replicas for geographic distribution. Rate limit more aggressively. |
-| 100k+ readers | This is a content site with few writers and many readers -- the read/write ratio is extremely favorable. Turso embedded replicas or edge caching handles this. The architecture does not need to change. |
+| 0-1k readers | Current approach is fine. `setInterval` scheduler, COUNT subqueries for likes. |
+| 1k-10k readers | Denormalize `like_count` on `posts` table if list queries slow down. Add pagination to comments. |
+| 10k+ readers | Move scheduler to a separate worker. Consider Turso read replicas. Comment pagination with cursor. |
 
-### Scaling Priorities
+### What Breaks First
 
-1. **First bottleneck:** Feed query performance. Chronological feed with joins (posts + authors + tags + like counts + embed data) gets slow as post count grows. Fix with proper indexes on `created_at`, `author_id`, and cursor-based pagination (already in the design).
-2. **Second bottleneck:** Spotify oEmbed calls during post creation. These are external API calls that can be slow or rate-limited. Fix by caching oEmbed responses (same embed URL = same metadata). This is a write-path problem and writes are rare (invite-only contributors), so it will not actually be a bottleneck until there are many contributors posting frequently.
+1. **Like count queries in feeds** -- COUNT subqueries on `post_likes` execute per-page-load across many posts. At scale, this adds measurable latency. Mitigation: denormalized `like_count` column with increment/decrement on like/unlike. Single migration + 2 route changes.
 
-## Anti-Patterns
+2. **Comment volume on popular posts** -- If a single post gets hundreds of comments, loading them all at once becomes slow. Mitigation: cursor-paginate comments (same `created_at|id` pattern used in feeds). Not needed initially given the platform's scale.
 
-### Anti-Pattern 1: Client-Side Embed Resolution
+## Build Order (Dependency-Driven)
 
-**What people do:** Parse and resolve Spotify/Apple Music URLs entirely on the client, storing only the raw URL in the database.
-**Why it's wrong:** Every page load re-parses URLs. If the embed format changes, old posts break. Social crawlers get no embed metadata for OG tags. Embed rendering depends on client-side parsing being correct.
-**Do this instead:** Parse on the client for instant preview, but always re-parse and resolve on the server at write time. Store the resolved embed URL, provider, type, and fetched metadata (title, thumbnail) in the database.
+This ordering reflects actual code dependencies -- each phase can be built and tested independently, and each phase leaves the system in a working state.
 
-### Anti-Pattern 2: Offset-Based Feed Pagination
+### Phase 1: Schema + Status Filtering (Foundation)
 
-**What people do:** Use `LIMIT 20 OFFSET 40` for feed pagination.
-**Why it's wrong:** When new posts are added, offset shifts -- readers see duplicate posts or miss posts entirely. Performance degrades as offset grows (database must scan and discard offset rows).
-**Do this instead:** Use cursor-based pagination: `WHERE id < :last_seen_id ORDER BY created_at DESC LIMIT 20`. Stable, performant, and correct when content is added between page loads.
+Migration 5 (new tables + status columns) + add `WHERE p.status = 'published'` to all 10 public query sites + `requireContributor` middleware + extract `batchLoadPostData` to shared module.
 
-### Anti-Pattern 3: Storing Raw HTML in Post Body
+**Why first:** Everything else depends on the schema existing and public queries not leaking drafts. This is the safety net.
 
-**What people do:** Allow markdown or rich text in post bodies and store rendered HTML.
-**Why it's wrong:** For 500-800 character posts, rich text is overkill. It introduces XSS risk, increases storage, and complicates sanitization. The format is short-form plain text, not articles.
-**Do this instead:** Store plain text only. Sanitize aggressively (strip all HTML tags). The only "rich" content is the music embed, which is a separate structured field -- not inline in the post body.
+**Test:** All existing behavior unchanged. All current posts have `status = 'published'` by default. Feed, browse, search, RSS all work as before.
 
-### Anti-Pattern 4: MusicKit JS for Apple Music Embeds
+### Phase 2: Reader Accounts
 
-**What people do:** Import the full MusicKit JS SDK to embed Apple Music content, requiring an Apple Developer Program membership and developer token management.
-**Why it's wrong:** Apple Music provides simple iframe embeds at `embed.music.apple.com` that require zero authentication. MusicKit JS is for building full music players, not embedding a single track preview.
-**Do this instead:** Use the iframe embed format: `https://embed.music.apple.com/{region}/{type}/{id}`. No developer token, no SDK, no Apple Developer account required.
+`/register-reader` endpoint + ReaderRegister page + AuthContext role helpers + Navbar conditional rendering + ContributorRoute component.
 
-## Integration Points
+**Why second:** Likes and comments require authenticated users. Reader accounts must exist before engagement features.
 
-### External Services
+**Test:** Reader can sign up, log in, browse posts. Cannot create posts or access admin panel. Contributors still use existing invite flow.
 
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| Spotify oEmbed | Server-side GET to `open.spotify.com/oembed?url={encoded_url}` | Returns title, thumbnail, iframe HTML. No auth required. Cache responses. |
-| Spotify Embed | Client-side iframe: `open.spotify.com/embed/{type}/{id}` | 152px height for tracks, 352px for albums/playlists. Rendered from stored embed URL. |
-| Apple Music Embed | Client-side iframe: `embed.music.apple.com/{region}/{type}/{id}` | 150px height. No API key needed. Constructed from parsed URL components. |
-| Vercel | Static hosting for React SPA build output | Automatic CDN, preview deploys, custom domain. |
-| Render | Express API server hosting | Auto-deploy from git, environment variables, health checks. |
-| Turso | Hosted SQLite database via @libsql/client | Serverless-friendly, embedded replicas available, generous free tier. |
+### Phase 3: Likes
 
-### Internal Boundaries
+Like/unlike endpoints + LikeButton component + batch-loaded like counts in all feed/browse queries.
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| React SPA <-> Express API | REST over HTTPS (`/api/*` prefix) | Axios client with JWT in Authorization header. Vite dev proxy for local development. |
-| Express Routes <-> Turso | @libsql/client with parameterized SQL | All queries parameterized. Migrations run on server start. No ORM -- raw SQL. |
-| Express <-> Spotify oEmbed | Server-side HTTP GET (no auth) | Called during post creation only. Response cached. No user credentials involved. |
-| Auth Middleware <-> Routes | Middleware chain (`requireAuth`, `optionalAuth`, `requireAdmin`) | Three auth levels: public (no middleware), authenticated contributor, admin. |
-| Express Static <-> React Build | `express.static('client/dist')` with SPA fallback | All non-API, non-bot requests serve `index.html` for client-side routing. |
+**Why third:** Simplest engagement feature. Single button + count. Good proving ground for reader auth flow.
 
-## Database Schema (Recommended)
+**Test:** Reader likes a post, count increments. Unlike decrements. One like per user per post enforced. Counts visible in feed to all visitors.
 
-```sql
--- Core content
-CREATE TABLE posts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  slug TEXT UNIQUE NOT NULL,
-  body TEXT NOT NULL,              -- plain text, 800 char soft limit
-  author_id INTEGER NOT NULL REFERENCES users(id),
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
+### Phase 4: Comments
 
--- Music embeds (one per post, optionally none)
-CREATE TABLE post_embeds (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  post_id INTEGER UNIQUE NOT NULL REFERENCES posts(id),
-  provider TEXT NOT NULL,          -- 'spotify' or 'apple'
-  embed_type TEXT NOT NULL,        -- 'track', 'album', 'playlist', 'artist'
-  embed_url TEXT NOT NULL,         -- the iframe src URL
-  original_url TEXT NOT NULL,      -- the URL the contributor pasted
-  title TEXT,                      -- from oEmbed or parsed
-  thumbnail_url TEXT,              -- album art from oEmbed
-  UNIQUE(post_id)
-);
+Comment CRUD endpoints + CommentSection component on ViewPost.
 
--- Tags (many-to-many)
-CREATE TABLE post_tags (
-  post_id INTEGER NOT NULL REFERENCES posts(id),
-  tag TEXT NOT NULL,               -- lowercase, sanitized
-  PRIMARY KEY (post_id, tag)
-);
+**Why fourth:** More complex than likes (text input, sanitization, moderation, display list). Builds on reader auth proven in Phase 3.
 
--- Social interactions
-CREATE TABLE post_likes (
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  post_id INTEGER NOT NULL REFERENCES posts(id),
-  created_at TEXT DEFAULT (datetime('now')),
-  PRIMARY KEY (user_id, post_id)
-);
+**Test:** Reader comments on a post. Post author can delete comments. Admin can delete any comment. Comment count visible.
 
-CREATE TABLE post_comments (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  post_id INTEGER NOT NULL REFERENCES posts(id),
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  body TEXT NOT NULL,
-  created_at TEXT DEFAULT (datetime('now'))
-);
+### Phase 5: Drafts + Post Editing (Status Management)
 
--- Users and access control
-CREATE TABLE users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  display_name TEXT,
-  password_hash TEXT NOT NULL,
-  role TEXT NOT NULL DEFAULT 'contributor',  -- 'admin' or 'contributor'
-  bio TEXT,
-  created_at TEXT DEFAULT (datetime('now'))
-);
+Status param in create/update + Drafts page + PostForm status selector + draft preview via `optionalAuth` on GET /:slug.
 
-CREATE TABLE invites (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  email TEXT,
-  invite_token TEXT UNIQUE NOT NULL,
-  role TEXT NOT NULL DEFAULT 'contributor',
-  created_by INTEGER NOT NULL REFERENCES users(id),
-  created_at TEXT DEFAULT (datetime('now')),
-  claimed_at TEXT,
-  claimed_by_user_id INTEGER REFERENCES users(id)
-);
+**Why fifth:** Only affects contributors, not readers. Independent of engagement features. Schema from Phase 1 is already in place.
 
--- Indexes for feed performance
-CREATE INDEX idx_posts_created_at ON posts(created_at DESC);
-CREATE INDEX idx_post_tags_tag ON post_tags(tag);
-CREATE INDEX idx_post_likes_post ON post_likes(post_id);
-CREATE INDEX idx_post_comments_post ON post_comments(post_id);
-```
+**Test:** Contributor saves a draft. Draft appears in /drafts but not in public feed. Contributor publishes draft -- it appears in feed. Contributor unpublishes -- it disappears.
 
-## Build Order Implications
+### Phase 6: Scheduled Publishing
 
-The architecture has clear dependency chains that dictate implementation order:
+Schedule date picker in PostForm + server-side scheduler + scheduled status handling.
 
-1. **Database schema + Express skeleton + Auth** (foundation) -- Everything depends on the database and auth. The invite system is the gate to all write operations.
+**Why last:** Depends on the draft/status system from Phase 5. Smallest scope -- a date picker + a `setInterval` function.
 
-2. **Post CRUD + Embed parsing** (core content) -- The central feature. Depends on auth (contributors must be authenticated) and database (posts table). Embed parsing is integral to post creation, not a separate phase.
-
-3. **Feed + Browse routes** (read path) -- Depends on posts existing in the database. This is where pagination, tag filtering, and artist browsing live.
-
-4. **React SPA pages + components** (UI) -- Depends on API routes being available. Build Feed page, Post page, CreatePost page, browse pages.
-
-5. **Social features (likes, comments)** -- Depends on posts and users existing. Lower priority than core content loop.
-
-6. **OG meta tags + sharing** -- Depends on posts having embed metadata stored. Builds on the bot-detection pattern from Backyard Marquee.
-
-7. **Polish (infinite scroll, loading states, error handling)** -- Depends on all core features being functional.
-
-**Key insight:** The embed system (Spotify + Apple Music) is not a separate phase. It is deeply integrated into post creation and display. Build it alongside posts, not after.
+**Test:** Contributor schedules a post for 2 minutes from now. Post does not appear in feed. After scheduler fires, post appears.
 
 ## Sources
 
-- [Spotify Embeds Documentation](https://developer.spotify.com/documentation/embeds) -- HIGH confidence
-- [Spotify oEmbed API](https://developer.spotify.com/documentation/embeds/tutorials/using-the-oembed-api) -- HIGH confidence
-- [Spotify iFrame API](https://developer.spotify.com/documentation/embeds/tutorials/using-the-iframe-api) -- HIGH confidence
-- [Apple Music MusicKit Web](https://developer.apple.com/musickit/web/) -- HIGH confidence
-- [Apple Music simple iframe embed](https://allthings.how/how-to-embed-apple-music-playlists-albums-and-songs-on-a-webpage/) -- MEDIUM confidence
-- [Kit Engineering: Spotify Embeds](https://engineering.kit.com/2022/05/20/spotify-embeds/) -- MEDIUM confidence (real-world implementation reference)
-- [Turso FTS5 Support](https://turso.tech/blog/beyond-fts5) -- MEDIUM confidence
-- [Cursor-based pagination patterns](https://learnersbucket.com/examples/interview/react-custom-hook-for-infinite-scroll-with-cursor-based-pagination/) -- MEDIUM confidence
-- [DOMPurify for XSS prevention](https://github.com/cure53/DOMPurify) -- HIGH confidence
-- [OG meta tags for SPAs](https://whatabout.dev/open-graph-facebook-and-client-side-rendering/) -- MEDIUM confidence
+- Existing codebase analysis: `server/db/index.js`, `server/routes/*.js`, `server/middleware/auth.js`, `client/src/**/*.jsx` -- all patterns derived from what is already built (HIGH confidence)
+- SQLite ALTER TABLE with DEFAULT behavior -- well-documented, existing rows get the default value (HIGH confidence)
+- Express middleware chaining -- established patterns used throughout existing codebase (HIGH confidence)
+- setInterval for background tasks in single-process Node.js -- standard approach, used in production by many small-to-medium apps (HIGH confidence)
+- Composite PK `(post_id, user_id)` for likes -- same pattern proven in Backyard Marquee's `lineup_likes` table (HIGH confidence)
 
 ---
-*Architecture research for: Involuntary Response (music micro-blogging platform)*
-*Researched: 2026-02-26*
+*Architecture research for: v2.1 Reader Engagement & Editorial*
+*Researched: 2026-02-28*

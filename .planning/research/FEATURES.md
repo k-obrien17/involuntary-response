@@ -1,205 +1,260 @@
-# Feature Research
+# Feature Research: v2.1 Reader Engagement & Editorial
 
-**Domain:** Music micro-blogging / short-form music commentary platform
-**Researched:** 2026-02-26
-**Confidence:** MEDIUM-HIGH
+**Domain:** Music micro-blogging platform -- reader participation + contributor editorial tools
+**Researched:** 2026-02-28
+**Confidence:** HIGH (patterns proven in existing codebase + well-documented domain)
+
+## Context
+
+This research covers only the v2.1 milestone features. The platform already has:
+- Invite-only contributor auth (JWT + bcrypt), admin invite management
+- Post CRUD with Spotify/Apple Music embeds, tags, artist extraction
+- Reverse-chronological cursor-paginated feed
+- Browse by tag, artist, contributor; profile pages; search
+- OG meta tags, RSS feed, dark mode, Gravatar avatars
+
+The existing `users` table has `role` (admin/contributor), `is_active`, `email`, `password_hash`, `display_name`, `username`, `bio`. The existing `lineups.js` routes in the Backyard Marquee half of this repo already implement toggle-likes and flat comments with the same patterns needed here.
+
+---
 
 ## Feature Landscape
 
 ### Table Stakes (Users Expect These)
 
-Features users assume exist. Missing these = product feels incomplete.
+Features that feel missing if absent for a platform adding engagement.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Post creation with character guidance | Core product. Every blog/micro-blog has a compose flow. ~500-800 char soft limit. | LOW | Rich text not needed -- plain text with line breaks is enough for the format. Hard limit at ~1000 chars to prevent abuse while keeping the "soft 800" feel. |
-| Spotify track/album embeds inline | The core value is "the music is right there to listen to." Spotify covers ~60% of streaming users. | MEDIUM | Use Spotify oEmbed API (`open.spotify.com/oembed`) to resolve URLs to iframe embeds. Accepts track, album, artist URLs. Returns HTML iframe + thumbnail. Server-side resolution avoids CORS issues. |
-| Apple Music track/album embeds inline | Covers the other major streaming audience. Without it, a significant chunk of readers can't listen inline. | MEDIUM | Apple Music provides simple iframe embeds via `embed.music.apple.com` URLs -- no MusicKit JS or developer token required for basic playback previews. Copy the embed URL format from share links. |
-| Reverse-chronological feed | Standard for editorial blogs and micro-blogs. Tumblr, Substack Notes, Bluesky all use this as default. Algorithmic feeds are explicitly out of scope. | LOW | Simple `ORDER BY created_at DESC` with cursor-based pagination. No algorithmic complexity. |
-| Browse by artist | Users come to read about music they care about. Artist pages aggregate all posts mentioning that artist. | MEDIUM | Requires a `post_artists` join table linking posts to normalized artist names. Spotify API can provide canonical artist names/IDs during embed resolution. |
-| Browse by tag | Standard content organization. Rate Your Music, Album of the Year, Tumblr all rely on tags for discovery. | LOW | Tags table with many-to-many relationship, max 5 per post. Lowercase, trimmed. Same pattern as Backyard Marquee's `lineup_tags`. |
-| Likes on posts | Minimal engagement signal. Every social content platform has this. Tumblr hearts, Twitter likes, Substack likes. | LOW | One like per user per post, toggle on/off. UNIQUE constraint on (user_id, post_id). Display count. Same pattern as Backyard Marquee. |
-| Comments on posts | Expected for any community-oriented content platform. Substack, Tumblr, Album of the Year all have comments. | MEDIUM | Flat comments (not threaded) to match the minimal ethos. Basic moderation: contributor can delete comments on their posts, admin can delete any. |
-| Share posts (permalink + social) | Users need to be able to copy a link and share a post externally. This is how content spreads. | LOW | Each post gets a clean permalink URL (e.g., `/post/[slug]` or `/post/[id]`). Copy-to-clipboard button. OG meta tags for rich social previews (title, excerpt, artist image). |
-| Contributor profiles | Multi-author platform needs identity. Readers want to follow a specific voice. Substack, Tumblr, Medium all center author identity. | LOW | Username, display name, optional bio (~300 chars), optional avatar. Profile page showing their posts in reverse-chron. |
-| Invite-only contributor access | Core constraint from PROJECT.md. Maintains editorial quality. Admin creates accounts or sends invite links. | MEDIUM | Admin dashboard or CLI to generate invite tokens. Token-based registration flow. No open signup for contributors. Public readers don't need accounts for reading. |
-| Public read access (no login required) | The content is meant to be read by anyone. Gating reads behind auth kills reach and shareability. | LOW | All post content, feeds, artist pages, and tag pages are publicly accessible. Auth only required for contributor actions (post, edit) and reader engagement (like, comment). |
-| Responsive, mobile-friendly layout | Over 60% of blog traffic is mobile. A text-first platform must be readable on phones. | LOW | Tailwind handles this well. Single-column layout with generous whitespace scales naturally. |
-| Clean, text-first visual design | The writing IS the product. Cluttered UI undermines the editorial voice. The Marginalian, Wait But Why, and many successful text-first blogs prove minimal design works. | MEDIUM | Large readable type (18-20px body), generous line height (1.6-1.75), max-width content column (~650px), lots of whitespace. Music embeds should feel like natural interruptions in the text, not bolted-on widgets. |
+| Reader signup (email + password + display name) | Readers need identity to like/comment. Every platform that enables engagement has accounts. | LOW | New `role: 'reader'` in existing `users` table. No invite token required. Reuse existing bcrypt/JWT flow. Username auto-generated from display name (existing `ensureUniqueUsername` function). |
+| Post likes (toggle, one per reader per post) | Universal engagement signal. Substack, Tumblr, Medium, every content platform has a heart/like. Readers expect to be able to express appreciation with zero friction. | LOW | `post_likes` table with `UNIQUE(user_id, post_id)`. Toggle endpoint. Return liked state + count. Identical pattern to existing `lineup_likes` in Backyard Marquee. |
+| Like count displayed on posts | If likes exist, counts must be visible. A like button without a count feels broken. | LOW | Batch-fetch counts in feed query (avoid N+1). Show on both feed cards and permalink pages. |
+| Flat top-level comments | Comments are the standard reader feedback mechanism on editorial platforms. Substack, Medium, and Tumblr all have them. The project explicitly scopes to flat (not threaded) comments. | MEDIUM | `post_comments` table. Flat only (no parent_id). Display chronologically. Author can delete comments on their posts. Admin can delete any. Max length ~500 chars. |
+| Contributor can edit published posts | Typos happen. Factual corrections are needed. Every blogging platform allows editing. The PUT endpoint already exists in `posts.js` -- this is about surfacing it in the UI. | LOW | Backend already implemented (PUT /:slug). Frontend needs an edit button on own posts that reopens the compose form pre-filled with existing content. Show "edited" indicator with updated_at if different from created_at. |
+| Draft save (unpublished posts) | Contributors need to write without immediately publishing. WordPress, Ghost, Substack, and every CMS distinguish draft from published. | MEDIUM | Add `status` column to `posts` table: `draft`, `published`, `scheduled`. Drafts excluded from public feed/API. Only visible to the author in a "My Drafts" view. |
+| Draft preview before publishing | Contributors need to see how a post will look before it goes live. Standard in every publishing platform. | LOW | Render the draft using the same post component but with a "Preview" banner and "Publish" button. No new API needed -- just fetch the draft by slug with author auth. |
 
 ### Differentiators (Competitive Advantage)
 
-Features that set the product apart. Not expected, but valued.
+Features that elevate the platform beyond baseline expectations.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Music-reference without embed | Reference a song/album by name without embedding a full player. A lighter-weight mention for when you name-drop without needing inline playback. | LOW | Could be a styled inline element like `@artist - "Song Name"` that links to Spotify/Apple Music but doesn't embed the iframe. Keeps posts lean when full embeds aren't needed. |
-| OG meta tags with artist imagery | When a post is shared on social media, the preview card shows the artist image (from Spotify API thumbnail) alongside the post excerpt. Makes shares visually compelling and music-specific. | MEDIUM | Server-rendered OG tags per post (same pattern as Backyard Marquee). Pull `og:image` from the primary embedded track/album artwork. Falls back to site default image if no embed. |
-| Curated editorial voice (invite-only as feature) | Unlike Rate Your Music (anyone can review) or Substack (anyone can publish), the invite-only model means every contributor is hand-picked. The constraint IS the brand -- quality over volume. | LOW | Not a technical feature, but a product feature. The invite system enables it. Marketing/positioning rather than code. |
-| Reading time / post length indicator | Signals the "short-form" nature. Reinforces that this isn't longform criticism. Readers know every post is a quick read. | LOW | Calculate from character count. At 500-800 chars, every post is a ~1 min read. Could display as "Quick take" or "1 min read" badge. |
-| Artist detail pages with aggregated takes | A page for each artist showing all posts that mention them, with total post count and contributor count. Becomes a living, growing collection of takes on an artist. | MEDIUM | Beyond basic "browse by artist" filtering. A dedicated `/artist/[name]` page with stats (number of takes, number of contributors who've written about them). Similar to Backyard Marquee's `/stats/artist/:name`. |
-| RSS feed | Power users and music nerds (the target audience) are disproportionately RSS users. Substack and every serious blog offers RSS. Drives repeat readership without relying on social algorithms. | LOW | Generate RSS/Atom XML from the posts table. Standard libraries exist (like `feed` npm package). Include post excerpt + link to full post with embed. |
-| Post slugs from content | Human-readable URLs derived from the first few words or a manual slug. `/post/radiohead-ok-computer-still-hits` reads better than `/post/a7f3b2`. | LOW | Auto-generate from post content (first ~5 words, slugified) with option for contributor to override. Ensure uniqueness with suffix if collision. |
-| Dark mode | Text-heavy reading platforms benefit from dark mode. Music nerds reading at night. Aligns with the aesthetic. | LOW | Tailwind `dark:` classes. System preference detection + manual toggle. Store preference in localStorage. Same pattern as Backyard Marquee's ThemeContext. |
+| Scheduled publishing | Contributors can write posts during off-hours and set them to publish at optimal times. Substack and Ghost both offer this. Particularly valuable for a multi-contributor platform where editorial cadence matters. | MEDIUM | Add `publish_at` column to `posts`. Status = `scheduled` when `publish_at` is in the future. A periodic check (node-cron, every 60 seconds) flips status to `published` when `publish_at <= NOW()`. Simpler than a full job queue for this scale. |
+| Like count in feed without N+1 | Showing engagement signals in the feed makes the platform feel alive and guides reader attention to popular takes. | LOW | Add `like_count` as a denormalized column on `posts` or compute via subquery in the feed query. The existing feed batch-fetches embeds, tags, and artists already -- likes slot into the same pattern. |
+| Reader liked-state in feed (when logged in) | Readers seeing which posts they've already liked prevents confusion and encourages more engagement by showing their participation. | LOW | When `optionalAuth` provides a user, LEFT JOIN against `post_likes` in the feed query to include `user_has_liked` boolean per post. Same pattern as Backyard Marquee's `/lineups/:id/likes`. |
+| Comment count in feed | Showing comment counts signals active discussion and draws readers into posts with conversation. | LOW | Subquery or denormalized count. Displayed alongside like count on feed cards. |
+| "My Posts" contributor dashboard | A dedicated view showing published posts, drafts, and scheduled posts gives contributors control over their content pipeline. Not technically hard but significantly improves contributor UX. | LOW | Filtered views of the author's own posts by status. Uses existing auth + query filters. |
+| Contributor can delete own comments on their posts | Post authors should be able to moderate their own space. This is standard on Substack and Medium. | LOW | Already a proven pattern in Backyard Marquee. Check if request user is the comment author OR the post author OR admin. |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that seem good but create problems.
-
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| Star ratings / numerical scores | Music review platforms (RYM, Album of the Year) center on ratings. Feels like an obvious addition. | Reduces nuanced takes to a number. Encourages score comparison instead of reading. Undermines the "writing is the product" ethos. Letterboxd's best reviews aren't about the star count. | No ratings. The words are the review. If a post is good, people like it and share it. |
-| Algorithmic / trending feed | "Show me the best stuff" is a reasonable user request. | Adds significant complexity (what signals? engagement? recency? contributor reputation?). Creates perverse incentives for contributors to write for the algorithm. Chronological is the stated constraint. | Keep reverse-chron. Let browse-by-tag and artist pages serve as curated entry points. A simple "most liked this week" page is fine later if needed. |
-| Rich text editor / markdown | "Let me format my posts with bold, italics, headers, links." | Complexity creep. The format is a paragraph, not an essay. Rich formatting encourages longer, more structured posts -- the opposite of the product's ethos. Every formatting option is a decision that slows down writing. | Plain text with line breaks. Maybe allow a single inline link. The constraint forces punchy writing. |
-| Threaded / nested comments | "Let me reply to a specific comment." | Threads create sub-conversations that fragment discussion. On short-form posts (~500-800 chars), threaded comments would often be longer than the post itself. Adds significant UI and data complexity. | Flat comments only. Keep discussion simple and focused. Comments are reactions to the post, not conversations with each other. |
-| User-uploaded images in posts | "Let me add photos to my posts." | Image hosting is expensive and complex (storage, CDN, moderation, resizing). Pulls focus from text-first design. Opens the door to memes and low-effort content. | Music embeds provide the visual element (album art). If a contributor needs to reference visual art, they can link to it. |
-| Notifications system | "Tell me when someone likes or comments on my post." | Real-time notifications add significant infrastructure (WebSockets or polling, notification storage, read/unread state, email integration). Overkill for a small invite-only contributor pool. | Contributors can check their profile page for recent activity. Email notifications can be a v2 feature if the contributor count grows. |
-| YouTube / video embeds | "Let me embed music videos too." | Explicitly out of scope per PROJECT.md. YouTube embeds are heavy (large iframes, autoplay concerns, different aspect ratio). Muddies the audio-first identity. | Spotify + Apple Music only for v1. If a contributor wants to reference a video, link to it. |
-| Open registration | "Let anyone sign up and post." | Destroys the curated editorial voice that IS the product's identity. Quality control becomes impossible. Spam and low-effort content flood in. | Invite-only forever, or at least until there's a clear editorial process for vetting new contributors. Public readers can engage via likes/comments without contributor access. |
-| Full-text search | "Let me search across all posts." | SQLite/Turso FTS setup has quirks. Premature optimization for a small content volume. With curated content from a few contributors, browse-by-artist and tags are sufficient discovery mechanisms. | Tag and artist browsing covers most discovery needs. Add search when post volume makes browsing insufficient (100+ posts). |
-| Follower / following system | Social platforms have follow graphs. | Adds significant complexity (follow table, follower counts, "posts from people I follow" feed). With invite-only contributors (likely <20 people), following is meaningless -- readers will read everything anyway. | Contributor profile pages serve the same purpose. Readers can bookmark profiles they care about. |
+| Magic link / passwordless reader auth | Lower friction than email+password. Eliminates password management. | Requires transactional email infrastructure (already have it for password reset, but adds email dependency for every login). Breaks the flow when readers can't check email immediately. Increases email ops cost at scale. For a small platform, password auth is simpler and proven. | Email + password signup. The platform already has this infrastructure for contributors. Readers get the same flow without invite tokens. |
+| Social login (Google/GitHub) for readers | Faster signup. Fewer passwords. | Adds OAuth complexity, client ID management, and third-party dependency. The Backyard Marquee app has Google OAuth but it adds ~100 lines of code and requires Google Cloud Console setup. Overkill for a small reader base. | Start with email+password. Add Google OAuth later if signup friction proves to be a problem. |
+| Reader profile pages | "I want to show off my likes and comments." | Readers are consumers, not creators. Building profile pages for readers adds UI surface area without clear value. The platform's identity is built around contributor voices, not reader identity. | Reader display name shown on comments is sufficient. No public profile page needed. |
+| Email notifications for likes/comments | "Tell me when someone engages with my post." | Significant infrastructure: email templates, notification preferences, batch vs. real-time, unsubscribe handling. The contributor pool is small enough that checking the dashboard suffices. | Contributors check their "My Posts" view. Add email notifications in a future milestone if contributor count grows. |
+| Comment editing | "I made a typo in my comment." | Adds complexity: edit history, "edited" state, time windows. Comments on short-form posts are ephemeral reactions, not polished content. | Delete and re-post. Simple, no ambiguity. |
+| Comment reactions (emoji, upvote/downvote) | "Let me react to comments without writing one." | Feature creep. Comments on 500-800 char posts are already lightweight reactions. Adding reactions to reactions is meta-engagement that doesn't serve the core product. | Likes on posts only. Comments are the engagement layer. No sub-engagement. |
+| Autosave for drafts | "Don't lose my work if I navigate away." | Adds client-side complexity (debounced save, dirty state tracking, conflict resolution if multiple tabs). Posts are ~800 chars -- losing a draft is 2 minutes of work, not 2 hours. | Manual save button. Clear "unsaved changes" warning on navigation (beforeunload). |
+| Version history for post edits | "Let me see what I changed." | Significant database and UI complexity for minimal value. Posts are short. Edit history for 800-char posts is overkill. | Single current version. No edit history. Show "edited" badge with timestamp. |
+| Scheduled post calendar view | "Show me my publishing calendar." | UI complexity for a feature that serves maybe 3-5 contributors. A list view of scheduled posts sorted by date achieves the same goal with far less work. | Sorted list of scheduled posts with dates in the "My Posts" dashboard. |
+| Rate limiting comments to verified readers | "Prevent spam from new accounts." | Adds complexity (account age checks, verification tiers). The reader base is small and tied to a niche music platform -- spam is unlikely at this scale. | Rate limiting (already have the pattern) + require auth. Add honeypot field if spam becomes a problem. |
+
+---
 
 ## Feature Dependencies
 
 ```
-[Contributor Auth (invite system)]
-    |-- requires --> [Admin invite token generation]
-    |-- enables --> [Post creation]
-                        |-- enables --> [Spotify embeds]
-                        |-- enables --> [Apple Music embeds]
-                        |-- enables --> [Music references (non-embed)]
-                        |-- enables --> [Tags on posts]
-                        |                   |-- enables --> [Browse by tag]
-                        |-- enables --> [Artist linking on posts]
-                                            |-- enables --> [Browse by artist]
-                                            |-- enables --> [Artist detail pages]
+[Reader Accounts (email + password signup)]
+    |-- enables --> [Post Likes]
+    |                   |-- enables --> [Like count in feed]
+    |                   |-- enables --> [Reader liked-state in feed]
+    |
+    |-- enables --> [Post Comments]
+                        |-- requires --> [Comment moderation (post author + admin delete)]
+                        |-- enables --> [Comment count in feed]
 
-[Public read access]
-    |-- enables --> [Reverse-chron feed]
-    |-- enables --> [Post permalink pages]
-    |                   |-- enables --> [OG meta tags / social sharing]
-    |-- enables --> [RSS feed]
+[Draft Status on Posts]
+    |-- enables --> [Draft Save]
+    |-- enables --> [Draft Preview]
+    |-- enables --> [Scheduled Publishing]
+    |                   |-- requires --> [Server-side scheduler (node-cron)]
+    |
+    |-- enables --> ["My Posts" Dashboard (draft/published/scheduled views)]
 
-[Reader accounts (optional)]
-    |-- enables --> [Likes]
-    |-- enables --> [Comments]
-                        |-- requires --> [Comment moderation (by contributor + admin)]
+[Post Editing (backend already exists)]
+    |-- enables --> [Edit UI on frontend]
+    |-- enhances --> [Draft workflow (edit draft before publish)]
 
-[Contributor profiles]
-    |-- enhances --> [Post attribution in feed]
-    |-- enhances --> [Browse by contributor]
+[Reader Accounts] ---- independent of ---- [Draft/Scheduling features]
 ```
 
 ### Dependency Notes
 
-- **Post creation requires invite auth:** The entire contributor flow depends on the invite system being in place first. Without auth, no one can post.
-- **Embeds enhance post creation:** Posts work without embeds (just text), but embeds are the core value prop. Build embed support alongside or immediately after basic post creation.
-- **Artist linking requires embed resolution:** If you're resolving Spotify URLs to embeds, you already have the artist name. Store it in a join table during post creation for browsing later.
-- **Reader accounts are optional for reading:** Likes and comments require some form of reader identity, but all content is publicly readable without login. Could use lightweight auth (email-only, no password) or defer reader accounts entirely for v1.
-- **OG meta tags require post permalinks:** Server-rendered meta tags need a stable URL per post. Build permalinks into the post model from day one.
-- **RSS feed is independent:** Can be added at any point -- it just reads from the posts table. Low dependency, low complexity, high value for the target audience.
+- **Reader accounts are prerequisite for likes and comments:** No engagement features work without reader identity. Build accounts first, then engagement.
+- **Likes and comments are independent of each other:** Can ship likes without comments, or vice versa. Likes are simpler and higher value -- ship first.
+- **Draft status is prerequisite for scheduling:** Scheduling is just "draft with a future publish_at date." The status column enables both.
+- **Post editing backend already exists:** The PUT /:slug endpoint is implemented. This milestone only needs the frontend edit UI and the "edited" indicator.
+- **Reader accounts and editorial features are fully independent:** These two feature groups have zero dependencies on each other and can be built in parallel or any order.
 
-## MVP Definition
+---
 
-### Launch With (v1)
+## Implementation Scope (v2.1 Specific)
 
-Minimum viable product -- what's needed to validate the concept.
+### Build in This Milestone
 
-- [ ] **Invite-only contributor auth** -- Admin generates invite links, contributors register with token
-- [ ] **Post creation with character guidance** -- Plain text, ~500-800 char soft limit, up to ~1000 hard
-- [ ] **Spotify embed support** -- Paste a Spotify URL, server resolves via oEmbed, renders inline player
-- [ ] **Apple Music embed support** -- Paste an Apple Music URL, renders iframe embed for preview playback
-- [ ] **Reverse-chronological feed** -- Main page shows all posts newest-first with pagination
-- [ ] **Tags on posts** -- Up to 5 tags per post, browse-by-tag pages
-- [ ] **Artist linking** -- Posts linked to artists (extracted from embeds), browse-by-artist pages
-- [ ] **Contributor profiles** -- Username, display name, bio, avatar, profile page with their posts
-- [ ] **Post permalinks with OG meta tags** -- Clean URLs, rich social previews with artist artwork
-- [ ] **Public read access** -- Everything readable without login
-- [ ] **Minimal text-first design** -- Large type, whitespace, single column, responsive
+Priority ordered by dependency chain and user value.
 
-### Add After Validation (v1.x)
+- [ ] **Reader signup** -- New registration endpoint without invite token requirement, `role: 'reader'`. Separate from contributor registration.
+- [ ] **Reader login** -- Same login endpoint, works for both roles. JWT includes role.
+- [ ] **Post likes** -- `post_likes` table, toggle endpoint, count endpoint, feed integration.
+- [ ] **Post comments** -- `post_comments` table, create/list/delete endpoints, moderation (author + admin delete).
+- [ ] **Like/comment counts in feed** -- Modify feed query to include counts. Add `user_has_liked` for authenticated readers.
+- [ ] **Post status column** -- Migration adding `status TEXT DEFAULT 'published'` to `posts`. Values: `draft`, `published`, `scheduled`.
+- [ ] **Draft save + list** -- Modified POST endpoint respects status. New "My Drafts" API filter. Frontend drafts view.
+- [ ] **Draft preview** -- Frontend-only: render draft with same PostView component + preview banner.
+- [ ] **Publish from draft** -- PATCH endpoint to set status from `draft` to `published`.
+- [ ] **Edit post UI** -- Frontend edit button on own posts, pre-filled compose form. Backend already done.
+- [ ] **Edited indicator** -- Show "edited" badge when `updated_at > created_at` on published posts.
+- [ ] **Scheduled publishing** -- `publish_at` column, node-cron job (60s interval), status flip. Frontend datetime picker.
+- [ ] **"My Posts" dashboard** -- Filtered views of own posts by status (published/draft/scheduled).
 
-Features to add once core is working and contributors are posting.
+### Defer Beyond v2.1
 
-- [ ] **Likes** -- Add when reader engagement data is wanted. Requires lightweight reader accounts (email-only or social login).
-- [ ] **Comments** -- Add when contributors want reader feedback. Requires reader accounts + basic moderation.
-- [ ] **Dark mode** -- Add when contributors or readers request it. Low effort with Tailwind.
-- [ ] **RSS feed** -- Add when there's enough content to warrant subscription. Could be week 2.
-- [ ] **Music references (non-embed)** -- Add when contributors want to name-drop without embedding. Styled inline links.
-- [ ] **Artist detail pages** -- Add when enough posts exist to make aggregation meaningful (~20+ posts mentioning same artist).
+- [ ] **Email notifications for engagement** -- Wait for contributor pool to grow
+- [ ] **Reader profile pages** -- Not needed at this scale
+- [ ] **Social login for readers** -- Add if signup friction is measured
+- [ ] **Comment editing** -- Delete and re-post suffices
+- [ ] **Autosave drafts** -- Posts are short enough that manual save is fine
 
-### Future Consideration (v2+)
-
-Features to defer until product-market fit is established.
-
-- [ ] **Reading time badge** -- Nice polish, not essential
-- [ ] **"Most liked this week" page** -- Only useful once likes exist and volume warrants it
-- [ ] **Email notifications** -- Only if contributor count grows beyond ~10
-- [ ] **Full-text search** -- Only when post volume makes browse insufficient
-- [ ] **Contributor-to-contributor mentions** -- Only if a conversational dynamic emerges
-- [ ] **Share counts / analytics for contributors** -- Only if contributors want performance data
+---
 
 ## Feature Prioritization Matrix
 
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| Post creation (plain text, char limit) | HIGH | LOW | P1 |
-| Spotify embed | HIGH | MEDIUM | P1 |
-| Apple Music embed | HIGH | MEDIUM | P1 |
-| Reverse-chron feed | HIGH | LOW | P1 |
-| Invite-only auth | HIGH | MEDIUM | P1 |
-| Contributor profiles | HIGH | LOW | P1 |
-| Post permalinks + OG meta | HIGH | MEDIUM | P1 |
-| Tags + browse-by-tag | MEDIUM | LOW | P1 |
-| Artist linking + browse-by-artist | MEDIUM | MEDIUM | P1 |
-| Public read (no auth to read) | HIGH | LOW | P1 |
-| Text-first responsive design | HIGH | MEDIUM | P1 |
-| Likes | MEDIUM | LOW | P2 |
-| Comments + moderation | MEDIUM | MEDIUM | P2 |
-| Dark mode | MEDIUM | LOW | P2 |
-| RSS feed | MEDIUM | LOW | P2 |
-| Music references (non-embed) | LOW | LOW | P2 |
-| Artist detail pages (stats) | MEDIUM | MEDIUM | P2 |
-| Post slugs (human-readable URLs) | LOW | LOW | P2 |
-| Full-text search | LOW | MEDIUM | P3 |
-| Email notifications | LOW | HIGH | P3 |
-| Most-liked page | LOW | LOW | P3 |
+| Feature | User Value | Implementation Cost | Priority | Depends On |
+|---------|------------|---------------------|----------|------------|
+| Reader signup/login | HIGH | LOW | P1 | Nothing (extends existing auth) |
+| Post likes (toggle + count) | HIGH | LOW | P1 | Reader accounts |
+| Like count + liked-state in feed | HIGH | LOW | P1 | Likes |
+| Post comments (flat, top-level) | HIGH | MEDIUM | P1 | Reader accounts |
+| Comment count in feed | MEDIUM | LOW | P1 | Comments |
+| Post status column (draft/published/scheduled) | HIGH | LOW | P1 | Nothing (DB migration) |
+| Draft save + My Drafts view | HIGH | MEDIUM | P1 | Post status column |
+| Draft preview | MEDIUM | LOW | P1 | Drafts |
+| Post edit UI | HIGH | LOW | P1 | Nothing (backend exists) |
+| Edited indicator | LOW | LOW | P2 | Post edit UI |
+| Publish from draft | HIGH | LOW | P1 | Drafts |
+| Scheduled publishing | MEDIUM | MEDIUM | P2 | Post status + node-cron |
+| "My Posts" dashboard | MEDIUM | LOW | P2 | Post status column |
+| Comment moderation (author delete) | MEDIUM | LOW | P1 | Comments |
 
 **Priority key:**
-- P1: Must have for launch
-- P2: Should have, add when possible
-- P3: Nice to have, future consideration
+- P1: Must have for this milestone
+- P2: Should have, include if time permits (low risk to defer to v2.2)
 
-## Competitor Feature Analysis
+---
 
-| Feature | Rate Your Music | Album of the Year | Musotic | Substack (music) | Tumblr (music) | Our Approach |
-|---------|----------------|-------------------|---------|-------------------|----------------|--------------|
-| Post length | Unlimited reviews | Unlimited reviews | Unlimited reviews | Newsletter-length | Unlimited | ~500-800 chars. The constraint IS the format. |
-| Ratings / scores | 0.5-5 stars central | User scores + critic scores | Star ratings | None (text only) | None | None. Words only. |
-| Music embeds | None (links only) | Links to streaming | Spotify + Apple Music sync | Spotify embed in posts | Spotify/SoundCloud | Spotify + Apple Music inline embeds |
-| Who can post | Anyone (1.3M+ users) | Anyone | Anyone | Anyone (paid optional) | Anyone | Invite-only contributors. Quality > quantity. |
-| Discovery | Charts, lists, genres | Charts, critic aggregation | Mood, genre, trending | Recommendations, Notes | Tags, reblogs | Tags, artists, chronological feed |
-| Social features | Lists, ratings, forums | User ratings, comments | Follow, DM, comments | Likes, comments, Notes | Reblogs, likes, asks | Likes, flat comments |
-| Visual design | Dense, data-heavy | Dense, scores everywhere | App-native, colorful | Newsletter format | Theme-dependent | Minimal, text-first, lots of whitespace |
-| Identity model | Pseudonymous users | Pseudonymous users | App profiles | Named authors | Pseudonymous blogs | Named contributors (real or pen name) |
+## Existing Pattern Reuse
 
-### Key Competitive Insight
+The project already has proven implementations for most of these patterns. This reduces risk significantly.
 
-The gap in the market is not "another place to review music." RYM, AOTY, and Musotic all do that. The gap is a **curated, short-form, text-first** platform where the constraint on length and contributor access creates quality by design. The closest analog is a group blog or zine -- not a social network. Think "The Ringer but for 500-character music takes by 10 people you trust" rather than "Letterboxd for music."
+| v2.1 Feature | Existing Pattern | What to Reuse |
+|-------------|-----------------|---------------|
+| Reader accounts | Contributor registration (`server/routes/auth.js`) | Same endpoint, skip invite token validation when `role: 'reader'`. Same bcrypt hash, JWT generation, username derivation. |
+| Post likes | Lineup likes (`server/routes/lineups.js` lines 231-245) | Identical toggle pattern, UNIQUE constraint, count query. Copy and adapt for `post_likes`. |
+| Post comments | Lineup comments (`server/routes/lineups.js` lines 268-320) | Same flat comment structure, sanitization, auth check, delete-own-comment pattern. |
+| Rate limiting | Multiple existing limiters | Same `express-rate-limit` config: 60 likes/15min, 20 comments/15min. |
+| Feed batch fetching | Posts feed (`server/routes/posts.js` lines 142-186) | Existing N+1 avoidance pattern for embeds, tags, artists. Add likes/comments to the same batch. |
+| Draft preview | PostView component (frontend) | Render with same component + preview banner overlay. |
+
+---
+
+## Schema Additions
+
+### New Tables
+
+```sql
+-- Post likes (identical pattern to lineup_likes)
+CREATE TABLE post_likes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    post_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    UNIQUE(user_id, post_id)
+);
+CREATE INDEX idx_post_likes_post_id ON post_likes(post_id);
+
+-- Post comments (identical pattern to lineup_comments)
+CREATE TABLE post_comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_post_comments_post_id ON post_comments(post_id);
+```
+
+### Column Additions
+
+```sql
+-- Post status and scheduling
+ALTER TABLE posts ADD COLUMN status TEXT NOT NULL DEFAULT 'published';
+ALTER TABLE posts ADD COLUMN publish_at DATETIME;
+CREATE INDEX idx_posts_status ON posts(status);
+CREATE INDEX idx_posts_publish_at ON posts(publish_at);
+```
+
+### Auth Changes
+
+No schema changes needed for reader accounts. The existing `users` table already supports multiple roles via the `role` column. Reader signup simply inserts with `role: 'reader'` instead of `role: 'contributor'`.
+
+---
+
+## Competitor Context for v2.1 Features
+
+| Feature | Substack | Medium | Tumblr | Ghost | Our Approach |
+|---------|----------|--------|--------|-------|--------------|
+| Reader accounts | Email subscription (implicit account) | Google/email signup | Tumblr account required | Email subscription | Email + password. No subscription required. Lightweight. |
+| Likes | Heart icon, count shown | Clap (variable, 1-50 per user) | Heart, count shown | None (subscriber model) | Heart toggle, one per reader per post. Simple. |
+| Comments | Threaded, subscriber-only | Threaded, anyone | Reblogs (no direct comments on most themes) | Threaded, member-only | Flat, top-level only. Reader account required. Matches minimal ethos. |
+| Drafts | Full draft workflow, auto-save | Full draft workflow, auto-save | Queue and draft | Full draft workflow, auto-save | Manual save, status field. No auto-save. Posts are short enough. |
+| Post editing | Full editing after publish | Full editing after publish | Full editing | Full editing after publish | Full editing (backend exists). Show "edited" badge. |
+| Scheduling | Date/time picker | Not available (publish only) | Queue scheduling | Date/time picker, timezone-aware | Date/time picker. Server polls every 60s. UTC storage. |
+
+### Key Insight
+
+Substack and Ghost are the closest comparisons for editorial workflow features (drafts, scheduling). But those platforms serve long-form content where drafts and scheduling are essential for 2000+ word pieces. For 800-char micro-posts, the editorial workflow should be dramatically simpler:
+- No auto-save (the post is one paragraph)
+- No collaborative editing (single author)
+- No approval workflow (contributors are trusted, invite-only)
+- No revision history (too short to warrant it)
+
+The simplicity of the content format should be reflected in the simplicity of the editorial tools.
+
+---
 
 ## Sources
 
-- [Spotify oEmbed API Documentation](https://developer.spotify.com/documentation/embeds/reference/oembed) -- HIGH confidence, official docs
-- [Spotify Embeds Overview](https://developer.spotify.com/documentation/embeds) -- HIGH confidence, official docs
-- [Apple Music Embed Guide](https://dev.to/braydoncoyer/display-an-apple-music-playlist-on-your-website-4n5k) -- MEDIUM confidence, developer tutorial
-- [Apple Music MusicKit JS](https://developer.apple.com/documentation/musickitjs) -- HIGH confidence, official Apple docs
-- [Rate Your Music - Wikipedia](https://en.wikipedia.org/wiki/Rate_Your_Music) -- MEDIUM confidence, Wikipedia
-- [Musotic Launch Announcement](https://news.musotic.com/posts/letterboxd-for-music-is-here) -- MEDIUM confidence, official product site
-- [Substack Music Newsletters](https://substack.com/top/music) -- MEDIUM confidence, platform listing
-- [Tumblr Music Community](https://www.tumblr.com/music) -- MEDIUM confidence, platform page
-- [Open Graph Protocol Best Practices](https://www.semrush.com/blog/open-graph/) -- MEDIUM confidence, industry source
-- [Minimal Blog Design Examples](https://www.marketermilk.com/blog/best-blog-designs) -- LOW confidence, roundup article
+- [WordPress Post Statuses](https://wordpress.org/documentation/article/post-status/) -- HIGH confidence, canonical CMS workflow reference
+- [Sanity CMS Draft/Publishing Glossary](https://www.sanity.io/glossary/drafts--publishing-workflow) -- MEDIUM confidence, CMS vendor docs
+- [ButterCMS Draft to Published](https://buttercms.com/kb/page-status-draft-to-published/) -- MEDIUM confidence, CMS vendor docs
+- [Payload CMS Drafts](https://payloadcms.com/docs/versions/drafts) -- HIGH confidence, official documentation
+- [Node-cron vs Node-schedule comparison](https://npm-compare.com/cron,node-cron,node-schedule) -- MEDIUM confidence, npm comparison tool
+- [Better Stack Node-cron Guide](https://betterstack.com/community/guides/scaling-nodejs/node-cron-scheduled-tasks/) -- MEDIUM confidence, developer guide
+- [SuperTokens Magic Links](https://supertokens.com/blog/magiclinks) -- MEDIUM confidence, auth vendor blog
+- [Auth0 Magic Link Docs](https://auth0.com/docs/authenticate/passwordless/authentication-methods/email-magic-link) -- HIGH confidence, official docs
+- [Liveblocks Commenting UX](https://liveblocks.io/blog/how-to-build-an-engaging-in-app-commenting-experience) -- MEDIUM confidence, product blog
+- [ResultFirst Comment Design Trends](https://www.resultfirst.com/blog/web-design/15-best-comment-designs-trends-for-web-designers/) -- LOW confidence, design blog
+- Existing codebase: `server/routes/lineups.js` (like/comment patterns) -- HIGH confidence, proven in production
+- Existing codebase: `server/routes/posts.js` (POST/PUT/GET, batch N+1 avoidance) -- HIGH confidence, proven in production
+- Existing codebase: `server/routes/auth.js` (registration, JWT, username generation) -- HIGH confidence, proven in production
 
 ---
-*Feature research for: Music micro-blogging / short-form music commentary platform*
-*Researched: 2026-02-26*
+*Feature research for: v2.1 Reader Engagement & Editorial -- Involuntary Response*
+*Researched: 2026-02-28*
