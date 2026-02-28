@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 07-artist-data
 source: [07-01-SUMMARY.md, 07-02-SUMMARY.md]
 started: 2026-02-28T15:10:00Z
@@ -64,14 +64,27 @@ skipped: 1
   reason: "User reported: didn't work - ideally it parses and displays who it thinks the artist is before you save/publish"
   severity: major
   test: 1
-  artifacts: []
-  missing: []
+  root_cause: "Artist extraction only runs server-side on POST/PUT. No client-side preview. The /api/embeds/resolve endpoint already returns oEmbed title (e.g. 'Blinding Lights — The Weeknd') but PostForm.jsx never reads it. Fix: call getArtistsForSpotifyUrl/getArtistsForAppleMusicUrl in embeds.resolve response, then useEffect in PostForm to auto-populate artistName from embed.artists."
+  artifacts:
+    - path: "server/routes/embeds.js"
+      issue: "Does not include artists in resolve response"
+    - path: "client/src/components/PostForm.jsx"
+      issue: "No useEffect watching embed to populate artistName"
+  missing:
+    - "Add artist extraction to /api/embeds/resolve response"
+    - "Add useEffect in PostForm to set artistName from embed.artists"
   debug_session: ""
 - truth: "Edit an existing post that has an artist — artist name text input is pre-populated"
   status: failed
-  reason: "User reported: Edit button not visible on permalink page — likely user.id vs post.authorId type mismatch (BigInt vs number)"
+  reason: "User reported: Edit button not visible on permalink page — user.id vs post.authorId type mismatch (BigInt vs number)"
   severity: major
   test: 7
-  artifacts: []
-  missing: []
+  root_cause: "libsql returns INTEGER columns as BigInt in some transports. db.run has Number() coercion on lastInsertRowid but db.get/db.all return raw rows — post.author_id can be BigInt while user.id (from JWT) is number. 1n === 1 is false in JS. Fix: add coerceRow helper in db/index.js to convert BigInt to Number in db.get and db.all."
+  artifacts:
+    - path: "server/db/index.js"
+      issue: "db.get and db.all do not coerce BigInt values to Number"
+    - path: "client/src/pages/ViewPost.jsx"
+      issue: "user.id === post.authorId strict equality fails on type mismatch"
+  missing:
+    - "Add coerceRow helper in db/index.js for db.get and db.all"
   debug_session: ""
