@@ -48,7 +48,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **DSGN-01**: Minimal text-first layout with large type, whitespace, and single content column
 - [x] **DSGN-02**: Fully responsive and mobile-friendly
-- [ ] **DSGN-03**: Dark mode with system preference detection and manual toggle
+- [x] **DSGN-03**: Dark mode with system preference detection and manual toggle
 
 ## v2 Requirements
 
@@ -121,7 +121,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SHAR-03 | Phase 5 | Complete |
 | DSGN-01 | Phase 3 | Complete |
 | DSGN-02 | Phase 3 | Complete |
-| DSGN-03 | Phase 5 | Pending |
+| DSGN-03 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 25 total
