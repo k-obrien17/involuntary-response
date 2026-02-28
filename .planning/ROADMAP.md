@@ -90,10 +90,11 @@ Plans:
   1. When a post permalink is shared on Twitter/Slack/iMessage, the preview shows the post title, an excerpt, and album artwork
   2. Visitors can subscribe to an RSS feed that includes recent posts with their full text and embed links
   3. Site detects system dark/light preference and applies the correct theme, with a manual toggle that persists across sessions
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md — OG meta tags (Vercel serverless function) + RSS feed (Express endpoint)
+- [ ] 05-02-PLAN.md — Dark mode: ThemeContext, FOUC prevention, dark: classes on all components/pages, visual verification
 
 ## Progress
 
@@ -106,4 +107,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Post Creation and Embeds | 2/2 | Complete   | 2026-02-27 |
 | 3. Feed and Post Display | 0/2 | In progress | - |
 | 4. Browse, Discovery, and Profiles | 2/3 | In Progress | - |
-| 5. Sharing and Distribution | 0/0 | Not started | - |
+| 5. Sharing and Distribution | 0/2 | Not started | - |
