@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import EmbedPlaceholder from './EmbedPlaceholder';
 import { relativeTime } from '../utils/formatDate';
 
 export default function PostCard({ post }) {
+  const navigate = useNavigate();
   return (
     <article>
       <div className="prose prose-lg lg:prose-xl prose-gray max-w-none">
@@ -38,7 +39,7 @@ export default function PostCard({ post }) {
               to={`/tag/${tag}`}
               className="text-sm text-gray-500 hover:text-gray-700 transition"
             >
-              #{tag}
+              {tag}
             </Link>
           ))}
         </div>
@@ -52,12 +53,12 @@ export default function PostCard({ post }) {
           {relativeTime(post.createdAt)}
         </Link>
         <span className="mx-2">&middot;</span>
-        <Link
-          to={`/@${post.author.username}`}
-          className="hover:text-gray-600 transition"
+        <button
+          onClick={() => navigate(`/@${post.author.username}`)}
+          className="hover:text-gray-600 transition cursor-pointer"
         >
           {post.author.displayName}
-        </Link>
+        </button>
       </div>
     </article>
   );

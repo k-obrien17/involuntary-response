@@ -42,7 +42,12 @@ export default function Navbar() {
                   Admin
                 </Link>
               )}
-              <span className="text-sm text-gray-500">@{user.username}</span>
+              <Link
+                to={`/@${user.username}`}
+                className="text-sm text-gray-500 hover:text-gray-900 transition"
+              >
+                @{user.username}
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-sm text-gray-600 hover:text-gray-900"

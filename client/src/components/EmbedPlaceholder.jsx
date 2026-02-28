@@ -16,7 +16,8 @@ export default function EmbedPlaceholder({ embed }) {
     return <EmbedPreview embed={embed} />;
   }
 
-  const providerLabel = embed.provider === 'spotify' ? 'Spotify' : 'Apple Music';
+  const providerLabels = { spotify: 'Spotify', apple: 'Apple Music', youtube: 'YouTube', vimeo: 'Vimeo', soundcloud: 'SoundCloud', bandcamp: 'Bandcamp' };
+  const providerLabel = providerLabels[embed.provider] || embed.provider;
   const title = embed.title || `Listen on ${providerLabel}`;
   const height = getEmbedHeight(embed);
 
