@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Avatar from './Avatar';
 import { relativeTime } from '../utils/formatDate';
 export default function PostListItem({ post }) {
   const preview =
@@ -12,14 +13,19 @@ export default function PostListItem({ post }) {
       >
         {preview}
       </Link>
-      <div className="mt-1 text-sm text-gray-400 dark:text-gray-500">
+      <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-400 dark:text-gray-500">
+        <Avatar
+          emailHash={post.author.emailHash}
+          displayName={post.author.displayName}
+          size={18}
+        />
         <Link
           to={`/u/${post.author.username}`}
           className="hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
           {post.author.displayName}
         </Link>
-        <span className="mx-1">&middot;</span>
+        <span>&middot;</span>
         <span>{relativeTime(post.createdAt)}</span>
       </div>
     </div>

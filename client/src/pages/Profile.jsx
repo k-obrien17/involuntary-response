@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { profile } from '../api/client';
+import Avatar from '../components/Avatar';
 import PostListItem from '../components/PostListItem';
 
 export default function Profile() {
@@ -76,10 +77,19 @@ export default function Profile() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          {profileData.displayName}
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">@{profileData.username}</p>
+        <div className="flex items-center gap-4">
+          <Avatar
+            emailHash={profileData.emailHash}
+            displayName={profileData.displayName}
+            size={64}
+          />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {profileData.displayName}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">@{profileData.username}</p>
+          </div>
+        </div>
 
         <div className="mt-4">
           {isOwnProfile ? (

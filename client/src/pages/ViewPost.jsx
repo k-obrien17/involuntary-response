@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { posts } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import EmbedPreview from '../components/EmbedPreview';
+import Avatar from '../components/Avatar';
 import { fullDate } from '../utils/formatDate';
 
 export default function ViewPost() {
@@ -77,14 +78,19 @@ export default function ViewPost() {
         </div>
       )}
 
-      <div className="mt-6 text-sm text-gray-400 dark:text-gray-500">
+      <div className="mt-6 flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
+        <Avatar
+          emailHash={post.author?.emailHash}
+          displayName={post.author?.displayName || 'Unknown'}
+          size={28}
+        />
         <Link
           to={`/u/${post.author?.username}`}
           className="hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
           {post.author?.displayName || 'Unknown'}
         </Link>
-        <span className="mx-2">&middot;</span>
+        <span>&middot;</span>
         <span>{fullDate(post.createdAt)}</span>
       </div>
 

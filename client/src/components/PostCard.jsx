@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import EmbedPlaceholder from './EmbedPlaceholder';
+import Avatar from './Avatar';
 import { relativeTime } from '../utils/formatDate';
 export default function PostCard({ post }) {
   return (
@@ -43,19 +44,24 @@ export default function PostCard({ post }) {
         </div>
       )}
 
-      <div className="mt-4 text-sm text-gray-400 dark:text-gray-500">
-        <Link
-          to={`/posts/${post.slug}`}
-          className="hover:text-gray-600 dark:hover:text-gray-300 transition"
-        >
-          {relativeTime(post.createdAt)}
-        </Link>
-        <span className="mx-2">&middot;</span>
+      <div className="mt-4 flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
+        <Avatar
+          emailHash={post.author.emailHash}
+          displayName={post.author.displayName}
+          size={24}
+        />
         <Link
           to={`/u/${post.author.username}`}
           className="hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
           {post.author.displayName}
+        </Link>
+        <span>&middot;</span>
+        <Link
+          to={`/posts/${post.slug}`}
+          className="hover:text-gray-600 dark:hover:text-gray-300 transition"
+        >
+          {relativeTime(post.createdAt)}
         </Link>
       </div>
     </article>
