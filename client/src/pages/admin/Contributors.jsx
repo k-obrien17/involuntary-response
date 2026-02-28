@@ -75,38 +75,38 @@ export default function Contributors() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <div className="flex items-center gap-4 mb-8">
-        <Link to="/admin" className="text-gray-500 hover:text-gray-700 text-sm">
+        <Link to="/admin" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm">
           &larr; Dashboard
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Manage Contributors</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Manage Contributors</h1>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-sm text-red-700 dark:text-red-400">
           {error}
         </div>
       )}
 
-      <div className="bg-white border border-gray-200 rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             All Contributors ({contributors.length})
           </h2>
         </div>
 
         {loading ? (
-          <div className="p-6 text-center text-gray-500 text-sm">Loading contributors...</div>
+          <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">Loading contributors...</div>
         ) : contributors.length === 0 ? (
-          <div className="p-6 text-center text-gray-500 text-sm">No contributors yet.</div>
+          <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">No contributors yet.</div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {contributors.map((c) => (
               <div key={c.id} className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-gray-900">{c.displayName}</span>
-                      <span className="text-sm text-gray-500">@{c.username}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{c.displayName}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">@{c.username}</span>
                       <span
                         className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
                           ROLE_STYLES[c.role] || 'bg-gray-100 text-gray-800'
@@ -120,10 +120,10 @@ export default function Contributors() {
                         </span>
                       )}
                       {isSelf(c.id) && (
-                        <span className="text-xs text-gray-400">(you)</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">(you)</span>
                       )}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       <span>{c.email}</span>
                       <span className="mx-2">&middot;</span>
                       <span>Joined {formatDate(c.createdAt)}</span>

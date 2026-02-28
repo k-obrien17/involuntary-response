@@ -29,7 +29,7 @@ export default function ViewPost() {
   if (loading) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-12">
-        <p className="text-gray-400 text-center">Loading...</p>
+        <p className="text-gray-400 dark:text-gray-500 text-center">Loading...</p>
       </main>
     );
   }
@@ -38,7 +38,7 @@ export default function ViewPost() {
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
-      <article className="prose prose-lg md:prose-xl lg:prose-2xl prose-gray max-w-none">
+      <article className="prose prose-lg md:prose-xl lg:prose-2xl prose-gray dark:prose-invert max-w-none">
         <p className="whitespace-pre-wrap leading-relaxed">{post.body}</p>
       </article>
 
@@ -46,13 +46,13 @@ export default function ViewPost() {
         <div className="mt-8">
           <EmbedPreview embed={post.embed} />
           {post.artists && post.artists.length > 0 && (
-            <div className="mt-1 text-sm text-gray-400">
+            <div className="mt-1 text-sm text-gray-400 dark:text-gray-500">
               {post.artists.map((artist, i) => (
                 <span key={artist.name}>
                   {i > 0 && ', '}
                   <Link
                     to={`/artist/${encodeURIComponent(artist.name)}`}
-                    className="hover:text-gray-600 transition"
+                    className="hover:text-gray-600 dark:hover:text-gray-300 transition"
                   >
                     {artist.name}
                   </Link>
@@ -69,7 +69,7 @@ export default function ViewPost() {
             <Link
               key={tag}
               to={`/tag/${tag}`}
-              className="text-sm text-gray-500 hover:text-gray-700 transition"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition"
             >
               {tag}
             </Link>
@@ -77,10 +77,10 @@ export default function ViewPost() {
         </div>
       )}
 
-      <div className="mt-6 text-sm text-gray-400">
+      <div className="mt-6 text-sm text-gray-400 dark:text-gray-500">
         <Link
           to={`/u/${post.author?.username}`}
-          className="hover:text-gray-600 transition"
+          className="hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
           {post.author?.displayName || 'Unknown'}
         </Link>
@@ -91,7 +91,7 @@ export default function ViewPost() {
       {user && user.id === post.authorId && (
         <Link
           to={`/posts/${slug}/edit`}
-          className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-900 transition"
+          className="inline-block mt-4 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition"
         >
           Edit
         </Link>

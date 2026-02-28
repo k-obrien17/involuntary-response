@@ -38,7 +38,7 @@ export default function PostForm({ initialData, onSubmit, submitting }) {
           onChange={(e) => setBody(e.target.value)}
           placeholder="What are you listening to?"
           minRows={4}
-          className="w-full border border-gray-300 rounded-lg p-4 text-lg focus:outline-none focus:ring-2 focus:ring-gray-900 resize-none"
+          className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-lg bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 resize-none"
         />
         <p className={`text-sm text-right mt-1 ${charColor}`}>
           {body.length} / ~{SOFT_LIMIT}
@@ -52,7 +52,7 @@ export default function PostForm({ initialData, onSubmit, submitting }) {
       <button
         type="submit"
         disabled={isDisabled}
-        className="bg-gray-900 text-white px-6 py-3 text-sm font-medium rounded hover:bg-gray-800 transition disabled:opacity-50"
+        className="bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 px-6 py-3 text-sm font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50"
       >
         {submitting
           ? 'Saving...'

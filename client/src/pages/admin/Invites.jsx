@@ -89,15 +89,15 @@ export default function Invites() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <div className="flex items-center gap-4 mb-8">
-        <Link to="/admin" className="text-gray-500 hover:text-gray-700 text-sm">
+        <Link to="/admin" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm">
           &larr; Dashboard
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Manage Invites</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Manage Invites</h1>
       </div>
 
       {/* Create invite form */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Create Invite</h2>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Create Invite</h2>
         <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -105,22 +105,22 @@ export default function Invites() {
             onChange={(e) => setNote(e.target.value)}
             placeholder="Optional note (e.g., who this is for)"
             maxLength={200}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-transparent"
           />
           <button
             type="submit"
             disabled={creating}
-            className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 disabled:opacity-50 whitespace-nowrap"
+            className="px-4 py-2 bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 text-sm font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 whitespace-nowrap"
           >
             {creating ? 'Generating...' : 'Generate Invite'}
           </button>
         </form>
 
         {createdInvite && (
-          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
-            <p className="text-sm font-medium text-green-800 mb-2">Invite created!</p>
+          <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+            <p className="text-sm font-medium text-green-800 dark:text-green-400 mb-2">Invite created!</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-sm bg-white px-3 py-2 rounded border border-green-200 break-all">
+              <code className="flex-1 text-sm bg-white dark:bg-gray-800 px-3 py-2 rounded border border-green-200 dark:border-green-800 break-all">
                 {createdInvite.inviteUrl}
               </code>
               <button
@@ -135,23 +135,23 @@ export default function Invites() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-sm text-red-700 dark:text-red-400">
           {error}
         </div>
       )}
 
       {/* Invite list */}
-      <div className="bg-white border border-gray-200 rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">All Invites</h2>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">All Invites</h2>
         </div>
 
         {loading ? (
-          <div className="p-6 text-center text-gray-500 text-sm">Loading invites...</div>
+          <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">Loading invites...</div>
         ) : inviteList.length === 0 ? (
-          <div className="p-6 text-center text-gray-500 text-sm">No invites yet. Create one above.</div>
+          <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">No invites yet. Create one above.</div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {inviteList.map((inv) => (
               <div key={inv.id} className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -165,10 +165,10 @@ export default function Invites() {
                         {inv.status}
                       </span>
                       {inv.note && (
-                        <span className="text-sm text-gray-700 truncate">{inv.note}</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300 truncate">{inv.note}</span>
                       )}
                     </div>
-                    <div className="text-xs text-gray-500 space-y-0.5">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
                       <p>Created by {inv.createdBy?.displayName || 'Unknown'} on {formatDate(inv.createdAt)}</p>
                       {inv.usedBy && (
                         <p>
@@ -183,7 +183,7 @@ export default function Invites() {
                     <div className="flex gap-2 shrink-0">
                       <button
                         onClick={() => copyToClipboard(inv.inviteUrl, inv.id)}
-                        className="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md hover:bg-gray-50"
+                        className="px-3 py-1.5 text-xs font-medium border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
                       >
                         {copied === inv.id ? 'Copied!' : 'Copy Link'}
                       </button>

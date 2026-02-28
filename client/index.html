@@ -16,8 +16,16 @@
     <meta name="twitter:image" content="__OG_IMAGE__" />
     <link rel="alternate" type="application/rss+xml" title="Involuntary Response" href="/api/feed" />
     <title>Involuntary Response</title>
+    <script>
+      (function() {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
-  <body>
+  <body class="bg-[#fafafa] text-[#1a1a1a] dark:bg-gray-950 dark:text-gray-100">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -60,7 +60,7 @@ export default function Profile() {
   if (loading) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-8">
-        <p className="text-gray-400 text-center">Loading...</p>
+        <p className="text-gray-400 dark:text-gray-500 text-center">Loading...</p>
       </main>
     );
   }
@@ -68,7 +68,7 @@ export default function Profile() {
   if (notFound) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-8">
-        <p className="text-gray-400 text-center">User not found.</p>
+        <p className="text-gray-400 dark:text-gray-500 text-center">User not found.</p>
       </main>
     );
   }
@@ -76,10 +76,10 @@ export default function Profile() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           {profileData.displayName}
         </h1>
-        <p className="text-sm text-gray-500">@{profileData.username}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">@{profileData.username}</p>
 
         <div className="mt-4">
           {isOwnProfile ? (
@@ -90,12 +90,12 @@ export default function Profile() {
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={300}
                   autoFocus
-                  className="w-full border border-gray-200 rounded p-2 text-base resize-none"
+                  className="w-full border border-gray-200 dark:border-gray-600 rounded p-2 text-base bg-white dark:bg-gray-800 dark:text-gray-100 resize-none"
                   rows={3}
                   placeholder="Write a short bio..."
                 />
                 <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
                     {bio.length}/300
                   </span>
                   <div className="flex items-center gap-2">
@@ -104,14 +104,14 @@ export default function Profile() {
                         setEditing(false);
                         setBio(profileData.bio || '');
                       }}
-                      className="text-sm text-gray-500 hover:text-gray-700"
+                      className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="bg-gray-900 text-white px-3 py-1 rounded text-sm hover:bg-gray-800 disabled:opacity-50"
+                      className="bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 px-3 py-1 rounded text-sm hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50"
                     >
                       {saving ? 'Saving...' : 'Save'}
                     </button>
@@ -120,19 +120,19 @@ export default function Profile() {
               </div>
             ) : (
               <div>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   {profileData.bio || 'No bio yet.'}
                 </p>
                 <button
                   onClick={() => setEditing(true)}
-                  className="text-sm text-gray-400 hover:text-gray-600 mt-1"
+                  className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 mt-1"
                 >
                   Edit bio
                 </button>
               </div>
             )
           ) : (
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               {profileData.bio || 'No bio yet.'}
             </p>
           )}
@@ -140,9 +140,9 @@ export default function Profile() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Posts</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Posts</h2>
         {posts.length === 0 ? (
-          <p className="text-gray-400">No posts yet.</p>
+          <p className="text-gray-400 dark:text-gray-500">No posts yet.</p>
         ) : (
           <div>
             {posts.map((post) => (

@@ -5,17 +5,17 @@ export default function PostListItem({ post }) {
     post.body.length > 100 ? post.body.slice(0, 100) + '...' : post.body;
 
   return (
-    <div className="py-3 border-b border-gray-100 last:border-0">
+    <div className="py-3 border-b border-gray-100 dark:border-gray-800 last:border-0">
       <Link
         to={`/posts/${post.slug}`}
-        className="text-base leading-snug text-gray-900 hover:text-gray-600 transition"
+        className="text-base leading-snug text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 transition"
       >
         {preview}
       </Link>
-      <div className="mt-1 text-sm text-gray-400">
+      <div className="mt-1 text-sm text-gray-400 dark:text-gray-500">
         <Link
           to={`/u/${post.author.username}`}
-          className="hover:text-gray-600 transition"
+          className="hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
           {post.author.displayName}
         </Link>

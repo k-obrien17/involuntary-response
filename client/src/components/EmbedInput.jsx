@@ -51,7 +51,7 @@ export default function EmbedInput({ embed, onChange }) {
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Music or video embed (optional)
       </label>
       <input
@@ -59,10 +59,10 @@ export default function EmbedInput({ embed, onChange }) {
         value={url}
         onChange={handleChange}
         placeholder="Paste a music or video link"
-        className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400"
       />
       {loading && (
-        <p className="text-sm text-gray-500">Resolving embed...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Resolving embed...</p>
       )}
       {error && (
         <p className="text-sm text-red-600">{error}</p>

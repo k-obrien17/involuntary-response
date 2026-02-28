@@ -58,7 +58,7 @@ export default function EditPost() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 text-center text-gray-500">
+      <div className="max-w-2xl mx-auto px-4 py-8 text-center text-gray-500 dark:text-gray-400">
         Loading...
       </div>
     );
@@ -68,9 +68,9 @@ export default function EditPost() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Edit post</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Edit post</h1>
       {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded mb-4">
+        <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-3 rounded mb-4">
           {error}
         </div>
       )}
