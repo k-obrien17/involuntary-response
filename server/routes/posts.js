@@ -6,6 +6,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import db from '../db/index.js';
 import { resolveEmbed } from '../lib/oembed.js';
 import { getArtistsForSpotifyUrl } from '../lib/spotify.js';
+import { getArtistsForAppleMusicUrl } from '../lib/apple-music.js';
 
 const emailHash = (email) => createHash('md5').update(email.trim().toLowerCase()).digest('hex');
 
@@ -44,6 +45,62 @@ async function insertTags(postId, tags) {
     seen.add(tag);
     await db.run('INSERT OR IGNORE INTO post_tags (post_id, tag) VALUES (?, ?)', postId, tag);
   }
+}
+
+async function insertArtists(postId, artists, source, image) {
+  for (const artist of artists) {
+    await db.run(
+      'INSERT OR IGNORE INTO post_artists (post_id, artist_name, artist_image, spotify_id, source) VALUES (?, ?, ?, ?, ?)',
+      postId, artist.name, image || null, artist.spotifyId || null, source
+    );
+  }
+}
+
+/**
+ * Extract artists from an embed URL (Spotify or Apple Music) and insert into post_artists.
+ * Falls back to manual artistName if no auto-extraction occurs.
+ * Returns the number of artists inserted (for logging/debugging).
+ */
+async function extractAndInsertArtists(postId, embedUrl, resolved, artistName) {
+  let inserted = 0;
+
+  // Try Spotify extraction
+  if (embedUrl) {
+    try {
+      const spotifyArtists = await getArtistsForSpotifyUrl(embedUrl);
+      if (spotifyArtists.length > 0) {
+        await insertArtists(postId, spotifyArtists, 'spotify', resolved?.thumbnailUrl);
+        inserted = spotifyArtists.length;
+      }
+    } catch (err) {
+      console.error('Spotify artist extraction error (non-fatal):', err);
+    }
+  }
+
+  // Try Apple Music extraction (only if Spotify found nothing)
+  if (inserted === 0 && embedUrl) {
+    try {
+      const appleArtists = await getArtistsForAppleMusicUrl(embedUrl);
+      if (appleArtists.length > 0) {
+        await insertArtists(postId, appleArtists, 'apple', null);
+        inserted = appleArtists.length;
+      }
+    } catch (err) {
+      console.error('Apple Music artist extraction error (non-fatal):', err);
+    }
+  }
+
+  // Manual artistName fallback (only if no auto-extraction occurred)
+  if (inserted === 0 && artistName) {
+    try {
+      await insertArtists(postId, [{ name: artistName }], 'manual', null);
+      inserted = 1;
+    } catch (err) {
+      console.error('Manual artist insertion error (non-fatal):', err);
+    }
+  }
+
+  return inserted;
 }
 
 // --- Routes ---
@@ -161,6 +218,7 @@ router.post('/', authenticateToken, createLimiter, async (req, res) => {
   try {
     const { embedUrl, tags } = req.body;
     const body = sanitize(req.body.body, 1200);
+    const artistName = sanitize(req.body.artistName, 200);
 
     if (!body) {
       return res.status(400).json({ error: 'Post body is required' });
@@ -185,20 +243,10 @@ router.post('/', authenticateToken, createLimiter, async (req, res) => {
           resolved.title || null, resolved.thumbnailUrl || null, resolved.embedHtml || null
         );
       }
-
-      // Extract and store artist data from Spotify embeds (non-fatal)
-      try {
-        const artists = await getArtistsForSpotifyUrl(embedUrl);
-        for (const artist of artists) {
-          await db.run(
-            'INSERT OR IGNORE INTO post_artists (post_id, artist_name, artist_image, spotify_id) VALUES (?, ?, ?, ?)',
-            postId, artist.name, resolved?.thumbnailUrl || null, artist.spotifyId
-          );
-        }
-      } catch (err) {
-        console.error('Artist extraction error (non-fatal):', err);
-      }
     }
+
+    // Extract and store artist data (Spotify, Apple Music, or manual — non-fatal)
+    await extractAndInsertArtists(postId, embedUrl, resolved, artistName);
 
     // Handle tags
     if (tags && Array.isArray(tags)) {
@@ -292,6 +340,7 @@ router.put('/:slug', authenticateToken, updateLimiter, async (req, res) => {
 
     const { embedUrl, tags } = req.body;
     const body = sanitize(req.body.body, 1200);
+    const artistName = sanitize(req.body.artistName, 200);
 
     if (!body) {
       return res.status(400).json({ error: 'Post body is required' });
@@ -316,21 +365,9 @@ router.put('/:slug', authenticateToken, updateLimiter, async (req, res) => {
       }
     }
 
-    // Replace artist data (non-fatal)
+    // Replace artist data (Spotify, Apple Music, or manual — non-fatal)
     await db.run('DELETE FROM post_artists WHERE post_id = ?', post.id);
-    if (embedUrl) {
-      try {
-        const artists = await getArtistsForSpotifyUrl(embedUrl);
-        for (const artist of artists) {
-          await db.run(
-            'INSERT OR IGNORE INTO post_artists (post_id, artist_name, artist_image, spotify_id) VALUES (?, ?, ?, ?)',
-            post.id, artist.name, resolvedEmbed?.thumbnailUrl || null, artist.spotifyId
-          );
-        }
-      } catch (err) {
-        console.error('Artist extraction error (non-fatal):', err);
-      }
-    }
+    await extractAndInsertArtists(post.id, embedUrl, resolvedEmbed, artistName);
 
     // Replace tags
     await db.run('DELETE FROM post_tags WHERE post_id = ?', post.id);
