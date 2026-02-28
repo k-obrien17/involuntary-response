@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Polish & Gaps
-status: unknown
-last_updated: "2026-02-28T14:45:30.365Z"
+status: in-progress
+last_updated: "2026-02-28T14:59:10Z"
 progress:
   total_phases: 1
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 3
+  completed_plans: 3
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** Phase 6 -- Deployment and Avatars
+**Current focus:** Phase 7 -- Artist Data
 
 ## Current Position
 
-Phase: 6 of 9 (Deployment and Avatars) -- COMPLETE
-Plan: 2 of 2 (all plans complete)
-Status: Phase 6 complete, ready for Phase 7
-Last activity: 2026-02-28 -- Plan 06-02 complete (Contributor Avatars)
+Phase: 7 of 9 (Artist Data) -- IN PROGRESS
+Plan: 1 of 2 complete
+Status: Plan 07-01 complete (Apple Music + Manual Artist Data), ready for 07-02
+Last activity: 2026-02-28 -- Plan 07-01 complete (Apple Music + Manual Artist Data)
 
-Progress: [##############░░░░░░] 67% (v1.0 complete, v2.0 Phase 6 done)
+Progress: [###############░░░░░] 75% (v1.0 complete, v2.0 Phase 7 plan 1/2)
 
 ## Performance Metrics
 
@@ -41,7 +41,7 @@ Progress: [##############░░░░░░] 67% (v1.0 complete, v2.0 Phase 6 do
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 6 | 2/2 | 5min | 2.5min |
-| 7 | 0/? | -- | -- |
+| 7 | 1/2 | 2min | 2min |
 | 8 | 0/? | -- | -- |
 | 9 | 0/? | -- | -- |
 
@@ -60,6 +60,9 @@ Recent decisions affecting current work:
 - [Phase 06]: Hardcoded placeholder URL in vercel.json -- Vercel Hobby plan does not support env vars in rewrite destinations
 - [Phase 06-02]: Used d=blank Gravatar param for transparent fallback -- no onerror handling needed
 - [Phase 06-02]: emailHash pattern established -- MD5 of trimmed lowercase email, exposed as author.emailHash in all API responses
+- [Phase 07-01]: iTunes Search API (public, no auth) for Apple Music artist extraction -- simpler than Apple Music API which requires developer token
+- [Phase 07-01]: Auto-extraction priority chain: Spotify > Apple Music > manual artistName fallback
+- [Phase 07-01]: Refactored artist insertion into extractAndInsertArtists helper for DRY POST/PUT logic
 
 ### Pending Todos
 
@@ -73,5 +76,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 06-02-PLAN.md (Contributor Avatars) -- Phase 6 fully complete
+Stopped at: Completed 07-01-PLAN.md (Apple Music + Manual Artist Data)
 Resume file: None
