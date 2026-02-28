@@ -155,6 +155,11 @@ export async function initDatabase() {
         ALTER TABLE users ADD COLUMN bio TEXT;
       `,
     },
+    {
+      id: 4,
+      name: 'add_post_artists_source',
+      sql: `ALTER TABLE post_artists ADD COLUMN source TEXT DEFAULT 'spotify';`,
+    },
   ];
 
   for (const m of migrations) {
