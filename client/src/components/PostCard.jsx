@@ -12,21 +12,22 @@ export default function PostCard({ post }) {
       {post.embed && (
         <div className="mt-6">
           <EmbedPlaceholder embed={post.embed} />
-          {post.artists && post.artists.length > 0 && (
-            <div className="mt-1 text-sm text-gray-400 dark:text-gray-500">
-              {post.artists.map((artist, i) => (
-                <span key={artist.name}>
-                  {i > 0 && ', '}
-                  <Link
-                    to={`/artist/${encodeURIComponent(artist.name)}`}
-                    className="hover:text-gray-600 dark:hover:text-gray-300 transition"
-                  >
-                    {artist.name}
-                  </Link>
-                </span>
-              ))}
-            </div>
-          )}
+        </div>
+      )}
+
+      {post.artists && post.artists.length > 0 && (
+        <div className="mt-2 text-sm text-gray-400 dark:text-gray-500">
+          {post.artists.map((artist, i) => (
+            <span key={artist.name}>
+              {i > 0 && ', '}
+              <Link
+                to={`/artist/${encodeURIComponent(artist.name)}`}
+                className="hover:text-gray-600 dark:hover:text-gray-300 transition"
+              >
+                {artist.name}
+              </Link>
+            </span>
+          ))}
         </div>
       )}
 
