@@ -1,9 +1,6 @@
 import { Link } from 'react-router-dom';
 import { relativeTime } from '../utils/formatDate';
-import { useProfilePanel } from '../context/ProfilePanelContext';
-
 export default function PostListItem({ post }) {
-  const { openProfile } = useProfilePanel();
   const preview =
     post.body.length > 100 ? post.body.slice(0, 100) + '...' : post.body;
 
@@ -16,12 +13,12 @@ export default function PostListItem({ post }) {
         {preview}
       </Link>
       <div className="mt-1 text-sm text-gray-400">
-        <button
-          onClick={() => openProfile(post.author.username)}
-          className="hover:text-gray-600 transition cursor-pointer"
+        <Link
+          to={`/u/${post.author.username}`}
+          className="hover:text-gray-600 transition"
         >
           {post.author.displayName}
-        </button>
+        </Link>
         <span className="mx-1">&middot;</span>
         <span>{relativeTime(post.createdAt)}</span>
       </div>

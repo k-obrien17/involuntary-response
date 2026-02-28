@@ -1,8 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { ProfilePanelProvider } from './context/ProfilePanelContext';
 import Navbar from './components/Navbar';
-import ProfilePanel from './components/ProfilePanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import Home from './pages/Home';
@@ -25,9 +23,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <ProfilePanelProvider>
         <Navbar />
-        <ProfilePanel />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -81,7 +77,6 @@ function App() {
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-        </ProfilePanelProvider>
       </BrowserRouter>
     </AuthProvider>
   );

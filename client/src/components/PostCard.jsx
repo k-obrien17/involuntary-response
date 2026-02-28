@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom';
 import EmbedPlaceholder from './EmbedPlaceholder';
 import { relativeTime } from '../utils/formatDate';
-import { useProfilePanel } from '../context/ProfilePanelContext';
-
 export default function PostCard({ post }) {
-  const { openProfile } = useProfilePanel();
   return (
     <article>
       <div className="prose prose-lg lg:prose-xl prose-gray max-w-none">
@@ -54,12 +51,12 @@ export default function PostCard({ post }) {
           {relativeTime(post.createdAt)}
         </Link>
         <span className="mx-2">&middot;</span>
-        <button
-          onClick={() => openProfile(post.author.username)}
-          className="hover:text-gray-600 transition cursor-pointer"
+        <Link
+          to={`/u/${post.author.username}`}
+          className="hover:text-gray-600 transition"
         >
           {post.author.displayName}
-        </button>
+        </Link>
       </div>
     </article>
   );
