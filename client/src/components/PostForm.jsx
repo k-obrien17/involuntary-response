@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import EmbedInput from './EmbedInput';
 import TagInput from './TagInput';
@@ -11,6 +11,13 @@ export default function PostForm({ initialData, onSubmit, submitting }) {
   const [embed, setEmbed] = useState(initialData?.embed || null);
   const [tags, setTags] = useState(initialData?.tags || []);
   const [artistName, setArtistName] = useState(initialData?.artistName || '');
+
+  // Auto-populate artist name from embed when resolved
+  useEffect(() => {
+    if (embed?.artists?.length > 0 && !artistName) {
+      setArtistName(embed.artists.map(a => a.name).join(', '));
+    }
+  }, [embed]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
