@@ -25,11 +25,17 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 
 ### Active
 
-- [ ] Readers can like posts (requires lightweight reader accounts)
-- [ ] Readers can comment on posts (flat comments, not threaded)
+- [ ] Every post has an artist — auto-extracted from embed or manually entered
+- [ ] Browse-by-artist works for all posts, not just Spotify-embedded ones
+- [ ] Contributors have avatars on posts and profile pages
+- [ ] Full-text search across post content
 - [ ] Posts can reference a song/album without embedding (styled inline link)
-- [ ] Full-text search across posts
-- [ ] Contributor avatars
+- [ ] Vercel deployment fully wired (`vercel.json` API proxy to Render backend)
+
+### Deferred
+
+- Readers can like posts (requires lightweight reader accounts) — v2.1+
+- Readers can comment on posts (flat comments, not threaded) — v2.1+
 
 ### Out of Scope
 
@@ -40,6 +46,17 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - Long-form content — the format is brevity
 - Star ratings / numerical scores — undermines nuanced takes
 - Threaded comments — overkill for short-form posts
+
+## Current Milestone: v2.0 Polish & Gaps
+
+**Goal:** Fix artist data gaps, add contributor avatars, full-text search, inline song references, and finalize deployment wiring.
+
+**Target features:**
+- Artist data system (auto-extract + manual fallback + backfill + browse fix)
+- Contributor avatars
+- Full-text search
+- Inline song/album references (styled links, no embed)
+- Deployment fix (vercel.json API proxy)
 
 ## Context
 
@@ -74,4 +91,4 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | Profile pages via direct navigation | Slide-out panel was wrong UX (user feedback) | ✓ Good — /u/:username full pages |
 
 ---
-*Last updated: 2026-02-28 after v1.0 milestone*
+*Last updated: 2026-02-28 after v2.0 milestone start*
