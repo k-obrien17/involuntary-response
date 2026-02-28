@@ -12,8 +12,8 @@ Requirements for v2.0 Polish & Gaps. Each maps to roadmap phases.
 - [x] **ART-01**: Post creation auto-extracts artist name from Spotify embed
 - [x] **ART-02**: Post creation auto-extracts artist name from Apple Music embed
 - [x] **ART-03**: Contributor can manually enter artist name when auto-extraction fails or no embed
-- [ ] **ART-04**: Artist name displayed on every post in feed and permalink views
-- [ ] **ART-05**: Browse-by-artist includes posts from all embed types
+- [x] **ART-04**: Artist name displayed on every post in feed and permalink views
+- [x] **ART-05**: Browse-by-artist includes posts from all embed types
 
 ### Avatars
 
@@ -70,8 +70,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ART-01 | Phase 7 | Complete |
 | ART-02 | Phase 7 | Complete |
 | ART-03 | Phase 7 | Complete |
-| ART-04 | Phase 7 | Pending |
-| ART-05 | Phase 7 | Pending |
+| ART-04 | Phase 7 | Complete |
+| ART-05 | Phase 7 | Complete |
 | AVTR-01 | Phase 6 | Complete |
 | AVTR-02 | Phase 6 | Complete |
 | AVTR-03 | Phase 6 | Complete |

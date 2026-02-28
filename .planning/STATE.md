@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Polish & Gaps
 status: in-progress
-last_updated: "2026-02-28T14:59:10Z"
+last_updated: "2026-02-28T15:03:23Z"
 progress:
-  total_phases: 1
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_phases: 2
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** Phase 7 -- Artist Data
+**Current focus:** Phase 8 -- Inline References
 
 ## Current Position
 
-Phase: 7 of 9 (Artist Data) -- IN PROGRESS
-Plan: 1 of 2 complete
-Status: Plan 07-01 complete (Apple Music + Manual Artist Data), ready for 07-02
-Last activity: 2026-02-28 -- Plan 07-01 complete (Apple Music + Manual Artist Data)
+Phase: 7 of 9 (Artist Data) -- COMPLETE
+Plan: 2 of 2 complete
+Status: Phase 7 complete, ready for Phase 8
+Last activity: 2026-02-28 -- Plan 07-02 complete (Manual Artist Input & Display Fix)
 
-Progress: [###############░░░░░] 75% (v1.0 complete, v2.0 Phase 7 plan 1/2)
+Progress: [################░░░░] 80% (v1.0 complete, v2.0 Phase 7 done)
 
 ## Performance Metrics
 
@@ -41,7 +41,7 @@ Progress: [###############░░░░░] 75% (v1.0 complete, v2.0 Phase 7 plan
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 6 | 2/2 | 5min | 2.5min |
-| 7 | 1/2 | 2min | 2min |
+| 7 | 2/2 | 3min | 1.5min |
 | 8 | 0/? | -- | -- |
 | 9 | 0/? | -- | -- |
 
@@ -63,6 +63,8 @@ Recent decisions affecting current work:
 - [Phase 07-01]: iTunes Search API (public, no auth) for Apple Music artist extraction -- simpler than Apple Music API which requires developer token
 - [Phase 07-01]: Auto-extraction priority chain: Spotify > Apple Music > manual artistName fallback
 - [Phase 07-01]: Refactored artist insertion into extractAndInsertArtists helper for DRY POST/PUT logic
+- [Phase 07-02]: Artist display as sibling of embed block, never nested -- ensures visibility regardless of embed presence
+- [Phase 07-02]: artistName sent as null when blank so server treats it as no manual override
 
 ### Pending Todos
 
@@ -76,5 +78,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 07-01-PLAN.md (Apple Music + Manual Artist Data)
+Stopped at: Completed 07-02-PLAN.md (Manual Artist Input & Display Fix) -- Phase 7 complete
 Resume file: None
