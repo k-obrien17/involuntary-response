@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Polish & Gaps
 status: unknown
-last_updated: "2026-02-28T15:07:53.278Z"
+last_updated: "2026-02-28T17:09:05.523Z"
 progress:
   total_phases: 2
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 5
+  completed_plans: 5
 ---
 
 # Project State
@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 7 of 9 (Artist Data) -- COMPLETE
-Plan: 2 of 2 complete
+Plan: 3 of 3 complete
 Status: Phase 7 complete, ready for Phase 8
-Last activity: 2026-02-28 -- Plan 07-02 complete (Manual Artist Input & Display Fix)
+Last activity: 2026-02-28 -- Plan 07-03 complete (UAT Fixes: BigInt coercion + artist preview)
 
 Progress: [################░░░░] 80% (v1.0 complete, v2.0 Phase 7 done)
 
@@ -41,7 +41,7 @@ Progress: [################░░░░] 80% (v1.0 complete, v2.0 Phase 7 done)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 6 | 2/2 | 5min | 2.5min |
-| 7 | 2/2 | 3min | 1.5min |
+| 7 | 3/3 | 4min | 1.3min |
 | 8 | 0/? | -- | -- |
 | 9 | 0/? | -- | -- |
 
@@ -65,6 +65,9 @@ Recent decisions affecting current work:
 - [Phase 07-01]: Refactored artist insertion into extractAndInsertArtists helper for DRY POST/PUT logic
 - [Phase 07-02]: Artist display as sibling of embed block, never nested -- ensures visibility regardless of embed presence
 - [Phase 07-02]: artistName sent as null when blank so server treats it as no manual override
+- [Phase 07-03]: BigInt coercion at db wrapper layer (coerceRow) rather than per-route -- fixes all queries globally
+- [Phase 07-03]: Artist extraction in embed resolve is non-fatal -- returns empty array on failure
+- [Phase 07-03]: Auto-populate artistName only when field is empty -- respects manual overrides
 
 ### Pending Todos
 
@@ -78,5 +81,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 07-02-PLAN.md (Manual Artist Input & Display Fix) -- Phase 7 complete
+Stopped at: Completed 07-03-PLAN.md (UAT Fixes) -- Phase 7 complete
 Resume file: None
