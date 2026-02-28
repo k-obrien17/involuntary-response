@@ -6,15 +6,27 @@ const client = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
+// Convert BigInt values to Number for all fields in a row object.
+// libsql returns INTEGER columns as BigInt; coercing here avoids
+// strict-equality mismatches (e.g. 1n !== 1) in application code.
+function coerceRow(row) {
+  if (!row) return row;
+  const out = {};
+  for (const [key, value] of Object.entries(row)) {
+    out[key] = typeof value === 'bigint' ? Number(value) : value;
+  }
+  return out;
+}
+
 // Thin async wrapper matching the old better-sqlite3 call pattern
 const db = {
   async get(sql, ...params) {
     const result = await client.execute({ sql, args: params });
-    return result.rows[0] || null;
+    return coerceRow(result.rows[0]) || null;
   },
   async all(sql, ...params) {
     const result = await client.execute({ sql, args: params });
-    return result.rows;
+    return result.rows.map(coerceRow);
   },
   async run(sql, ...params) {
     const result = await client.execute({ sql, args: params });
