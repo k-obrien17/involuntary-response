@@ -57,11 +57,11 @@ Plans:
   3. Contributor can manually type an artist name when auto-extraction fails or no embed is present
   4. Artist name is visible on every post in the feed and on the permalink page
   5. Browse-by-artist page includes posts from Spotify, Apple Music, and manually-entered artists
-**Plans**: TBD
+**Plans**: 2 (Wave 1 → Wave 2)
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01: Apple Music artist extraction + manual artist API support (ART-01, ART-02, ART-03)
+- [ ] 07-02: Client-side artist input and display fixes (ART-03, ART-04, ART-05)
 
 ### Phase 8: Inline References
 **Goal**: Contributors can mention a song or album in their post text as a clickable link that opens in the streaming service, without embedding a player
@@ -105,6 +105,6 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 4. Browse, Discovery, and Profiles | v1.0 | 3/3 | Complete | 2026-02-28 |
 | 5. Sharing and Distribution | v1.0 | 2/2 | Complete | 2026-02-28 |
 | 6. Deployment and Avatars | v2.0 | 1/2 | In Progress | - |
-| 7. Artist Data | v2.0 | 0/? | Not started | - |
+| 7. Artist Data | v2.0 | 0/2 | Not started | - |
 | 8. Inline References | v2.0 | 0/? | Not started | - |
 | 9. Full-Text Search | v2.0 | 0/? | Not started | - |
