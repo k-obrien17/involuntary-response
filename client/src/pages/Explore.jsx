@@ -99,7 +99,7 @@ export default function Explore() {
                   to={`/u/${contributor.username}`}
                   className="text-base text-gray-900 hover:text-gray-600 transition"
                 >
-                  {contributor.display_name}
+                  {contributor.displayName}
                 </Link>
               </div>
             ))}
