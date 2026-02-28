@@ -79,7 +79,7 @@ export default function ViewPost() {
 
       <div className="mt-6 text-sm text-gray-400">
         <button
-          onClick={() => navigate(`/@${post.author?.username}`)}
+          onClick={() => navigate(`/u/${post.author?.username}`)}
           className="hover:text-gray-600 transition cursor-pointer"
         >
           {post.author?.displayName || 'Unknown'}

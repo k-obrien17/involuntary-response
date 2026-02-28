@@ -65,7 +65,7 @@ function App() {
           <Route path="/tag/:tag" element={<TagBrowse />} />
           <Route path="/artist/:name" element={<ArtistPage />} />
           <Route path="/explore" element={<Explore />} />
-          <Route path="/@:username" element={<Profile />} />
+          <Route path="/u/:username" element={<Profile />} />
           <Route path="/posts/:slug" element={<ViewPost />} />
           <Route
             path="/posts/:slug/edit"

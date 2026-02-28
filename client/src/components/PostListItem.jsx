@@ -16,7 +16,7 @@ export default function PostListItem({ post }) {
       </Link>
       <div className="mt-1 text-sm text-gray-400">
         <button
-          onClick={() => navigate(`/@${post.author.username}`)}
+          onClick={() => navigate(`/u/${post.author.username}`)}
           className="hover:text-gray-600 transition cursor-pointer"
         >
           {post.author.displayName}

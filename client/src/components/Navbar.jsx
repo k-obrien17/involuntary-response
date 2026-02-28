@@ -43,7 +43,7 @@ export default function Navbar() {
                 </Link>
               )}
               <Link
-                to={`/@${user.username}`}
+                to={`/u/${user.username}`}
                 className="text-sm text-gray-500 hover:text-gray-900 transition"
               >
                 @{user.username}

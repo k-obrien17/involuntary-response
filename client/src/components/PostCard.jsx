@@ -54,7 +54,7 @@ export default function PostCard({ post }) {
         </Link>
         <span className="mx-2">&middot;</span>
         <button
-          onClick={() => navigate(`/@${post.author.username}`)}
+          onClick={() => navigate(`/u/${post.author.username}`)}
           className="hover:text-gray-600 transition cursor-pointer"
         >
           {post.author.displayName}
