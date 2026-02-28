@@ -71,10 +71,10 @@ Plans:
   1. Contributor can insert a Spotify or Apple Music link inline while writing a post and it is recognized as a reference
   2. Inline references render as visually distinct styled links (not plain URLs, not embedded players)
   3. Clicking an inline reference opens the song/album in the corresponding streaming service
-**Plans**: TBD
+**Plans**: 1 (Wave 1)
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 08-01: RichBody component + integration -- inline music URL detection and styled link rendering (REF-01, REF-02)
 
 ### Phase 9: Full-Text Search
 **Goal**: Users can find posts by searching across content, artist names, tags, and contributor names from anywhere on the site
@@ -106,5 +106,5 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 5. Sharing and Distribution | v1.0 | 2/2 | Complete | 2026-02-28 |
 | 6. Deployment and Avatars | v2.0 | 1/2 | In Progress | - |
 | 7. Artist Data | v2.0 | 0/2 | Not started | - |
-| 8. Inline References | v2.0 | 0/? | Not started | - |
+| 8. Inline References | v2.0 | 0/1 | Not started | - |
 | 9. Full-Text Search | v2.0 | 0/? | Not started | - |
