@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: Polish & Gaps
-status: unknown
-last_updated: "2026-02-28T14:36:21.990Z"
+milestone: v2.0
+milestone_name: "Polish & Gaps"
+status: ready_to_execute
+last_updated: "2026-02-28"
 progress:
-  total_phases: 1
-  completed_phases: 0
+  total_phases: 4
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 6 of 9 (Deployment and Avatars) -- first phase of v2.0
-Plan: 02 of 2 (Plan 01 complete)
-Status: Executing
-Last activity: 2026-02-28 -- Plan 06-01 complete (Vercel API proxy rewrite)
+Phase: 6 of 9 (Deployment and Avatars) -- COMPLETE
+Plan: 2 of 2 (all plans complete)
+Status: Phase 6 complete, ready for Phase 7
+Last activity: 2026-02-28 -- Plan 06-02 complete (Contributor Avatars)
 
-Progress: [#############░░░░░░░] 62% (v1.0 complete, v2.0 Phase 6: 1/2 plans done)
+Progress: [##############░░░░░░] 67% (v1.0 complete, v2.0 Phase 6 done)
 
 ## Performance Metrics
 
@@ -40,7 +40,7 @@ Progress: [#############░░░░░░░] 62% (v1.0 complete, v2.0 Phase 6:
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 6 | 1/2 | 1min | 1min |
+| 6 | 2/2 | 5min | 2.5min |
 | 7 | 0/? | -- | -- |
 | 8 | 0/? | -- | -- |
 | 9 | 0/? | -- | -- |
@@ -58,6 +58,8 @@ Recent decisions affecting current work:
 - [Roadmap v2.0]: Artist data (Phase 7) before search (Phase 9) -- search over artist names requires artist data to exist
 - [Roadmap v2.0]: Inline references (Phase 8) is a standalone phase despite only 2 requirements -- distinct post-creation workflow
 - [Phase 06]: Hardcoded placeholder URL in vercel.json -- Vercel Hobby plan does not support env vars in rewrite destinations
+- [Phase 06-02]: Used d=blank Gravatar param for transparent fallback -- no onerror handling needed
+- [Phase 06-02]: emailHash pattern established -- MD5 of trimmed lowercase email, exposed as author.emailHash in all API responses
 
 ### Pending Todos
 
@@ -71,5 +73,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 06-01-PLAN.md (Vercel API proxy rewrite)
+Stopped at: Completed 06-02-PLAN.md (Contributor Avatars) -- Phase 6 fully complete
 Resume file: None

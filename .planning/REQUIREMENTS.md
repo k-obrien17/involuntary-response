@@ -17,9 +17,9 @@ Requirements for v2.0 Polish & Gaps. Each maps to roadmap phases.
 
 ### Avatars
 
-- [ ] **AVTR-01**: Contributor avatar auto-generated from email (Gravatar) with initials fallback
-- [ ] **AVTR-02**: Avatar displayed on posts in feed and permalink views
-- [ ] **AVTR-03**: Avatar displayed on contributor profile page
+- [x] **AVTR-01**: Contributor avatar auto-generated from email (Gravatar) with initials fallback
+- [x] **AVTR-02**: Avatar displayed on posts in feed and permalink views
+- [x] **AVTR-03**: Avatar displayed on contributor profile page
 
 ### Search
 
@@ -72,9 +72,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ART-03 | Phase 7 | Pending |
 | ART-04 | Phase 7 | Pending |
 | ART-05 | Phase 7 | Pending |
-| AVTR-01 | Phase 6 | Pending |
-| AVTR-02 | Phase 6 | Pending |
-| AVTR-03 | Phase 6 | Pending |
+| AVTR-01 | Phase 6 | Complete |
+| AVTR-02 | Phase 6 | Complete |
+| AVTR-03 | Phase 6 | Complete |
 | SRCH-01 | Phase 9 | Pending |
 | SRCH-02 | Phase 9 | Pending |
 | SRCH-03 | Phase 9 | Pending |
