@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { posts } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import EmbedPreview from '../components/EmbedPreview';
+import RichBody from '../components/RichBody';
 import Avatar from '../components/Avatar';
 import { fullDate } from '../utils/formatDate';
 
@@ -40,7 +41,7 @@ export default function ViewPost() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
       <article className="prose prose-lg md:prose-xl lg:prose-2xl prose-gray dark:prose-invert max-w-none">
-        <p className="whitespace-pre-wrap leading-relaxed">{post.body}</p>
+        <RichBody text={post.body} className="leading-relaxed" />
       </article>
 
       {post.embed && (

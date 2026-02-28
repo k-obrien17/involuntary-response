@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import EmbedPlaceholder from './EmbedPlaceholder';
+import RichBody from './RichBody';
 import Avatar from './Avatar';
 import { relativeTime } from '../utils/formatDate';
 export default function PostCard({ post }) {
   return (
     <article>
       <div className="prose prose-lg lg:prose-xl prose-gray dark:prose-invert max-w-none">
-        <p className="whitespace-pre-wrap">{post.body}</p>
+        <RichBody text={post.body} />
       </div>
 
       {post.embed && (
