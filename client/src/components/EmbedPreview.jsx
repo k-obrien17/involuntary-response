@@ -1,12 +1,16 @@
 export default function EmbedPreview({ embed }) {
   if (!embed) return null;
 
-  // Primary path: server-resolved oEmbed HTML
+  // Primary path: server-resolved oEmbed HTML (sanitized server-side to iframe-only)
   if (embed.embedHtml) {
+    // Defense-in-depth: strip anything that isn't an iframe tag
+    const iframeOnly = embed.embedHtml.match(/<iframe\s[^>]*><\/iframe>/i)?.[0];
+    if (!iframeOnly) return null;
+
     return (
       <div
         className="rounded-lg overflow-hidden [&>iframe]:w-full"
-        dangerouslySetInnerHTML={{ __html: embed.embedHtml }}
+        dangerouslySetInnerHTML={{ __html: iframeOnly }}
       />
     );
   }

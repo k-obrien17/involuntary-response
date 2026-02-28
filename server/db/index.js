@@ -179,8 +179,14 @@ export async function initDatabase() {
     if (!applied) {
       try {
         await db.exec(m.sql);
-      } catch {
-        // Column/index may already exist
+      } catch (err) {
+        const msg = err?.message || '';
+        if (msg.includes('already exists') || msg.includes('duplicate column')) {
+          // Expected when migration partially applied — safe to continue
+        } else {
+          console.error(`Migration "${m.name}" failed:`, msg);
+          throw err;
+        }
       }
       await db.run('INSERT OR IGNORE INTO migrations (id, name) VALUES (?, ?)', m.id, m.name);
     }

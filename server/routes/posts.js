@@ -25,6 +25,12 @@ const updateLimiter = rateLimit({
   message: { error: 'Too many edits, try again later' },
 });
 
+const deleteLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  message: { error: 'Too many deletions, try again later' },
+});
+
 // --- Helper functions ---
 
 function sanitize(str, maxLength) {
@@ -383,7 +389,7 @@ router.put('/:slug', authenticateToken, updateLimiter, async (req, res) => {
 });
 
 // DELETE /:slug — Delete post
-router.delete('/:slug', authenticateToken, async (req, res) => {
+router.delete('/:slug', authenticateToken, deleteLimiter, async (req, res) => {
   try {
     const post = await db.get('SELECT id, author_id FROM posts WHERE slug = ?', req.params.slug);
 

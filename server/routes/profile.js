@@ -1,11 +1,18 @@
 import { createHash } from 'crypto';
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { authenticateToken } from '../middleware/auth.js';
 import db from '../db/index.js';
 
 const emailHash = (email) => createHash('md5').update(email.trim().toLowerCase()).digest('hex');
 
 const router = Router();
+
+const bioLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: 'Too many profile updates, try again later' },
+});
 
 // GET /:username/profile — Public profile page data
 router.get('/:username/profile', async (req, res) => {
@@ -108,7 +115,7 @@ router.get('/:username/profile', async (req, res) => {
 });
 
 // PUT /me — Update own bio (requires auth)
-router.put('/me', authenticateToken, async (req, res) => {
+router.put('/me', authenticateToken, bioLimiter, async (req, res) => {
   try {
     let bio = req.body.bio;
 
