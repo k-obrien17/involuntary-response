@@ -1,5 +1,8 @@
+import { createHash } from 'crypto';
 import { Router } from 'express';
 import db from '../db/index.js';
+
+const emailHash = (email) => createHash('md5').update(email.trim().toLowerCase()).digest('hex');
 
 const router = Router();
 
@@ -67,6 +70,7 @@ function formatPosts(rows, embedMap, tagMap, artistMap) {
     author: {
       displayName: p.author_display_name,
       username: p.author_username,
+      emailHash: emailHash(p.author_email),
     },
     embed: embedMap[p.id] || null,
     tags: tagMap[p.id] || [],
@@ -96,7 +100,7 @@ router.get('/tag/:tag', async (req, res) => {
 
     const rows = await db.all(
       `SELECT p.id, p.slug, p.body, p.created_at,
-              u.display_name AS author_display_name, u.username AS author_username
+              u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
        JOIN post_tags pt ON pt.post_id = p.id
@@ -141,7 +145,7 @@ router.get('/artist/:name', async (req, res) => {
 
     const rows = await db.all(
       `SELECT p.id, p.slug, p.body, p.created_at,
-              u.display_name AS author_display_name, u.username AS author_username
+              u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
        JOIN post_artists pa ON pa.post_id = p.id
@@ -191,7 +195,7 @@ router.get('/contributor/:username', async (req, res) => {
 
     const rows = await db.all(
       `SELECT p.id, p.slug, p.body, p.created_at,
-              u.display_name AS author_display_name, u.username AS author_username
+              u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
        WHERE p.author_id = ? ${cursorClause}
@@ -247,7 +251,7 @@ router.get('/explore', async (req, res) => {
     );
 
     const contributors = await db.all(
-      `SELECT u.username, u.display_name, MAX(p.created_at) as latest
+      `SELECT u.username, u.display_name, u.email, MAX(p.created_at) as latest
        FROM users u
        JOIN posts p ON u.id = p.author_id
        WHERE u.is_active = 1
@@ -266,6 +270,7 @@ router.get('/explore', async (req, res) => {
       contributors: contributors.map((c) => ({
         username: c.username,
         displayName: c.display_name,
+        emailHash: emailHash(c.email),
         latestPostAt: c.latest,
       })),
     });

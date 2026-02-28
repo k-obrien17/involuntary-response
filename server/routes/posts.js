@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { Router } from 'express';
 import { nanoid } from 'nanoid';
 import rateLimit from 'express-rate-limit';
@@ -5,6 +6,8 @@ import { authenticateToken } from '../middleware/auth.js';
 import db from '../db/index.js';
 import { resolveEmbed } from '../lib/oembed.js';
 import { getArtistsForSpotifyUrl } from '../lib/spotify.js';
+
+const emailHash = (email) => createHash('md5').update(email.trim().toLowerCase()).digest('hex');
 
 const router = Router();
 
@@ -56,7 +59,7 @@ router.get('/', async (req, res) => {
       const [cursorDate, cursorId] = cursor.split('|');
       rows = await db.all(
         `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at,
-                u.display_name AS author_display_name, u.username AS author_username
+                u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
          FROM posts p
          JOIN users u ON p.author_id = u.id
          WHERE (p.created_at < ? OR (p.created_at = ? AND p.id < ?))
@@ -67,7 +70,7 @@ router.get('/', async (req, res) => {
     } else {
       rows = await db.all(
         `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at,
-                u.display_name AS author_display_name, u.username AS author_username
+                u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
          FROM posts p
          JOIN users u ON p.author_id = u.id
          ORDER BY p.created_at DESC, p.id DESC
@@ -135,6 +138,7 @@ router.get('/', async (req, res) => {
       author: {
         displayName: p.author_display_name,
         username: p.author_username,
+        emailHash: emailHash(p.author_email),
       },
       embed: embedMap[p.id] || null,
       tags: tagMap[p.id] || [],
@@ -213,7 +217,7 @@ router.get('/:slug', async (req, res) => {
   try {
     const post = await db.get(
       `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at,
-              u.display_name as author_display_name, u.username as author_username
+              u.display_name as author_display_name, u.username as author_username, u.email as author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
        WHERE p.slug = ?`,
@@ -252,6 +256,7 @@ router.get('/:slug', async (req, res) => {
       author: {
         displayName: post.author_display_name,
         username: post.author_username,
+        emailHash: emailHash(post.author_email),
       },
       embed: embed
         ? {

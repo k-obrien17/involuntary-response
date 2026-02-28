@@ -1,6 +1,9 @@
+import { createHash } from 'crypto';
 import { Router } from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import db from '../db/index.js';
+
+const emailHash = (email) => createHash('md5').update(email.trim().toLowerCase()).digest('hex');
 
 const router = Router();
 
@@ -8,7 +11,7 @@ const router = Router();
 router.get('/:username/profile', async (req, res) => {
   try {
     const user = await db.get(
-      'SELECT id, display_name, username, bio, created_at FROM users WHERE username = ? AND is_active = 1',
+      'SELECT id, display_name, username, bio, email, created_at FROM users WHERE username = ? AND is_active = 1',
       req.params.username
     );
 
@@ -19,7 +22,7 @@ router.get('/:username/profile', async (req, res) => {
     // Fetch all posts by this user (no pagination — contributors write tens, not thousands)
     const rows = await db.all(
       `SELECT p.id, p.slug, p.body, p.created_at,
-              u.display_name AS author_display_name, u.username AS author_username
+              u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
        WHERE p.author_id = ?
@@ -81,6 +84,7 @@ router.get('/:username/profile', async (req, res) => {
       author: {
         displayName: p.author_display_name,
         username: p.author_username,
+        emailHash: emailHash(p.author_email),
       },
       embed: embedMap[p.id] || null,
       tags: tagMap[p.id] || [],
@@ -93,6 +97,7 @@ router.get('/:username/profile', async (req, res) => {
         username: user.username,
         bio: user.bio || null,
         createdAt: user.created_at,
+        emailHash: emailHash(user.email),
       },
       posts,
     });
