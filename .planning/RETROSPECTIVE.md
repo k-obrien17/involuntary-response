@@ -47,6 +47,51 @@
 
 ---
 
+## Milestone: v2.0 — Polish & Gaps
+
+**Shipped:** 2026-02-28
+**Phases:** 4 | **Plans:** 7 | **Timeline:** 1 day (~3 hours)
+
+### What Was Built
+- Vercel API proxy rewrite (`vercel.json`) forwarding `/api/*` to Render backend
+- Gravatar avatar system with initials fallback on posts, feeds, and profile pages
+- Apple Music artist extraction via iTunes Search API + manual artist name input + source tracking
+- BigInt-to-Number coercion in libsql db wrapper (global fix for db.get/db.all)
+- RichBody component for inline music URL rendering (Spotify/Apple Music links as styled elements)
+- Full-text search API + Search page + Navbar search input (5 search dimensions)
+
+### What Worked
+- Auto-advance mode through phases 8 and 9 kept momentum — zero context switches needed
+- UAT testing on Phase 7 caught two real bugs (BigInt coercion, missing artist preview) that static verification missed
+- Gap closure plan (07-03) fixed both issues in a single wave — diagnose → plan → execute → re-verify
+- iTunes Search API choice for Apple Music was excellent — no auth required, reliable results
+- Single-day execution of 4 phases (7 plans) with planning + execution + verification
+
+### What Was Inefficient
+- Spotify artist extraction untestable in dev because `.env` was missing `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` — not a code issue, but blocked UAT
+- ROADMAP.md progress table was stale entering v2.0 (phases 6-7 showed "In Progress"/"Not started" after completion)
+- Phase 7 needed 3 plans instead of planned 2 — the third (07-03) was a gap closure plan from UAT
+
+### Patterns Established
+- BigInt coercion at db wrapper layer (coerceRow) — fixes all queries globally, not per-route
+- Artist extraction priority chain: Spotify > Apple Music > manual fallback
+- Client-side text parsing via regex matchAll for inline references — zero backend changes
+- Embed resolve endpoint returns artists alongside embed data for live preview
+- Search hidden on mobile (`hidden sm:block`) — acceptable for MVP, needs mobile fallback later
+
+### Key Lessons
+1. libsql returns INTEGER columns as BigInt — `===` comparisons with plain Numbers fail silently. Global coercion at the db layer is the right fix.
+2. UAT testing catches integration bugs that verifiers cannot — verifiers check code wiring, UAT checks actual user flows.
+3. Environment variable gaps (missing Spotify credentials) should be caught during phase planning, not during UAT.
+4. Auto-advance mode is ideal for small, well-defined phases — phases 8 and 9 each completed in under 3 minutes.
+
+### Cost Observations
+- Model mix: ~60% sonnet (agents), ~40% opus (orchestration + UAT)
+- Sessions: 1 (continuous)
+- Notable: All 4 phases completed in a single session with auto-advance — total wall clock ~3 hours including UAT
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -54,9 +99,12 @@
 | Milestone | Sessions | Phases | Key Change |
 |-----------|----------|--------|------------|
 | v1.0 | ~8 | 5 | Initial build — established phase/plan/verify cycle |
+| v2.0 | 1 | 4 | Auto-advance mode, UAT-driven gap closure, single-session execution |
 
 ### Top Lessons (Verified Across Milestones)
 
 1. Server-side validation and resolution is more reliable than client-side parsing
 2. Visual verification plans catch issues that automated analysis cannot
 3. Deployment config should be verified alongside code, not deferred
+4. UAT testing catches integration bugs that static verifiers miss (confirmed v1.0 + v2.0)
+5. Global fixes at infrastructure layers (db wrapper, embed resolver) eliminate entire bug classes

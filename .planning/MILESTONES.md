@@ -15,3 +15,20 @@
 
 ---
 
+
+## v2.0 Polish & Gaps (Shipped: 2026-02-28)
+
+**Phases completed:** 4 phases, 7 plans
+
+**Key accomplishments:**
+- Vercel API proxy rewrite forwarding `/api/*` to Render backend for production deployment
+- Gravatar avatar system with initials fallback on posts, feeds, and profile pages
+- Apple Music + Spotify + manual artist extraction with source tracking and live preview
+- BigInt coercion fix for libsql database driver (global db.get/db.all fix)
+- Inline music reference rendering — Spotify/Apple Music URLs as styled links in post body
+- Full-text search across post content, artist names, tags, and contributor names
+
+**Stats:** +3,478 LOC | 41 files | 25 commits | 1 day
+
+---
+

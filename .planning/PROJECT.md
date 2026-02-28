@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A curated music micro-blogging platform where invite-only contributors write short-form takes on songs, albums, and artists with inline Spotify and Apple Music embeds. Text-first design — minimal chrome, large type, the writing carries the experience.
+A curated music micro-blogging platform where invite-only contributors write short-form takes on songs, albums, and artists with inline Spotify and Apple Music embeds. Text-first design — minimal chrome, large type, the writing carries the experience. Full-text search, contributor avatars, and inline song references round out the experience.
 
 ## Core Value
 
@@ -22,15 +22,16 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - ✓ Clean permalink URLs with social sharing previews — v1.0
 - ✓ RSS feed for subscribers — v1.0
 - ✓ Dark mode with system preference detection — v1.0
+- ✓ Every post has an artist — auto-extracted from embed or manually entered — v2.0
+- ✓ Browse-by-artist works for all posts, not just Spotify-embedded ones — v2.0
+- ✓ Contributors have avatars on posts and profile pages — v2.0
+- ✓ Full-text search across post content, artist names, tags, and contributors — v2.0
+- ✓ Posts can reference a song/album without embedding (styled inline link) — v2.0
+- ✓ Vercel deployment fully wired (vercel.json API proxy to Render backend) — v2.0
 
 ### Active
 
-- [ ] Every post has an artist — auto-extracted from embed or manually entered
-- [ ] Browse-by-artist works for all posts, not just Spotify-embedded ones
-- [ ] Contributors have avatars on posts and profile pages
-- [ ] Full-text search across post content
-- [ ] Posts can reference a song/album without embedding (styled inline link)
-- [ ] Vercel deployment fully wired (`vercel.json` API proxy to Render backend)
+(None — next milestone not yet planned)
 
 ### Deferred
 
@@ -47,26 +48,17 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - Star ratings / numerical scores — undermines nuanced takes
 - Threaded comments — overkill for short-form posts
 
-## Current Milestone: v2.0 Polish & Gaps
-
-**Goal:** Fix artist data gaps, add contributor avatars, full-text search, inline song references, and finalize deployment wiring.
-
-**Target features:**
-- Artist data system (auto-extract + manual fallback + backfill + browse fix)
-- Contributor avatars
-- Full-text search
-- Inline song/album references (styled links, no embed)
-- Deployment fix (vercel.json API proxy)
-
 ## Context
 
-**Shipped v1.0 MVP** (2026-02-28): 5,060 LOC across React 18 + Express 5 + Turso.
-- Frontend deployed on Vercel, API on Render
-- 25 pages/components, 6 API route modules, 3 DB migrations
-- Embed architecture evolved to server-side oEmbed resolver (supports Spotify, Apple Music, YouTube, Vimeo, SoundCloud, Bandcamp)
-- Audience: music nerds and casual listeners — accessible but deep
+**Shipped v2.0 Polish & Gaps** (2026-02-28): ~8,500 LOC across React 18 + Express 5 + Turso.
+- Frontend deployed on Vercel, API on Render, DB on Turso
+- 41 files modified in v2.0 (+3,478 lines)
+- 4 DB migrations (schema init + post_artists source column + future)
+- Artist extraction: Spotify API + iTunes Search API + manual fallback
+- Search: LIKE-based multi-dimension search (post body, artists, tags, contributors)
+- Embed architecture: server-side oEmbed resolver (6 providers) with artist extraction on resolve
 
-**Known deployment gap:** `vercel.json` needs `/api/*` proxy rewrite to Render backend before going live.
+**Known issue:** Spotify artist auto-extraction requires `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` in `server/.env`. Apple Music extraction (iTunes Search API) works without credentials.
 
 ## Constraints
 
@@ -89,6 +81,12 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | Composite cursor pagination | Stable ordering across concurrent inserts | ✓ Good — (created_at, id) cursor |
 | Vercel serverless for OG tags | Social crawlers don't execute JS | ✓ Good — dynamic previews with album art |
 | Profile pages via direct navigation | Slide-out panel was wrong UX (user feedback) | ✓ Good — /u/:username full pages |
+| iTunes Search API for Apple Music artists | Public API, no auth required; simpler than Apple Music API | ✓ Good — reliable extraction without developer tokens |
+| Auto-extraction priority: Spotify > Apple Music > manual | Most common embed type checked first; manual as fallback | ✓ Good — covers all cases |
+| BigInt coercion at db wrapper layer | libsql returns INTEGER as BigInt; fixing at db.get/db.all fixes all queries globally | ✓ Good — eliminated entire class of === comparison bugs |
+| Gravatar with d=blank fallback | No onerror handling needed; transparent 1x1 px triggers initials display | ✓ Good — simple, no JS error handling |
+| Client-side inline reference parsing | No server changes needed; regex detects music URLs in post body | ✓ Good — RichBody component, zero backend work |
+| LIKE-based search over FTS | Simple implementation; LIKE sufficient for current data volume | ⚠️ Revisit — may need FTS5 if data grows significantly |
 
 ---
-*Last updated: 2026-02-28 after v2.0 milestone start*
+*Last updated: 2026-02-28 after v2.0 milestone complete*
