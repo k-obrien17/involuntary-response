@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { relativeTime } from '../utils/formatDate';
 
 export default function PostListItem({ post }) {
+  const navigate = useNavigate();
   const preview =
     post.body.length > 100 ? post.body.slice(0, 100) + '...' : post.body;
 
@@ -14,12 +15,12 @@ export default function PostListItem({ post }) {
         {preview}
       </Link>
       <div className="mt-1 text-sm text-gray-400">
-        <Link
-          to={`/@${post.author.username}`}
-          className="hover:text-gray-600 transition"
+        <button
+          onClick={() => navigate(`/@${post.author.username}`)}
+          className="hover:text-gray-600 transition cursor-pointer"
         >
           {post.author.displayName}
-        </Link>
+        </button>
         <span className="mx-1">&middot;</span>
         <span>{relativeTime(post.createdAt)}</span>
       </div>

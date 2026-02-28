@@ -78,12 +78,12 @@ export default function ViewPost() {
       )}
 
       <div className="mt-6 text-sm text-gray-400">
-        <Link
-          to={`/@${post.author?.username}`}
-          className="hover:text-gray-600 transition"
+        <button
+          onClick={() => navigate(`/@${post.author?.username}`)}
+          className="hover:text-gray-600 transition cursor-pointer"
         >
           {post.author?.displayName || 'Unknown'}
-        </Link>
+        </button>
         <span className="mx-2">&middot;</span>
         <span>{fullDate(post.createdAt)}</span>
       </div>
