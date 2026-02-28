@@ -18,6 +18,7 @@ import TagBrowse from './pages/TagBrowse';
 import ArtistPage from './pages/ArtistPage';
 import Explore from './pages/Explore';
 import Profile from './pages/Profile';
+import Search from './pages/Search';
 
 function App() {
   return (
@@ -75,6 +76,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/search" element={<Search />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

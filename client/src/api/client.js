@@ -56,6 +56,10 @@ export const browse = {
   explore: () => api.get('/browse/explore'),
 };
 
+export const search = {
+  query: (q, params) => api.get('/search', { params: { q, ...params } }),
+};
+
 export const profile = {
   get: (username) =>
     api.get(`/users/${encodeURIComponent(username)}/profile`),
