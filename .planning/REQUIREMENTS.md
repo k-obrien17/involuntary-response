@@ -67,27 +67,27 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ART-01 | — | Pending |
-| ART-02 | — | Pending |
-| ART-03 | — | Pending |
-| ART-04 | — | Pending |
-| ART-05 | — | Pending |
-| AVTR-01 | — | Pending |
-| AVTR-02 | — | Pending |
-| AVTR-03 | — | Pending |
-| SRCH-01 | — | Pending |
-| SRCH-02 | — | Pending |
-| SRCH-03 | — | Pending |
-| SRCH-04 | — | Pending |
-| REF-01 | — | Pending |
-| REF-02 | — | Pending |
-| DEPL-01 | — | Pending |
+| ART-01 | Phase 7 | Pending |
+| ART-02 | Phase 7 | Pending |
+| ART-03 | Phase 7 | Pending |
+| ART-04 | Phase 7 | Pending |
+| ART-05 | Phase 7 | Pending |
+| AVTR-01 | Phase 6 | Pending |
+| AVTR-02 | Phase 6 | Pending |
+| AVTR-03 | Phase 6 | Pending |
+| SRCH-01 | Phase 9 | Pending |
+| SRCH-02 | Phase 9 | Pending |
+| SRCH-03 | Phase 9 | Pending |
+| SRCH-04 | Phase 9 | Pending |
+| REF-01 | Phase 8 | Pending |
+| REF-02 | Phase 8 | Pending |
+| DEPL-01 | Phase 6 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15 ⚠️
+- Mapped to phases: 15
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after initial definition*
+*Last updated: 2026-02-28 after roadmap creation*

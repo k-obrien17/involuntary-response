@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: "Polish & Gaps"
-status: defining_requirements
+status: ready_to_plan
 last_updated: "2026-02-28"
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -18,14 +18,34 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** v2.0 Polish & Gaps
+**Current focus:** Phase 6 -- Deployment and Avatars
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-28 — Milestone v2.0 started
+Phase: 6 of 9 (Deployment and Avatars) -- first phase of v2.0
+Plan: --
+Status: Ready to plan
+Last activity: 2026-02-28 -- Roadmap created for v2.0 milestone
+
+Progress: [############░░░░░░░░] 58% (v1.0 complete, v2.0 starting)
+
+## Performance Metrics
+
+**Velocity:**
+- Total plans completed: 12 (all v1.0)
+- Average duration: see milestones/v1.0 retrospective
+- Total execution time: see milestones/v1.0 retrospective
+
+**By Phase (v2.0):**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 6 | 0/? | -- | -- |
+| 7 | 0/? | -- | -- |
+| 8 | 0/? | -- | -- |
+| 9 | 0/? | -- | -- |
+
+*Updated after each plan completion*
 
 ## Accumulated Context
 
@@ -34,41 +54,9 @@ Last activity: 2026-02-28 — Milestone v2.0 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Roadmap]: 5 phases derived from 25 v1 requirements. Social engagement (likes/comments) confirmed as v2.
-- [Roadmap]: Embeds integrated into Post Creation phase (not separate), per research recommendation.
-- [Roadmap]: SHAR-01 (permalinks) placed in Phase 3 with feed/display, not Phase 5 with other sharing.
-- [Phase 01]: 365-day JWT expiry with role in payload (sessions persist until logout)
-- [Phase 01]: is_active DB check in authenticateToken middleware on every authenticated request
-- [Phase 01]: Atomic invite consumption via UPDATE WHERE with changes check (race condition protection)
-- [Phase 01]: Store full user object (with role) in localStorage as JSON, not just username
-- [Phase 01]: Light/clean UI style replacing Backyard Marquee dark theme
-- [Phase 01]: Computed invite status at query time (pending/used/expired/revoked) rather than stored in DB
-- [Phase 01]: Self-action protection prevents admins from deactivating/demoting themselves
-- [Phase 02]: Embed domain validation via prefix allowlist (open.spotify.com/embed, embed.music.apple.com)
-- [Phase 02]: Spotify oEmbed metadata fetch is non-fatal -- embed works without title/thumbnail
-- [Phase 02]: Tags sanitized to [a-z0-9- ] with max 30 chars, max 5 per post
-- [Phase 02]: Navbar shows @username instead of displayName to avoid duplicate "Admin" label
-- [Phase 02]: ViewPost is a functional placeholder -- Phase 3 builds the proper post display
-- [Phase 02]: PostForm sends originalUrl to API (server re-parses), not parsed embed object
-- [Phase 03]: Composite cursor (created_at|id) for stable feed pagination across concurrent inserts
-- [Phase 03]: Batch IN() queries for embeds and tags to avoid N+1 in feed endpoint
-- [Phase 03]: Click-to-load facade in feed, full iframe on permalink -- balances performance with engagement
-- [Phase 03]: Tags rendered as #text not pill badges -- text-first design, minimal chrome
-- [Phase 04]: Separate Spotify token cache in lib/spotify.js to avoid breaking existing artist search
-- [Phase 04]: Artist extraction Spotify-only; Apple Music posts have no post_artists entries
-- [Phase 04]: Consistent post response shape with artists array across feed, browse, and profile endpoints
-- [Phase 04]: Explore endpoint ranks by recency (MAX created_at) not count -- surfaces fresh content
-- [Phase 04]: Profile routes mounted before admin user routes for correct Express route matching
-- [Phase 04]: Author clicks use Link navigation to /u/{username} instead of slide-out panel (per user UAT feedback)
-- [Phase 04]: ProfilePanel system fully deleted rather than left as dead code
-- [Phase 05]: Vercel serverless function for OG meta tags -- crawlers don't execute JS so client-side approach won't work
-- [Phase 05]: RSS feed uses FRONTEND_URL for item links, not API domain
-- [Phase 05]: 3-second AbortSignal timeout on OG API fetch to prevent slow social preview generation
-- [Phase 05]: Module-level HTML caching in og.js for warm Vercel function starts
-- [Phase 05]: Three-way theme toggle cycles system->light->dark->system with system as default
-- [Phase 05]: Body colors moved from CSS to index.html class attributes for dark mode compatibility
-- [Phase 05]: Primary buttons invert in dark mode (bg-gray-100 text-gray-900) for maximum contrast
-- [Phase 05]: FOUC prevention via inline script reading localStorage before React renders
+- [Roadmap v2.0]: Phase 6 bundles deployment fix with avatars -- both are small, independent, and unblock production testing
+- [Roadmap v2.0]: Artist data (Phase 7) before search (Phase 9) -- search over artist names requires artist data to exist
+- [Roadmap v2.0]: Inline references (Phase 8) is a standalone phase despite only 2 requirements -- distinct post-creation workflow
 
 ### Pending Todos
 
@@ -76,9 +64,10 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- vercel.json API proxy must be configured before any v2.0 features can be verified in production
 
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Starting v2.0 milestone
+Stopped at: v2.0 roadmap created, ready to plan Phase 6
+Resume file: None
