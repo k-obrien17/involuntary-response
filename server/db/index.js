@@ -165,7 +165,7 @@ export async function initDatabase() {
       } catch {
         // Column/index may already exist
       }
-      await db.run('INSERT INTO migrations (id, name) VALUES (?, ?)', m.id, m.name);
+      await db.run('INSERT OR IGNORE INTO migrations (id, name) VALUES (?, ?)', m.id, m.name);
     }
   }
 
