@@ -23,10 +23,10 @@ Requirements for v2.0 Polish & Gaps. Each maps to roadmap phases.
 
 ### Search
 
-- [ ] **SRCH-01**: User can search post content via text query
-- [ ] **SRCH-02**: Search results include matches from artist names
-- [ ] **SRCH-03**: Search results include matches from tags
-- [ ] **SRCH-04**: Search results include matches from contributor names
+- [x] **SRCH-01**: User can search post content via text query
+- [x] **SRCH-02**: Search results include matches from artist names
+- [x] **SRCH-03**: Search results include matches from tags
+- [x] **SRCH-04**: Search results include matches from contributor names
 
 ### References
 
@@ -75,10 +75,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AVTR-01 | Phase 6 | Complete |
 | AVTR-02 | Phase 6 | Complete |
 | AVTR-03 | Phase 6 | Complete |
-| SRCH-01 | Phase 9 | Pending |
-| SRCH-02 | Phase 9 | Pending |
-| SRCH-03 | Phase 9 | Pending |
-| SRCH-04 | Phase 9 | Pending |
+| SRCH-01 | Phase 9 | Complete |
+| SRCH-02 | Phase 9 | Complete |
+| SRCH-03 | Phase 9 | Complete |
+| SRCH-04 | Phase 9 | Complete |
 | REF-01 | Phase 8 | Complete |
 | REF-02 | Phase 8 | Complete |
 | DEPL-01 | Phase 6 | Complete |

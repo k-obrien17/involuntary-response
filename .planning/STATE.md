@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Polish & Gaps
-status: unknown
-last_updated: "2026-02-28T17:31:52.424Z"
+status: complete
+last_updated: "2026-02-28T17:39:30Z"
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  total_phases: 4
+  completed_phases: 4
+  total_plans: 7
+  completed_plans: 7
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** Phase 8 -- Inline References
+**Current focus:** Phase 9 -- Full-Text Search (COMPLETE)
 
 ## Current Position
 
-Phase: 8 of 9 (Inline References) -- COMPLETE
+Phase: 9 of 9 (Full-Text Search) -- COMPLETE
 Plan: 1 of 1 complete
-Status: Phase 8 complete, ready for Phase 9
-Last activity: 2026-02-28 -- Plan 08-01 complete (Inline Music References)
+Status: All v2.0 phases complete
+Last activity: 2026-02-28 -- Plan 09-01 complete (Full-Text Search)
 
-Progress: [##################░░] 90% (v1.0 complete, v2.0 Phase 8 done)
+Progress: [####################] 100% (v1.0 complete, v2.0 complete)
 
 ## Performance Metrics
 
@@ -43,7 +43,7 @@ Progress: [##################░░] 90% (v1.0 complete, v2.0 Phase 8 done)
 | 6 | 2/2 | 5min | 2.5min |
 | 7 | 3/3 | 4min | 1.3min |
 | 8 | 1/1 | 1min | 1min |
-| 9 | 0/? | -- | -- |
+| 9 | 1/1 | 2min | 2min |
 
 *Updated after each plan completion*
 
@@ -71,6 +71,8 @@ Recent decisions affecting current work:
 - [Phase 08-01]: Used regex matchAll approach for predictable text segment parsing of music URLs
 - [Phase 08-01]: Single music note icon for all providers -- provider name text distinguishes Spotify vs Apple Music
 - [Phase 08-01]: Styled inline music links with bottom border matching site's minimal text-first design
+- [Phase 09-01]: Copied batchLoadPostData/formatPosts helpers from browse.js rather than extracting shared module
+- [Phase 09-01]: Search input hidden on mobile (sm:block) to avoid crowding Navbar
 
 ### Pending Todos
 
@@ -84,5 +86,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 08-01-PLAN.md (Inline Music References) -- Phase 8 complete
+Stopped at: Completed 09-01-PLAN.md (Full-Text Search) -- Phase 9 complete, v2.0 milestone complete
 Resume file: None
