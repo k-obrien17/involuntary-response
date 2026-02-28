@@ -65,21 +65,21 @@ export default function Explore() {
           <div className="space-y-3">
             {data.artists.map((artist) => (
               <Link
-                key={artist.artist_name}
-                to={`/artist/${encodeURIComponent(artist.artist_name)}`}
+                key={artist.name}
+                to={`/artist/${encodeURIComponent(artist.name)}`}
                 className="flex items-center gap-3 hover:text-gray-600 transition"
               >
-                {artist.artist_image ? (
+                {artist.image ? (
                   <img
-                    src={artist.artist_image}
-                    alt={artist.artist_name}
+                    src={artist.image}
+                    alt={artist.name}
                     className="w-8 h-8 rounded-full object-cover"
                   />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-gray-200" />
                 )}
                 <span className="text-base text-gray-900">
-                  {artist.artist_name}
+                  {artist.name}
                 </span>
               </Link>
             ))}
