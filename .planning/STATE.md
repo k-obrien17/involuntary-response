@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Polish & Gaps
 status: unknown
-last_updated: "2026-02-28T17:09:05.523Z"
+last_updated: "2026-02-28T17:29:14.935Z"
 progress:
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_phases: 3
+  completed_phases: 3
+  total_plans: 6
+  completed_plans: 6
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 7 of 9 (Artist Data) -- COMPLETE
-Plan: 3 of 3 complete
-Status: Phase 7 complete, ready for Phase 8
-Last activity: 2026-02-28 -- Plan 07-03 complete (UAT Fixes: BigInt coercion + artist preview)
+Phase: 8 of 9 (Inline References) -- COMPLETE
+Plan: 1 of 1 complete
+Status: Phase 8 complete, ready for Phase 9
+Last activity: 2026-02-28 -- Plan 08-01 complete (Inline Music References)
 
-Progress: [################░░░░] 80% (v1.0 complete, v2.0 Phase 7 done)
+Progress: [##################░░] 90% (v1.0 complete, v2.0 Phase 8 done)
 
 ## Performance Metrics
 
@@ -42,7 +42,7 @@ Progress: [################░░░░] 80% (v1.0 complete, v2.0 Phase 7 done)
 |-------|-------|-------|----------|
 | 6 | 2/2 | 5min | 2.5min |
 | 7 | 3/3 | 4min | 1.3min |
-| 8 | 0/? | -- | -- |
+| 8 | 1/1 | 1min | 1min |
 | 9 | 0/? | -- | -- |
 
 *Updated after each plan completion*
@@ -68,6 +68,9 @@ Recent decisions affecting current work:
 - [Phase 07-03]: BigInt coercion at db wrapper layer (coerceRow) rather than per-route -- fixes all queries globally
 - [Phase 07-03]: Artist extraction in embed resolve is non-fatal -- returns empty array on failure
 - [Phase 07-03]: Auto-populate artistName only when field is empty -- respects manual overrides
+- [Phase 08-01]: Used regex matchAll approach for predictable text segment parsing of music URLs
+- [Phase 08-01]: Single music note icon for all providers -- provider name text distinguishes Spotify vs Apple Music
+- [Phase 08-01]: Styled inline music links with bottom border matching site's minimal text-first design
 
 ### Pending Todos
 
@@ -81,5 +84,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 07-03-PLAN.md (UAT Fixes) -- Phase 7 complete
+Stopped at: Completed 08-01-PLAN.md (Inline Music References) -- Phase 8 complete
 Resume file: None

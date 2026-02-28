@@ -30,8 +30,8 @@ Requirements for v2.0 Polish & Gaps. Each maps to roadmap phases.
 
 ### References
 
-- [ ] **REF-01**: Contributor can add inline song/album reference (Spotify or Apple Music link) in post text
-- [ ] **REF-02**: Inline reference renders as a styled music link that opens in the streaming service
+- [x] **REF-01**: Contributor can add inline song/album reference (Spotify or Apple Music link) in post text
+- [x] **REF-02**: Inline reference renders as a styled music link that opens in the streaming service
 
 ### Deployment
 
@@ -79,8 +79,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SRCH-02 | Phase 9 | Pending |
 | SRCH-03 | Phase 9 | Pending |
 | SRCH-04 | Phase 9 | Pending |
-| REF-01 | Phase 8 | Pending |
-| REF-02 | Phase 8 | Pending |
+| REF-01 | Phase 8 | Complete |
+| REF-02 | Phase 8 | Complete |
 | DEPL-01 | Phase 6 | Complete |
 
 **Coverage:**
