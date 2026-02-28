@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/posts/:slug", "destination": "/api/og" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
