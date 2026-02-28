@@ -1,9 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import EmbedPlaceholder from './EmbedPlaceholder';
 import { relativeTime } from '../utils/formatDate';
+import { useProfilePanel } from '../context/ProfilePanelContext';
 
 export default function PostCard({ post }) {
-  const navigate = useNavigate();
+  const { openProfile } = useProfilePanel();
   return (
     <article>
       <div className="prose prose-lg lg:prose-xl prose-gray max-w-none">
@@ -54,7 +55,7 @@ export default function PostCard({ post }) {
         </Link>
         <span className="mx-2">&middot;</span>
         <button
-          onClick={() => navigate(`/u/${post.author.username}`)}
+          onClick={() => openProfile(post.author.username)}
           className="hover:text-gray-600 transition cursor-pointer"
         >
           {post.author.displayName}

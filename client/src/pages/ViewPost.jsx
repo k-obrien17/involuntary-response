@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { posts } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { useProfilePanel } from '../context/ProfilePanelContext';
 import EmbedPreview from '../components/EmbedPreview';
 import { fullDate } from '../utils/formatDate';
 
@@ -9,6 +10,7 @@ export default function ViewPost() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { openProfile } = useProfilePanel();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -79,7 +81,7 @@ export default function ViewPost() {
 
       <div className="mt-6 text-sm text-gray-400">
         <button
-          onClick={() => navigate(`/u/${post.author?.username}`)}
+          onClick={() => openProfile(post.author?.username)}
           className="hover:text-gray-600 transition cursor-pointer"
         >
           {post.author?.displayName || 'Unknown'}
