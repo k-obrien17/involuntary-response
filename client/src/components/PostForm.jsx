@@ -10,6 +10,7 @@ export default function PostForm({ initialData, onSubmit, submitting }) {
   const [body, setBody] = useState(initialData?.body || '');
   const [embed, setEmbed] = useState(initialData?.embed || null);
   const [tags, setTags] = useState(initialData?.tags || []);
+  const [artistName, setArtistName] = useState(initialData?.artistName || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,6 +18,7 @@ export default function PostForm({ initialData, onSubmit, submitting }) {
       body: body.trim(),
       embedUrl: embed?.originalUrl || null,
       tags,
+      artistName: artistName.trim() || null,
     });
   };
 
@@ -46,6 +48,23 @@ export default function PostForm({ initialData, onSubmit, submitting }) {
       </div>
 
       <EmbedInput embed={embed} onChange={setEmbed} />
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Artist (optional)
+        </label>
+        <input
+          type="text"
+          value={artistName}
+          onChange={(e) => setArtistName(e.target.value)}
+          placeholder="Auto-detected from embed, or type manually"
+          maxLength={200}
+          className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 mt-1"
+        />
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          Leave blank if a Spotify or Apple Music link is provided — artist is detected automatically.
+        </p>
+      </div>
 
       <TagInput tags={tags} onChange={setTags} maxTags={5} />
 

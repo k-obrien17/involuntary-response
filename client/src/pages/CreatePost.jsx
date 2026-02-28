@@ -8,11 +8,11 @@ export default function CreatePost() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async ({ body, embedUrl, tags }) => {
+  const handleSubmit = async ({ body, embedUrl, tags, artistName }) => {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await posts.create({ body, embedUrl, tags });
+      const res = await posts.create({ body, embedUrl, tags, artistName });
       navigate(`/posts/${res.data.slug}`);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create post');

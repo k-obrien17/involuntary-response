@@ -33,11 +33,11 @@ export default function EditPost() {
     fetchPost();
   }, [slug, user, navigate]);
 
-  const handleSubmit = async ({ body, embedUrl, tags }) => {
+  const handleSubmit = async ({ body, embedUrl, tags, artistName }) => {
     setSubmitting(true);
     setError(null);
     try {
-      await posts.update(slug, { body, embedUrl, tags });
+      await posts.update(slug, { body, embedUrl, tags, artistName });
       navigate(`/posts/${slug}`);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update post');
@@ -79,6 +79,7 @@ export default function EditPost() {
           body: post.body,
           embed: post.embed,
           tags: post.tags,
+          artistName: post.artists?.[0]?.name || '',
         }}
         onSubmit={handleSubmit}
         submitting={submitting}
