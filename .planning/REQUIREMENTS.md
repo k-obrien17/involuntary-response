@@ -1,7 +1,7 @@
 # Requirements: Involuntary Response
 
 **Defined:** 2026-02-28
-**Core Value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music — and the music is right there to listen to.
+**Core Value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
 
 ## v2.1 Requirements
 
@@ -67,27 +67,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ACCT-01 | — | Pending |
-| ACCT-02 | — | Pending |
-| ACCT-03 | — | Pending |
-| LIKE-01 | — | Pending |
-| LIKE-02 | — | Pending |
-| LIKE-03 | — | Pending |
-| CMNT-01 | — | Pending |
-| CMNT-02 | — | Pending |
-| CMNT-03 | — | Pending |
-| CMNT-04 | — | Pending |
-| EDIT-01 | — | Pending |
-| EDIT-02 | — | Pending |
-| EDIT-03 | — | Pending |
-| EDIT-04 | — | Pending |
-| EDIT-05 | — | Pending |
+| ACCT-01 | Phase 11 | Pending |
+| ACCT-02 | Phase 11 | Pending |
+| ACCT-03 | Phase 11 | Pending |
+| LIKE-01 | Phase 12 | Pending |
+| LIKE-02 | Phase 12 | Pending |
+| LIKE-03 | Phase 12 | Pending |
+| CMNT-01 | Phase 13 | Pending |
+| CMNT-02 | Phase 13 | Pending |
+| CMNT-03 | Phase 13 | Pending |
+| CMNT-04 | Phase 13 | Pending |
+| EDIT-01 | Phase 14 | Pending |
+| EDIT-02 | Phase 14 | Pending |
+| EDIT-03 | Phase 14 | Pending |
+| EDIT-04 | Phase 14 | Pending |
+| EDIT-05 | Phase 14 | Pending |
 
 **Coverage:**
 - v2.1 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15
+- Mapped to phases: 15
+- Unmapped: 0
+- Infrastructure phase: Phase 10 (Schema & Query Safety) -- no direct requirements, enables all v2.1 phases
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after initial definition*
+*Last updated: 2026-02-28 after roadmap creation*
