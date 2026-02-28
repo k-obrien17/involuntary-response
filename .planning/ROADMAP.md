@@ -86,11 +86,10 @@ Plans:
   3. Searching a tag name returns posts tagged with that term
   4. Searching a contributor name returns posts by that contributor
   5. Search is accessible from the main navigation on every page
-**Plans**: TBD
+**Plans**: 1 (Wave 1)
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01: Search API endpoint + Search page + Navbar search input (SRCH-01, SRCH-02, SRCH-03, SRCH-04)
 
 ## Progress
 
@@ -107,4 +106,4 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 6. Deployment and Avatars | v2.0 | 1/2 | In Progress | - |
 | 7. Artist Data | v2.0 | 0/2 | Not started | - |
 | 8. Inline References | v2.0 | 0/1 | Not started | - |
-| 9. Full-Text Search | v2.0 | 0/? | Not started | - |
+| 9. Full-Text Search | v2.0 | 0/1 | Not started | - |
