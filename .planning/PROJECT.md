@@ -31,12 +31,18 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 
 ### Active
 
-(None — next milestone not yet planned)
+<!-- Current milestone: v2.1 Reader Engagement & Editorial -->
+
+- [ ] Lightweight reader accounts (email + display name signup)
+- [ ] Readers can like posts (one per reader per post)
+- [ ] Readers can comment on posts (top-level only, flat)
+- [ ] Contributors can save posts as drafts and preview before publishing
+- [ ] Contributors can edit published posts (content, embeds, tags)
+- [ ] Contributors can schedule posts for future publish dates
 
 ### Deferred
 
-- Readers can like posts (requires lightweight reader accounts) — v2.1+
-- Readers can comment on posts (flat comments, not threaded) — v2.1+
+(None currently deferred)
 
 ### Out of Scope
 
@@ -88,5 +94,16 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | Client-side inline reference parsing | No server changes needed; regex detects music URLs in post body | ✓ Good — RichBody component, zero backend work |
 | LIKE-based search over FTS | Simple implementation; LIKE sufficient for current data volume | ⚠️ Revisit — may need FTS5 if data grows significantly |
 
+## Current Milestone: v2.1 Reader Engagement & Editorial
+
+**Goal:** Add reader participation (likes, comments, lightweight accounts) and contributor editorial tools (drafts, post editing, scheduling).
+
+**Target features:**
+- Lightweight reader accounts (email + display name)
+- Post likes and top-level comments
+- Draft/preview workflow for contributors
+- Post editing for published content
+- Self-serve post scheduling
+
 ---
-*Last updated: 2026-02-28 after v2.0 milestone complete*
+*Last updated: 2026-02-28 after v2.1 milestone started*
