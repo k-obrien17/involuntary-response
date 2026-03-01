@@ -116,7 +116,10 @@ Plans:
   4. A contributor can edit a published post's content, embeds, and tags from the post's permalink
   5. An edited post displays a visible "edited" indicator so readers know the content changed after original publication
 
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 14-01-PLAN.md -- Server-side draft/publish API: status on create, publish transition, /mine endpoint
+- [ ] 14-02-PLAN.md -- Client-side draft UI: PostForm dual buttons, MyPosts page, draft preview/publish, edited indicator
 
 ## Progress
 
@@ -138,5 +141,5 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 10. Schema & Query Safety | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 11. Reader Accounts | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 12. Likes | v2.1 | 2/2 | Complete | 2026-03-01 |
-| 13. Comments | 2/2 | Complete    | 2026-03-01 | - |
-| 14. Drafts & Post Editing | v2.1 | 0/? | Not started | - |
+| 13. Comments | v2.1 | 2/2 | Complete | 2026-03-01 |
+| 14. Drafts & Post Editing | v2.1 | 0/2 | Not started | - |
