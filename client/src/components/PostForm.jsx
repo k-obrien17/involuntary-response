@@ -6,7 +6,7 @@ import TagInput from './TagInput';
 const SOFT_LIMIT = 800;
 const HARD_LIMIT = 1200;
 
-export default function PostForm({ initialData, onSubmit, submitting }) {
+export default function PostForm({ initialData, onSubmit, onSaveDraft, submitting }) {
   const [body, setBody] = useState(initialData?.body || '');
   const [embed, setEmbed] = useState(initialData?.embed || null);
   const [tags, setTags] = useState(initialData?.tags || []);
@@ -75,17 +75,38 @@ export default function PostForm({ initialData, onSubmit, submitting }) {
 
       <TagInput tags={tags} onChange={setTags} maxTags={5} />
 
-      <button
-        type="submit"
-        disabled={isDisabled}
-        className="bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 px-6 py-3 text-sm font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50"
-      >
-        {submitting
-          ? 'Saving...'
-          : initialData
-            ? 'Save changes'
-            : 'Publish'}
-      </button>
+      <div className="flex items-center gap-3">
+        {onSaveDraft && (
+          <button
+            type="button"
+            disabled={isDisabled}
+            onClick={() => {
+              onSaveDraft({
+                body: body.trim(),
+                embedUrl: embed?.originalUrl || null,
+                tags,
+                artistName: artistName.trim() || null,
+              });
+            }}
+            className="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 text-sm font-medium rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition disabled:opacity-50"
+          >
+            {submitting ? 'Saving...' : 'Save as draft'}
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={isDisabled}
+          className="bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 px-6 py-3 text-sm font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50"
+        >
+          {submitting
+            ? 'Saving...'
+            : onSaveDraft
+              ? 'Publish'
+              : initialData
+                ? 'Save changes'
+                : 'Publish'}
+        </button>
+      </div>
     </form>
   );
 }

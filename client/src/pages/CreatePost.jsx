@@ -12,10 +12,22 @@ export default function CreatePost() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await posts.create({ body, embedUrl, tags, artistName });
+      const res = await posts.create({ body, embedUrl, tags, artistName, status: 'published' });
       navigate(`/posts/${res.data.slug}`);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create post');
+      setSubmitting(false);
+    }
+  };
+
+  const handleSaveDraft = async ({ body, embedUrl, tags, artistName }) => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await posts.create({ body, embedUrl, tags, artistName, status: 'draft' });
+      navigate(`/posts/${res.data.slug}/edit`);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to save draft');
       setSubmitting(false);
     }
   };
@@ -28,7 +40,7 @@ export default function CreatePost() {
           {error}
         </div>
       )}
-      <PostForm onSubmit={handleSubmit} submitting={submitting} />
+      <PostForm onSubmit={handleSubmit} onSaveDraft={handleSaveDraft} submitting={submitting} />
     </div>
   );
 }
