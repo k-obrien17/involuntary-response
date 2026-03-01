@@ -66,7 +66,10 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
   2. Server startup fails with a clear error message if ADMIN_EMAIL, ADMIN_PASSWORD, or ADMIN_DISPLAY_NAME env vars are missing
   3. Server startup logs a warning and password reset endpoint returns a user-facing error if SMTP env vars are missing
   4. Visiting /robots.txt returns a valid robots file and /sitemap.xml returns a valid sitemap listing public routes
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 15-01-PLAN.md -- Server startup env validation (admin seed + SMTP checks)
+- [ ] 15-02-PLAN.md -- Vercel proxy fix + robots.txt + sitemap.xml
 
 ### Phase 16: Social Sharing
 **Goal**: Sharing a post link on social platforms shows a rich preview with title, description, and album art
@@ -116,7 +119,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 | 1-5 | v1.0 | 12/12 | Complete | 2026-02-28 |
 | 6-9 | v2.0 | 7/7 | Complete | 2026-02-28 |
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
-| 15. Deployment Wiring | v3.0 | 0/? | Not started | - |
+| 15. Deployment Wiring | v3.0 | 0/2 | Planned | - |
 | 16. Social Sharing | v3.0 | 0/? | Not started | - |
 | 17. Security Hardening | v3.0 | 0/? | Not started | - |
 | 18. Performance | v3.0 | 0/? | Not started | - |
