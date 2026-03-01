@@ -116,6 +116,53 @@ router.post('/register', authLimiter, async (req, res) => {
   }
 });
 
+// Rate limiter for public reader registration (stricter — open endpoint)
+const readerRegLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many registration attempts, try again later' },
+});
+
+// POST /api/auth/register-reader
+router.post('/register-reader', readerRegLimiter, async (req, res) => {
+  const { email, password, displayName } = req.body;
+
+  if (!email || !password || !displayName) {
+    return res.status(400).json({ error: 'Email, password, and display name are required' });
+  }
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
+
+  try {
+    // Check email uniqueness
+    const existingEmail = await db.get('SELECT 1 FROM users WHERE email = ?', email);
+    if (existingEmail) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    // Generate unique username from display name
+    const username = await ensureUniqueUsername(displayName);
+
+    // Hash password and create user with role='reader'
+    const hash = await bcrypt.hash(password, 10);
+    const result = await db.run(
+      'INSERT INTO users (email, password_hash, display_name, username, role) VALUES (?, ?, ?, ?, ?)',
+      email, hash, displayName, username, 'reader'
+    );
+
+    const user = { id: result.lastInsertRowid, email, displayName, username, role: 'reader' };
+    const jwtToken = generateToken(user);
+    res.status(201).json({ token: jwtToken, user });
+  } catch (err) {
+    console.error('Reader registration error:', err);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
 // POST /api/auth/login
 router.post('/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
