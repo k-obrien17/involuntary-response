@@ -38,7 +38,14 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 
 ### Active
 
-(None — planning next milestone)
+- Production deployment wiring (Render URL, env var validation, admin seed) — v3.0
+- Dynamic OG meta tags for social sharing previews — v3.0
+- 404 page, robots.txt, sitemap for SEO — v3.0
+- Security headers (CSP, X-Frame-Options, X-Content-Type-Options) — v3.0
+- JWT expiry reduction and CSRF protection — v3.0
+- Single-post N+1 query fix and profile pagination — v3.0
+- Error state UI for Search/Explore pages — v3.0
+- Email/SMTP validation for password reset — v3.0
 
 ### Deferred
 
@@ -106,4 +113,4 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | — Pending — revisit in next milestone |
 
 ---
-*Last updated: 2026-03-01 after v2.1 milestone shipped*
+*Last updated: 2026-03-01 after v3.0 milestone started*
