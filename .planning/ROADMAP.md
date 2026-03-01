@@ -138,5 +138,5 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 10. Schema & Query Safety | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 11. Reader Accounts | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 12. Likes | v2.1 | 2/2 | Complete | 2026-03-01 |
-| 13. Comments | 2/2 | Complete   | 2026-03-01 | - |
+| 13. Comments | 2/2 | Complete    | 2026-03-01 | - |
 | 14. Drafts & Post Editing | v2.1 | 0/? | Not started | - |
