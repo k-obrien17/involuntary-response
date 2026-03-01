@@ -47,6 +47,8 @@ export const posts = {
   update: (slug, data) => api.put(`/posts/${slug}`, data),
   delete: (slug) => api.delete(`/posts/${slug}`),
   like: (slug) => api.post(`/posts/${slug}/like`),
+  addComment: (slug, body) => api.post(`/posts/${slug}/comments`, { body }),
+  deleteComment: (slug, commentId) => api.delete(`/posts/${slug}/comments/${commentId}`),
 };
 
 export const browse = {
