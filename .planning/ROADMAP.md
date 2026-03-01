@@ -57,8 +57,8 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
   5. A shared `batchLoadPostData` helper exists and is used by all routes that return post lists
 **Plans:** 2/2 plans complete
 Plans:
-- [ ] 10-01-PLAN.md -- Migration, shared helper module, requireContributor middleware
-- [ ] 10-02-PLAN.md -- Status filters and cursor migration across all route files
+- [x] 10-01-PLAN.md -- Migration, shared helper module, requireContributor middleware
+- [x] 10-02-PLAN.md -- Status filters and cursor migration across all route files
 
 ### Phase 11: Reader Accounts
 **Goal**: Anyone can create a reader account and the system correctly distinguishes readers from contributors everywhere
@@ -70,7 +70,10 @@ Plans:
   3. A logged-in reader sees their display name in the Navbar but does NOT see contributor-only UI (create post, drafts)
   4. A reader's JWT produces 403 (not 201) when hitting `POST /api/posts`
   5. Existing contributor accounts and the invite flow work exactly as before
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 11-01-PLAN.md -- Reader registration endpoint, requireContributor on mutation routes
+- [ ] 11-02-PLAN.md -- JoinPage, ContributorRoute guard, role-aware Navbar, route wiring
 
 ### Phase 12: Likes
 **Goal**: Readers can express appreciation for posts with a single tap, and like counts are visible to everyone
@@ -126,8 +129,8 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 7. Artist Data | v2.0 | 3/3 | Complete | 2026-02-28 |
 | 8. Inline References | v2.0 | 1/1 | Complete | 2026-02-28 |
 | 9. Full-Text Search | v2.0 | 1/1 | Complete | 2026-02-28 |
-| 10. Schema & Query Safety | 2/2 | Complete    | 2026-03-01 | - |
-| 11. Reader Accounts | v2.1 | 0/? | Not started | - |
+| 10. Schema & Query Safety | v2.1 | 2/2 | Complete | 2026-03-01 |
+| 11. Reader Accounts | v2.1 | 0/2 | In progress | - |
 | 12. Likes | v2.1 | 0/? | Not started | - |
 | 13. Comments | v2.1 | 0/? | Not started | - |
 | 14. Drafts & Post Editing | v2.1 | 0/? | Not started | - |
