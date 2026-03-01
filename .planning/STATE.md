@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Reader Engagement & Editorial
 status: in_progress
-last_updated: "2026-03-01T04:20:06.182Z"
+last_updated: "2026-03-01T04:25:57Z"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 9
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -22,25 +22,26 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 10 of 14 (Schema & Query Safety) -- first of 5 v2.1 phases
-Plan: 1 of 2 complete
-Status: In progress
-Last activity: 2026-03-01 -- Completed 10-01 (schema foundation)
+Phase: 10 of 14 (Schema & Query Safety) -- COMPLETE
+Plan: 2 of 2 complete
+Status: Phase 10 complete, ready for Phase 11
+Last activity: 2026-03-01 -- Completed 10-02 (status filter & query safety)
 
-Progress: [#####################.........] 72% overall (20/19+9 plans through v2.0+v2.1)
-v2.1:    [##.....................] 1/9 plans complete
+Progress: [#######################.......] 75% overall (22/19+9 plans through v2.0+v2.1)
+v2.1:    [#####.................] 2/9 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20 (v1.0: 12, v2.0: 7, v2.1: 1)
-- v2.1 plans completed: 1
+- Total plans completed: 22 (v1.0: 12, v2.0: 7, v2.1: 2)
+- v2.1 plans completed: 2
 
 **By Phase (v2.1 -- current):**
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 10. Schema & Query Safety | 01 | 2min | 2 | 3 |
+| 10. Schema & Query Safety | 02 | 3min | 2 | 5 |
 
 **By Phase (v2.0 -- previous):**
 
@@ -61,6 +62,8 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - oEmbed resolver supports 6 providers
 - [Phase 10]: parseCursor uses published_at instead of created_at for draft-aware feed ordering
 - [Phase 10]: formatPosts response shape includes updatedAt and publishedAt fields
+- [Phase 10]: GET /posts/:slug returns status and publishedAt fields to prepare clients for draft workflow
+- [Phase 10]: RSS feed uses published_at || created_at fallback for date safety
 
 ### Key Research Findings (v2.1)
 
@@ -82,5 +85,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 10-01-PLAN.md
+Stopped at: Completed 10-02-PLAN.md (Phase 10 complete)
 Resume file: None

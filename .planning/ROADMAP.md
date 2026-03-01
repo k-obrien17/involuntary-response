@@ -37,7 +37,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 
 **Milestone Goal:** Add reader participation (likes, comments, lightweight accounts) and contributor editorial tools (drafts, post editing).
 
-- [ ] **Phase 10: Schema & Query Safety** - Database migration, status filtering across all public queries, shared helpers extraction
+- [x] **Phase 10: Schema & Query Safety** - Database migration, status filtering across all public queries, shared helpers extraction (completed 2026-03-01)
 - [ ] **Phase 11: Reader Accounts** - Lightweight reader signup, role-based auth, contributor route protection
 - [ ] **Phase 12: Likes** - Post like/unlike toggle, like counts in feed and permalink, liked state for readers
 - [ ] **Phase 13: Comments** - Flat top-level comments, chronological display, author/admin/self moderation
@@ -55,7 +55,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
   3. `post_likes` and `post_comments` tables exist and accept inserts
   4. Feed pagination uses `published_at` (not `created_at`) for cursor ordering
   5. A shared `batchLoadPostData` helper exists and is used by all routes that return post lists
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 10-01-PLAN.md -- Migration, shared helper module, requireContributor middleware
 - [ ] 10-02-PLAN.md -- Status filters and cursor migration across all route files
@@ -126,7 +126,7 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 7. Artist Data | v2.0 | 3/3 | Complete | 2026-02-28 |
 | 8. Inline References | v2.0 | 1/1 | Complete | 2026-02-28 |
 | 9. Full-Text Search | v2.0 | 1/1 | Complete | 2026-02-28 |
-| 10. Schema & Query Safety | 1/2 | In Progress|  | - |
+| 10. Schema & Query Safety | 2/2 | Complete   | 2026-03-01 | - |
 | 11. Reader Accounts | v2.1 | 0/? | Not started | - |
 | 12. Likes | v2.1 | 0/? | Not started | - |
 | 13. Comments | v2.1 | 0/? | Not started | - |
