@@ -11,7 +11,7 @@ Requirements for Reader Engagement & Editorial milestone. Each maps to roadmap p
 
 - [x] **ACCT-01**: Reader can sign up with email, display name, and password (no invite required)
 - [x] **ACCT-02**: Reader can log in with existing credentials
-- [ ] **ACCT-03**: Auth system distinguishes reader vs contributor roles in JWT and UI
+- [x] **ACCT-03**: Auth system distinguishes reader vs contributor roles in JWT and UI
 
 ### Likes
 
@@ -69,7 +69,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | ACCT-01 | Phase 11 | Complete |
 | ACCT-02 | Phase 11 | Complete |
-| ACCT-03 | Phase 11 | Pending |
+| ACCT-03 | Phase 11 | Complete |
 | LIKE-01 | Phase 12 | Pending |
 | LIKE-02 | Phase 12 | Pending |
 | LIKE-03 | Phase 12 | Pending |

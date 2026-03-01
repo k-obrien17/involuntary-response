@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Reader Engagement & Editorial
 status: in-progress
-last_updated: "2026-03-01T04:50:50.454Z"
+last_updated: "2026-03-01T04:54:53.640Z"
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -22,19 +22,19 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 11 of 14 (Reader Accounts) -- IN PROGRESS
-Plan: 1 of 2 complete
-Status: Completed 11-01 (reader registration API & route protection)
-Last activity: 2026-03-01 -- Completed 11-01 (reader registration & route protection)
+Phase: 11 of 14 (Reader Accounts) -- COMPLETE
+Plan: 2 of 2 complete
+Status: Completed 11-02 (frontend reader registration & role-aware UI)
+Last activity: 2026-03-01 -- Completed 11-02 (frontend reader registration & role-aware UI)
 
-Progress: [########################......] 79% overall (23/19+9 plans through v2.0+v2.1)
-v2.1:    [######................] 3/9 plans complete
+Progress: [#########################.....] 82% overall (24/19+9 plans through v2.0+v2.1)
+v2.1:    [########..............] 4/9 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 23 (v1.0: 12, v2.0: 7, v2.1: 3)
-- v2.1 plans completed: 3
+- Total plans completed: 24 (v1.0: 12, v2.0: 7, v2.1: 4)
+- v2.1 plans completed: 4
 
 **By Phase (v2.1 -- current):**
 
@@ -43,6 +43,7 @@ v2.1:    [######................] 3/9 plans complete
 | 10. Schema & Query Safety | 01 | 2min | 2 | 3 |
 | 10. Schema & Query Safety | 02 | 3min | 2 | 5 |
 | 11. Reader Accounts | 01 | 2min | 2 | 4 |
+| 11. Reader Accounts | 02 | 2min | 2 | 8 |
 
 **By Phase (v2.0 -- previous):**
 
@@ -67,6 +68,8 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - [Phase 10]: RSS feed uses published_at || created_at fallback for date safety
 - [Phase 11]: Separate /register-reader endpoint preserves invite-only contributor flow
 - [Phase 11]: requireContributor middleware order: authenticateToken -> requireContributor -> rateLimiter
+- [Phase 11]: Positive isContributor check (contributor OR admin) rather than negative role check for route guards
+- [Phase 11]: ProtectedRoute import removed from App.jsx after ContributorRoute swap -- re-add in Phase 12 if needed
 
 ### Key Research Findings (v2.1)
 
@@ -88,5 +91,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 11-01-PLAN.md
+Stopped at: Completed 11-02-PLAN.md
 Resume file: None
