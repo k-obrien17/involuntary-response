@@ -46,6 +46,7 @@ export const posts = {
   getBySlug: (slug) => api.get(`/posts/${slug}`),
   update: (slug, data) => api.put(`/posts/${slug}`, data),
   delete: (slug) => api.delete(`/posts/${slug}`),
+  like: (slug) => api.post(`/posts/${slug}/like`),
 };
 
 export const browse = {
