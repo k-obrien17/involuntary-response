@@ -79,7 +79,9 @@ Plans:
   1. Pasting a post permalink URL into Twitter/Slack/iMessage renders a card with the post title, a snippet of the take, and album art from the embed
   2. Pasting the homepage, explore page, or profile page URL renders a default OG card with site name and description
   3. Social crawler requests (identified by user-agent) receive server-rendered HTML with OG meta tags, not the SPA shell
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 16-01-PLAN.md -- Expand OG serverless function + crawler-aware routing + index.html defaults
 
 ### Phase 17: Security Hardening
 **Goal**: Server responses include industry-standard security headers and auth tokens have reasonable lifetimes
@@ -120,7 +122,7 @@ Plans:
 | 6-9 | v2.0 | 7/7 | Complete | 2026-02-28 |
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
 | 15. Deployment Wiring | 2/2 | Complete    | 2026-03-01 | - |
-| 16. Social Sharing | v3.0 | 0/? | Not started | - |
+| 16. Social Sharing | v3.0 | 0/1 | Planned | - |
 | 17. Security Hardening | v3.0 | 0/? | Not started | - |
 | 18. Performance | v3.0 | 0/? | Not started | - |
 | 19. UX Polish | v3.0 | 0/? | Not started | - |
