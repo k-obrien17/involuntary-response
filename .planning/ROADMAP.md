@@ -142,4 +142,4 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 11. Reader Accounts | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 12. Likes | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 13. Comments | v2.1 | 2/2 | Complete | 2026-03-01 |
-| 14. Drafts & Post Editing | 2/2 | Complete   | 2026-03-01 | - |
+| 14. Drafts & Post Editing | 2/2 | Complete    | 2026-03-01 | - |
