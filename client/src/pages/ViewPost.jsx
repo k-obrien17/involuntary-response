@@ -6,6 +6,7 @@ import EmbedPreview from '../components/EmbedPreview';
 import RichBody from '../components/RichBody';
 import Avatar from '../components/Avatar';
 import LikeButton from '../components/LikeButton';
+import CommentSection from '../components/CommentSection';
 import { fullDate } from '../utils/formatDate';
 
 export default function ViewPost() {
@@ -88,6 +89,12 @@ export default function ViewPost() {
           initialLiked={post.likedByUser}
         />
       </div>
+
+      <CommentSection
+        postSlug={post.slug}
+        initialComments={post.comments || []}
+        postAuthorId={post.authorId}
+      />
 
       <div className="mt-6 flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
         <Avatar
