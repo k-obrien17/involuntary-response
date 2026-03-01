@@ -27,6 +27,12 @@ export default function PostListItem({ post }) {
         </Link>
         <span>&middot;</span>
         <span>{relativeTime(post.createdAt)}</span>
+        {post.likeCount > 0 && (
+          <>
+            <span>&middot;</span>
+            <span>{post.likeCount} {post.likeCount === 1 ? 'like' : 'likes'}</span>
+          </>
+        )}
       </div>
     </div>
   );

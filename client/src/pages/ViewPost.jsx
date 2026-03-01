@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import EmbedPreview from '../components/EmbedPreview';
 import RichBody from '../components/RichBody';
 import Avatar from '../components/Avatar';
+import LikeButton from '../components/LikeButton';
 import { fullDate } from '../utils/formatDate';
 
 export default function ViewPost() {
@@ -79,6 +80,14 @@ export default function ViewPost() {
           ))}
         </div>
       )}
+
+      <div className="mt-6">
+        <LikeButton
+          postSlug={post.slug}
+          initialCount={post.likeCount}
+          initialLiked={post.likedByUser}
+        />
+      </div>
 
       <div className="mt-6 flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
         <Avatar

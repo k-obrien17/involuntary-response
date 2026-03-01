@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import EmbedPlaceholder from './EmbedPlaceholder';
 import RichBody from './RichBody';
 import Avatar from './Avatar';
+import LikeButton from './LikeButton';
 import { relativeTime } from '../utils/formatDate';
 export default function PostCard({ post }) {
   return (
@@ -65,6 +66,12 @@ export default function PostCard({ post }) {
         >
           {relativeTime(post.createdAt)}
         </Link>
+        <span>&middot;</span>
+        <LikeButton
+          postSlug={post.slug}
+          initialCount={post.likeCount}
+          initialLiked={post.likedByUser}
+        />
       </div>
     </article>
   );
