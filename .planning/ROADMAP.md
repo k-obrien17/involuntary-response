@@ -85,7 +85,10 @@ Plans:
   3. Like count is visible on every post in the feed and on the permalink page (even to logged-out visitors)
   4. A logged-in reader browsing the feed sees which posts they have already liked
   5. Liking the same post twice from the same account does not inflate the count (DB constraint enforced)
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 12-01-PLAN.md -- Server-side like data: extend batchLoadPostData, toggle endpoint, optionalAuth on all routes
+- [ ] 12-02-PLAN.md -- LikeButton component, PostCard/PostListItem/ViewPost integration, API client
 
 ### Phase 13: Comments
 **Goal**: Readers can leave short reactions on posts, and post authors and admins can moderate them
@@ -130,7 +133,7 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 8. Inline References | v2.0 | 1/1 | Complete | 2026-02-28 |
 | 9. Full-Text Search | v2.0 | 1/1 | Complete | 2026-02-28 |
 | 10. Schema & Query Safety | v2.1 | 2/2 | Complete | 2026-03-01 |
-| 11. Reader Accounts | 2/2 | Complete    | 2026-03-01 | - |
-| 12. Likes | v2.1 | 0/? | Not started | - |
+| 11. Reader Accounts | v2.1 | 2/2 | Complete | 2026-03-01 |
+| 12. Likes | v2.1 | 0/2 | Planned | - |
 | 13. Comments | v2.1 | 0/? | Not started | - |
 | 14. Drafts & Post Editing | v2.1 | 0/? | Not started | - |
