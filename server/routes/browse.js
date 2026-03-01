@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import db from '../db/index.js';
+import { optionalAuth } from '../middleware/auth.js';
 import { batchLoadPostData, formatPosts, parseCursor, emailHash } from '../lib/post-helpers.js';
 
 const router = Router();
 
 // GET /tag/:tag — Posts filtered by tag
-router.get('/tag/:tag', async (req, res) => {
+router.get('/tag/:tag', optionalAuth, async (req, res) => {
   try {
     const tag = req.params.tag.toLowerCase();
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
@@ -27,8 +28,8 @@ router.get('/tag/:tag', async (req, res) => {
     if (hasMore) rows.pop();
 
     const postIds = rows.map((p) => p.id);
-    const { embedMap, tagMap, artistMap } = await batchLoadPostData(postIds);
-    const posts = formatPosts(rows, embedMap, tagMap, artistMap);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap);
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
@@ -42,7 +43,7 @@ router.get('/tag/:tag', async (req, res) => {
 });
 
 // GET /artist/:name — Posts featuring an artist
-router.get('/artist/:name', async (req, res) => {
+router.get('/artist/:name', optionalAuth, async (req, res) => {
   try {
     const artistName = decodeURIComponent(req.params.name);
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
@@ -72,8 +73,8 @@ router.get('/artist/:name', async (req, res) => {
     if (hasMore) rows.pop();
 
     const postIds = rows.map((p) => p.id);
-    const { embedMap, tagMap, artistMap } = await batchLoadPostData(postIds);
-    const posts = formatPosts(rows, embedMap, tagMap, artistMap);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap);
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
@@ -91,7 +92,7 @@ router.get('/artist/:name', async (req, res) => {
 });
 
 // GET /contributor/:username — Posts by a contributor
-router.get('/contributor/:username', async (req, res) => {
+router.get('/contributor/:username', optionalAuth, async (req, res) => {
   try {
     const username = req.params.username;
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
@@ -121,8 +122,8 @@ router.get('/contributor/:username', async (req, res) => {
     if (hasMore) rows.pop();
 
     const postIds = rows.map((p) => p.id);
-    const { embedMap, tagMap, artistMap } = await batchLoadPostData(postIds);
-    const posts = formatPosts(rows, embedMap, tagMap, artistMap);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap);
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =

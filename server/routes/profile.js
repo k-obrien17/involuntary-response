@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { authenticateToken, requireContributor } from '../middleware/auth.js';
+import { authenticateToken, optionalAuth, requireContributor } from '../middleware/auth.js';
 import db from '../db/index.js';
 import { batchLoadPostData, formatPosts, emailHash } from '../lib/post-helpers.js';
 
@@ -13,7 +13,7 @@ const bioLimiter = rateLimit({
 });
 
 // GET /:username/profile — Public profile page data
-router.get('/:username/profile', async (req, res) => {
+router.get('/:username/profile', optionalAuth, async (req, res) => {
   try {
     const user = await db.get(
       'SELECT id, display_name, username, bio, email, created_at FROM users WHERE username = ? AND is_active = 1',
@@ -36,8 +36,8 @@ router.get('/:username/profile', async (req, res) => {
     );
 
     const postIds = rows.map((p) => p.id);
-    const { embedMap, tagMap, artistMap } = await batchLoadPostData(postIds);
-    const posts = formatPosts(rows, embedMap, tagMap, artistMap);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap);
 
     res.json({
       user: {

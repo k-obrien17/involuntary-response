@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import db from '../db/index.js';
+import { optionalAuth } from '../middleware/auth.js';
 import { batchLoadPostData, formatPosts, parseCursor } from '../lib/post-helpers.js';
 
 const router = Router();
 
 // GET / — Full-text search across posts, artists, tags, and contributors
-router.get('/', async (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     if (!q) {
@@ -41,8 +42,8 @@ router.get('/', async (req, res) => {
     if (hasMore) rows.pop();
 
     const postIds = rows.map((p) => p.id);
-    const { embedMap, tagMap, artistMap } = await batchLoadPostData(postIds);
-    const posts = formatPosts(rows, embedMap, tagMap, artistMap);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap);
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
