@@ -29,6 +29,12 @@ const deleteLimiter = rateLimit({
   message: { error: 'Too many deletions, try again later' },
 });
 
+const likeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  message: { error: 'Too many like actions, try again later' },
+});
+
 // --- Helper functions ---
 
 function sanitize(str, maxLength) {
@@ -110,7 +116,7 @@ async function extractAndInsertArtists(postId, embedUrl, resolved, artistName) {
 // --- Routes ---
 
 // GET / — List posts (reverse chronological, cursor-paginated)
-router.get('/', async (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
     const { cursorClause, cursorParams } = parseCursor(req.query.cursor);
@@ -130,8 +136,8 @@ router.get('/', async (req, res) => {
     if (hasMore) rows.pop();
 
     const postIds = rows.map((p) => p.id);
-    const { embedMap, tagMap, artistMap } = await batchLoadPostData(postIds);
-    const posts = formatPosts(rows, embedMap, tagMap, artistMap);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap);
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
@@ -191,6 +197,47 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
   }
 });
 
+// POST /:slug/like — Toggle like on a post
+router.post('/:slug/like', authenticateToken, likeLimiter, async (req, res) => {
+  try {
+    const post = await db.get(
+      "SELECT id FROM posts WHERE slug = ? AND status = 'published'",
+      req.params.slug
+    );
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const existing = await db.get(
+      'SELECT 1 FROM post_likes WHERE post_id = ? AND user_id = ?',
+      post.id, req.user.id
+    );
+
+    if (existing) {
+      await db.run(
+        'DELETE FROM post_likes WHERE post_id = ? AND user_id = ?',
+        post.id, req.user.id
+      );
+    } else {
+      await db.run(
+        'INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)',
+        post.id, req.user.id
+      );
+    }
+
+    const countRow = await db.get(
+      'SELECT COUNT(*) as count FROM post_likes WHERE post_id = ?',
+      post.id
+    );
+
+    res.json({ liked: !existing, likeCount: countRow.count });
+  } catch (err) {
+    console.error('Toggle like error:', err);
+    res.status(500).json({ error: 'Failed to toggle like' });
+  }
+});
+
 // GET /:slug — Read single post
 router.get('/:slug', optionalAuth, async (req, res) => {
   try {
@@ -230,6 +277,20 @@ router.get('/:slug', optionalAuth, async (req, res) => {
       post.id
     );
 
+    // Fetch like data
+    const likeRow = await db.get(
+      'SELECT COUNT(*) as count FROM post_likes WHERE post_id = ?',
+      post.id
+    );
+    let likedByUser = false;
+    if (req.user) {
+      const userLike = await db.get(
+        'SELECT 1 FROM post_likes WHERE post_id = ? AND user_id = ?',
+        post.id, req.user.id
+      );
+      likedByUser = !!userLike;
+    }
+
     res.json({
       id: post.id,
       slug: post.slug,
@@ -257,6 +318,8 @@ router.get('/:slug', optionalAuth, async (req, res) => {
         : null,
       tags: tagRows.map((r) => r.tag),
       artists: artistRows.map((a) => ({ name: a.artist_name, spotifyId: a.spotify_id })),
+      likeCount: likeRow.count,
+      likedByUser,
     });
   } catch (err) {
     console.error('Get post error:', err);

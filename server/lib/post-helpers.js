@@ -9,15 +9,17 @@ export function emailHash(email) {
 }
 
 /**
- * Batch-load embeds, tags, and artists for a set of post IDs.
- * Returns { embedMap, tagMap, artistMap } keyed by post_id.
+ * Batch-load embeds, tags, artists, and like data for a set of post IDs.
+ * Returns { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } keyed by post_id.
  */
-export async function batchLoadPostData(postIds) {
+export async function batchLoadPostData(postIds, userId = null) {
   const embedMap = {};
   const tagMap = {};
   const artistMap = {};
+  const likeCountMap = {};
+  const likedByUserMap = {};
 
-  if (postIds.length === 0) return { embedMap, tagMap, artistMap };
+  if (postIds.length === 0) return { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap };
 
   const ph = postIds.map(() => '?').join(',');
 
@@ -57,14 +59,32 @@ export async function batchLoadPostData(postIds) {
     });
   }
 
-  return { embedMap, tagMap, artistMap };
+  const likeCounts = await db.all(
+    `SELECT post_id, COUNT(*) as count FROM post_likes WHERE post_id IN (${ph}) GROUP BY post_id`,
+    ...postIds
+  );
+  for (const row of likeCounts) {
+    likeCountMap[row.post_id] = row.count;
+  }
+
+  if (userId && postIds.length > 0) {
+    const userLikes = await db.all(
+      `SELECT post_id FROM post_likes WHERE post_id IN (${ph}) AND user_id = ?`,
+      ...postIds, userId
+    );
+    for (const row of userLikes) {
+      likedByUserMap[row.post_id] = true;
+    }
+  }
+
+  return { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap };
 }
 
 /**
  * Format post rows into the standard response shape.
- * Includes publishedAt and updatedAt fields.
+ * Includes publishedAt, updatedAt, likeCount, and likedByUser fields.
  */
-export function formatPosts(rows, embedMap, tagMap, artistMap) {
+export function formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap = {}, likedByUserMap = {}) {
   return rows.map((p) => ({
     id: p.id,
     slug: p.slug,
@@ -80,6 +100,8 @@ export function formatPosts(rows, embedMap, tagMap, artistMap) {
     embed: embedMap[p.id] || null,
     tags: tagMap[p.id] || [],
     artists: artistMap[p.id] || [],
+    likeCount: likeCountMap[p.id] || 0,
+    likedByUser: !!likedByUserMap[p.id],
   }));
 }
 
