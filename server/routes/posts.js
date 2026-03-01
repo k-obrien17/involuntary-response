@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { nanoid } from 'nanoid';
 import rateLimit from 'express-rate-limit';
-import { authenticateToken, optionalAuth } from '../middleware/auth.js';
+import { authenticateToken, optionalAuth, requireContributor } from '../middleware/auth.js';
 import db from '../db/index.js';
 import { resolveEmbed } from '../lib/oembed.js';
 import { getArtistsForSpotifyUrl } from '../lib/spotify.js';
@@ -145,7 +145,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST / — Create post
-router.post('/', authenticateToken, createLimiter, async (req, res) => {
+router.post('/', authenticateToken, requireContributor, createLimiter, async (req, res) => {
   try {
     const { embedUrl, tags } = req.body;
     const body = sanitize(req.body.body, 1200);
@@ -265,7 +265,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
 });
 
 // PUT /:slug — Update post
-router.put('/:slug', authenticateToken, updateLimiter, async (req, res) => {
+router.put('/:slug', authenticateToken, requireContributor, updateLimiter, async (req, res) => {
   try {
     const post = await db.get('SELECT id, author_id FROM posts WHERE slug = ?', req.params.slug);
 
@@ -321,7 +321,7 @@ router.put('/:slug', authenticateToken, updateLimiter, async (req, res) => {
 });
 
 // DELETE /:slug — Delete post
-router.delete('/:slug', authenticateToken, deleteLimiter, async (req, res) => {
+router.delete('/:slug', authenticateToken, requireContributor, deleteLimiter, async (req, res) => {
   try {
     const post = await db.get('SELECT id, author_id FROM posts WHERE slug = ?', req.params.slug);
 

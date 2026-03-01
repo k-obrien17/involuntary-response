@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken, requireContributor } from '../middleware/auth.js';
 import { resolveEmbed, SUPPORTED_PROVIDERS } from '../lib/oembed.js';
 import { getArtistsForSpotifyUrl } from '../lib/spotify.js';
 import { getArtistsForAppleMusicUrl } from '../lib/apple-music.js';
@@ -14,7 +14,7 @@ const resolveLimiter = rateLimit({
 });
 
 // POST /resolve — resolve a URL to embed data for live preview
-router.post('/resolve', authenticateToken, resolveLimiter, async (req, res) => {
+router.post('/resolve', authenticateToken, requireContributor, resolveLimiter, async (req, res) => {
   try {
     const { url } = req.body;
     if (!url || typeof url !== 'string') {

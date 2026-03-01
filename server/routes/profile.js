@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken, requireContributor } from '../middleware/auth.js';
 import db from '../db/index.js';
 import { batchLoadPostData, formatPosts, emailHash } from '../lib/post-helpers.js';
 
@@ -56,7 +56,7 @@ router.get('/:username/profile', async (req, res) => {
 });
 
 // PUT /me — Update own bio (requires auth)
-router.put('/me', authenticateToken, bioLimiter, async (req, res) => {
+router.put('/me', authenticateToken, requireContributor, bioLimiter, async (req, res) => {
   try {
     let bio = req.body.bio;
 
