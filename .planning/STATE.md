@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Reader Engagement & Editorial
 status: in-progress
-last_updated: "2026-03-01T15:22:52Z"
+last_updated: "2026-03-01T15:27:16Z"
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -22,19 +22,19 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 12 of 14 (Likes)
-Plan: 1 of 2 complete
-Status: Completed 12-01 (server-side like API)
-Last activity: 2026-03-01 -- Completed 12-01 (server-side like API)
+Phase: 12 of 14 (Likes) -- COMPLETE
+Plan: 2 of 2 complete
+Status: Completed 12-02 (LikeButton client integration)
+Last activity: 2026-03-01 -- Completed 12-02 (LikeButton client integration)
 
-Progress: [##########################....] 86% overall (25/19+9 plans through v2.0+v2.1)
-v2.1:    [##########............] 5/9 plans complete
+Progress: [############################..] 93% overall (26/19+9 plans through v2.0+v2.1)
+v2.1:    [############..........] 6/9 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25 (v1.0: 12, v2.0: 7, v2.1: 5)
-- v2.1 plans completed: 5
+- Total plans completed: 26 (v1.0: 12, v2.0: 7, v2.1: 6)
+- v2.1 plans completed: 6
 
 **By Phase (v2.1 -- current):**
 
@@ -45,6 +45,7 @@ v2.1:    [##########............] 5/9 plans complete
 | 11. Reader Accounts | 01 | 2min | 2 | 4 |
 | 11. Reader Accounts | 02 | 2min | 2 | 8 |
 | 12. Likes | 01 | 3min | 2 | 5 |
+| 12. Likes | 02 | 2min | 2 | 5 |
 
 **By Phase (v2.0 -- previous):**
 
@@ -74,6 +75,9 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - [Phase 12]: Check-then-act pattern for like toggle (not INSERT OR IGNORE) due to Turso concern
 - [Phase 12]: optionalAuth on all 6 post-list endpoints for consistent likedByUser availability
 - [Phase 12]: Backward-compatible formatPosts defaults (likeCountMap={}, likedByUserMap={})
+- [Phase 12]: LikeButton manages own liked/count state independently from parent post data (avoids stale closures)
+- [Phase 12]: useRef for toggling guard (not useState) to prevent rapid double-tap without re-render
+- [Phase 12]: PostListItem gets text-only count, not interactive button (too compact)
 
 ### Key Research Findings (v2.1)
 
@@ -95,5 +99,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 12-01-PLAN.md
+Stopped at: Completed 12-02-PLAN.md (Phase 12 Likes complete)
 Resume file: None

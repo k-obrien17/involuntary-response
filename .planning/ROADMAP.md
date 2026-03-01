@@ -39,7 +39,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 
 - [x] **Phase 10: Schema & Query Safety** - Database migration, status filtering across all public queries, shared helpers extraction (completed 2026-03-01)
 - [x] **Phase 11: Reader Accounts** - Lightweight reader signup, role-based auth, contributor route protection (completed 2026-03-01)
-- [ ] **Phase 12: Likes** - Post like/unlike toggle, like counts in feed and permalink, liked state for readers
+- [x] **Phase 12: Likes** - Post like/unlike toggle, like counts in feed and permalink, liked state for readers (completed 2026-03-01)
 - [ ] **Phase 13: Comments** - Flat top-level comments, chronological display, author/admin/self moderation
 - [ ] **Phase 14: Drafts & Post Editing** - Draft save/preview/publish workflow, post editing, edited indicator
 
@@ -85,7 +85,7 @@ Plans:
   3. Like count is visible on every post in the feed and on the permalink page (even to logged-out visitors)
   4. A logged-in reader browsing the feed sees which posts they have already liked
   5. Liking the same post twice from the same account does not inflate the count (DB constraint enforced)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 12-01-PLAN.md -- Server-side like data: extend batchLoadPostData, toggle endpoint, optionalAuth on all routes
 - [ ] 12-02-PLAN.md -- LikeButton component, PostCard/PostListItem/ViewPost integration, API client
@@ -134,6 +134,6 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 9. Full-Text Search | v2.0 | 1/1 | Complete | 2026-02-28 |
 | 10. Schema & Query Safety | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 11. Reader Accounts | v2.1 | 2/2 | Complete | 2026-03-01 |
-| 12. Likes | 1/2 | In Progress|  | - |
+| 12. Likes | 2/2 | Complete   | 2026-03-01 | - |
 | 13. Comments | v2.1 | 0/? | Not started | - |
 | 14. Drafts & Post Editing | v2.1 | 0/? | Not started | - |
