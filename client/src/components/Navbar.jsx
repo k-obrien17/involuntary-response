@@ -43,7 +43,7 @@ function ThemeToggle() {
 }
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, isContributor } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -102,12 +102,14 @@ export default function Navbar() {
           <ThemeToggle />
           {user ? (
             <>
-              <Link
-                to="/posts/new"
-                className="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
-              >
-                New post
-              </Link>
+              {isContributor && (
+                <Link
+                  to="/posts/new"
+                  className="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+                >
+                  New post
+                </Link>
+              )}
               {user.role === 'admin' && (
                 <Link
                   to="/admin"
@@ -130,12 +132,20 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            <Link
-              to="/login"
-              className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-            >
-              Log in
-            </Link>
+            <>
+              <Link
+                to="/login"
+                className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              >
+                Log in
+              </Link>
+              <Link
+                to="/join"
+                className="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+              >
+                Join
+              </Link>
+            </>
           )}
         </div>
       </div>

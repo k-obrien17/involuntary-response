@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
-import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import ContributorRoute from './components/ContributorRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -19,6 +19,7 @@ import ArtistPage from './pages/ArtistPage';
 import Explore from './pages/Explore';
 import Profile from './pages/Profile';
 import Search from './pages/Search';
+import JoinPage from './pages/JoinPage';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/join" element={<JoinPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route
@@ -58,9 +60,9 @@ function App() {
           <Route
             path="/posts/new"
             element={
-              <ProtectedRoute>
+              <ContributorRoute>
                 <CreatePost />
-              </ProtectedRoute>
+              </ContributorRoute>
             }
           />
           <Route path="/tag/:tag" element={<TagBrowse />} />
@@ -71,9 +73,9 @@ function App() {
           <Route
             path="/posts/:slug/edit"
             element={
-              <ProtectedRoute>
+              <ContributorRoute>
                 <EditPost />
-              </ProtectedRoute>
+              </ContributorRoute>
             }
           />
           <Route path="/search" element={<Search />} />

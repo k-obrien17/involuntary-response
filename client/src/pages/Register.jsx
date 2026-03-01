@@ -30,6 +30,14 @@ export default function Register() {
           >
             Already have an account? Log in
           </Link>
+          <p className="mt-2">
+            <Link
+              to="/join"
+              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 underline text-sm"
+            >
+              Or create a reader account
+            </Link>
+          </p>
         </div>
       </div>
     );
