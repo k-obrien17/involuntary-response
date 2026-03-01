@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A curated music micro-blogging platform where invite-only contributors write short-form takes on songs, albums, and artists with inline Spotify and Apple Music embeds. Text-first design — minimal chrome, large type, the writing carries the experience. Full-text search, contributor avatars, and inline song references round out the experience.
+A curated music micro-blogging platform where invite-only contributors write short-form takes on songs, albums, and artists with inline Spotify and Apple Music embeds. Readers can sign up, like posts, and leave comments. Contributors save drafts, preview before publishing, and edit published posts. Text-first design — minimal chrome, large type, the writing carries the experience.
 
 ## Core Value
 
@@ -29,47 +29,50 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - ✓ Posts can reference a song/album without embedding (styled inline link) — v2.0
 - ✓ Vercel deployment fully wired (vercel.json API proxy to Render backend) — v2.0
 
+- ✓ Lightweight reader accounts (email + display name signup) — v2.1
+- ✓ Readers can like posts (one per reader per post) — v2.1
+- ✓ Readers can comment on posts (top-level only, flat) — v2.1
+- ✓ Contributors can save posts as drafts and preview before publishing — v2.1
+- ✓ Contributors can edit published posts (content, embeds, tags) — v2.1
+- ✓ Edited posts show "edited" indicator — v2.1
+
 ### Active
 
-<!-- Current milestone: v2.1 Reader Engagement & Editorial -->
-
-- [ ] Lightweight reader accounts (email + display name signup)
-- [ ] Readers can like posts (one per reader per post)
-- [ ] Readers can comment on posts (top-level only, flat)
-- [ ] Contributors can save posts as drafts and preview before publishing
-- [ ] Contributors can edit published posts (content, embeds, tags)
-- [ ] Contributors can schedule posts for future publish dates
+(None — planning next milestone)
 
 ### Deferred
 
-(None currently deferred)
+- Contributors can schedule posts for future publish dates (deferred from v2.1)
 
 ### Out of Scope
 
-- Open registration — invite-only maintains editorial voice
+- Open registration — invite-only maintains editorial voice (readers register separately at /join)
 - Mobile app — web-first, responsive design works well
 - Algorithmic feed — chronological only, no engagement gaming
 - YouTube/video embeds — audio-first identity
 - Long-form content — the format is brevity
 - Star ratings / numerical scores — undermines nuanced takes
-- Threaded comments — overkill for short-form posts
+- Threaded comments — flat comments match short-form posts
+- Comment editing — delete and re-post; comments are ephemeral reactions
+- Email notifications — contributor pool is small enough to check dashboard
 
 ## Context
 
-**Shipped v2.0 Polish & Gaps** (2026-02-28): ~8,500 LOC across React 18 + Express 5 + Turso.
-- Frontend deployed on Vercel, API on Render, DB on Turso
-- 41 files modified in v2.0 (+3,478 lines)
-- 4 DB migrations (schema init + post_artists source column + future)
-- Artist extraction: Spotify API + iTunes Search API + manual fallback
-- Search: LIKE-based multi-dimension search (post body, artists, tags, contributors)
-- Embed architecture: server-side oEmbed resolver (6 providers) with artist extraction on resolve
+**Shipped v2.1 Reader Engagement & Editorial** (2026-03-01): ~15,000 LOC across React 18 + Express 5 + Turso.
+- 56 files modified in v2.1 (+6,712 lines)
+- 5 DB migrations (schema init + post_artists + status/published_at + post_likes + post_comments)
+- Reader accounts: separate /register-reader endpoint, /join page, role-aware UI
+- Engagement: like toggle with optimistic UI, flat comments with three-way moderation
+- Editorial: draft save/preview/publish workflow, post editing with "edited" indicator, My Posts dashboard
+- Shared helpers: batchLoadPostData prevents N+1 across all 6 post-list endpoints
+- Status filtering: `AND p.status = 'published'` on all 14 public query sites
 
 **Known issue:** Spotify artist auto-extraction requires `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` in `server/.env`. Apple Music extraction (iTunes Search API) works without credentials.
 
 ## Constraints
 
 - **Tech stack**: React 18 / Vite 5 / Tailwind CSS 3 / Express 5 / Turso — proven, no reason to change
-- **Auth**: Invite-only for contributors, public read access for everyone else
+- **Auth**: Invite-only for contributors, reader self-registration at /join, public read access for everyone
 - **Content length**: ~800 characters per post — soft limit enforced by UI counter
 - **Embeds**: Server-side oEmbed resolution (6 providers supported, Spotify + Apple Music primary)
 
@@ -93,17 +96,14 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | Gravatar with d=blank fallback | No onerror handling needed; transparent 1x1 px triggers initials display | ✓ Good — simple, no JS error handling |
 | Client-side inline reference parsing | No server changes needed; regex detects music URLs in post body | ✓ Good — RichBody component, zero backend work |
 | LIKE-based search over FTS | Simple implementation; LIKE sufficient for current data volume | ⚠️ Revisit — may need FTS5 if data grows significantly |
-
-## Current Milestone: v2.1 Reader Engagement & Editorial
-
-**Goal:** Add reader participation (likes, comments, lightweight accounts) and contributor editorial tools (drafts, post editing, scheduling).
-
-**Target features:**
-- Lightweight reader accounts (email + display name)
-- Post likes and top-level comments
-- Draft/preview workflow for contributors
-- Post editing for published content
-- Self-serve post scheduling
+| Separate /register-reader endpoint | Preserves invite-only contributor flow; readers get different role | ✓ Good — clean separation, no invite token for readers |
+| requireContributor middleware | Positive check (contributor OR admin) rather than negative role exclusion | ✓ Good — explicit gate on all mutation routes |
+| Check-then-act for like toggle | Avoids Turso INSERT OR IGNORE ambiguity (known issue #2713) | ✓ Good — SELECT then INSERT/DELETE, reliable behavior |
+| Optimistic UI for likes/comments | Instant visual feedback, rollback on server error | ✓ Good — responsive UX, matches modern patterns |
+| Three-way comment delete auth | Comment author, post author, or admin can delete | ✓ Good — server-enforced, canDelete boolean in response |
+| published_at for feed ordering | Drafts use NULL published_at; feed orders by publish time not creation | ✓ Good — drafts don't bury in feed when later published |
+| No unpublish | Once published, post cannot revert to draft (protects engagement data) | ✓ Good — simple mental model, 400 rejection on attempt |
+| Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | — Pending — revisit in next milestone |
 
 ---
-*Last updated: 2026-02-28 after v2.1 milestone started*
+*Last updated: 2026-03-01 after v2.1 milestone shipped*

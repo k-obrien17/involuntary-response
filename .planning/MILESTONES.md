@@ -32,3 +32,13 @@
 
 ---
 
+
+## v2.1 Reader Engagement & Editorial (Shipped: 2026-03-01)
+
+**Phases completed:** 9 phases, 17 plans, 0 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
