@@ -36,8 +36,8 @@ router.get('/:username/profile', optionalAuth, async (req, res) => {
     );
 
     const postIds = rows.map((p) => p.id);
-    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } = await batchLoadPostData(postIds, req.user?.id);
-    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap);
 
     res.json({
       user: {

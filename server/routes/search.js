@@ -42,8 +42,8 @@ router.get('/', optionalAuth, async (req, res) => {
     if (hasMore) rows.pop();
 
     const postIds = rows.map((p) => p.id);
-    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } = await batchLoadPostData(postIds, req.user?.id);
-    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap);
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
