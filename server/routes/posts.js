@@ -1,14 +1,12 @@
-import { createHash } from 'crypto';
 import { Router } from 'express';
 import { nanoid } from 'nanoid';
 import rateLimit from 'express-rate-limit';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken, optionalAuth } from '../middleware/auth.js';
 import db from '../db/index.js';
 import { resolveEmbed } from '../lib/oembed.js';
 import { getArtistsForSpotifyUrl } from '../lib/spotify.js';
 import { getArtistsForAppleMusicUrl } from '../lib/apple-music.js';
-
-const emailHash = (email) => createHash('md5').update(email.trim().toLowerCase()).digest('hex');
+import { batchLoadPostData, formatPosts, parseCursor, emailHash } from '../lib/post-helpers.js';
 
 const router = Router();
 
@@ -115,102 +113,29 @@ async function extractAndInsertArtists(postId, embedUrl, resolved, artistName) {
 router.get('/', async (req, res) => {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
-    const cursor = req.query.cursor;
+    const { cursorClause, cursorParams } = parseCursor(req.query.cursor);
 
-    let rows;
-    if (cursor) {
-      const [cursorDate, cursorId] = cursor.split('|');
-      rows = await db.all(
-        `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at,
-                u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
-         FROM posts p
-         JOIN users u ON p.author_id = u.id
-         WHERE (p.created_at < ? OR (p.created_at = ? AND p.id < ?))
-         ORDER BY p.created_at DESC, p.id DESC
-         LIMIT ?`,
-        cursorDate, cursorDate, parseInt(cursorId), limit + 1
-      );
-    } else {
-      rows = await db.all(
-        `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at,
-                u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
-         FROM posts p
-         JOIN users u ON p.author_id = u.id
-         ORDER BY p.created_at DESC, p.id DESC
-         LIMIT ?`,
-        limit + 1
-      );
-    }
+    const rows = await db.all(
+      `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at, p.published_at,
+              u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
+       FROM posts p
+       JOIN users u ON p.author_id = u.id
+       WHERE p.status = 'published' ${cursorClause}
+       ORDER BY p.published_at DESC, p.id DESC
+       LIMIT ?`,
+      ...cursorParams, limit + 1
+    );
 
     const hasMore = rows.length > limit;
     if (hasMore) rows.pop();
 
-    // Batch-fetch embeds and tags (avoid N+1)
     const postIds = rows.map((p) => p.id);
-    let embedMap = {};
-    let tagMap = {};
-    let artistMap = {};
-
-    if (postIds.length > 0) {
-      const ph = postIds.map(() => '?').join(',');
-
-      const embeds = await db.all(
-        `SELECT post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html
-         FROM post_embeds WHERE post_id IN (${ph})`,
-        ...postIds
-      );
-      for (const e of embeds) {
-        embedMap[e.post_id] = {
-          provider: e.provider,
-          embedType: e.embed_type,
-          embedUrl: e.embed_url,
-          originalUrl: e.original_url,
-          title: e.title,
-          thumbnailUrl: e.thumbnail_url,
-          embedHtml: e.embed_html,
-        };
-      }
-
-      const tags = await db.all(
-        `SELECT post_id, tag FROM post_tags WHERE post_id IN (${ph}) ORDER BY tag`,
-        ...postIds
-      );
-      for (const t of tags) {
-        (tagMap[t.post_id] ||= []).push(t.tag);
-      }
-
-      const artistRows = await db.all(
-        `SELECT post_id, artist_name, spotify_id FROM post_artists WHERE post_id IN (${ph})`,
-        ...postIds
-      );
-      for (const a of artistRows) {
-        (artistMap[a.post_id] ||= []).push({
-          name: a.artist_name,
-          spotifyId: a.spotify_id,
-        });
-      }
-    }
-
-    const posts = rows.map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      body: p.body,
-      authorId: p.author_id,
-      createdAt: p.created_at,
-      updatedAt: p.updated_at,
-      author: {
-        displayName: p.author_display_name,
-        username: p.author_username,
-        emailHash: emailHash(p.author_email),
-      },
-      embed: embedMap[p.id] || null,
-      tags: tagMap[p.id] || [],
-      artists: artistMap[p.id] || [],
-    }));
+    const { embedMap, tagMap, artistMap } = await batchLoadPostData(postIds);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap);
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
-      hasMore && lastPost ? `${lastPost.created_at}|${lastPost.id}` : null;
+      hasMore && lastPost ? `${lastPost.published_at}|${lastPost.id}` : null;
 
     res.json({ posts, nextCursor });
   } catch (err) {
@@ -267,10 +192,10 @@ router.post('/', authenticateToken, createLimiter, async (req, res) => {
 });
 
 // GET /:slug — Read single post
-router.get('/:slug', async (req, res) => {
+router.get('/:slug', optionalAuth, async (req, res) => {
   try {
     const post = await db.get(
-      `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at,
+      `SELECT p.id, p.slug, p.body, p.author_id, p.status, p.created_at, p.updated_at, p.published_at,
               u.display_name as author_display_name, u.username as author_username, u.email as author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
@@ -279,6 +204,11 @@ router.get('/:slug', async (req, res) => {
     );
 
     if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Non-published posts visible only to their author
+    if (post.status !== 'published' && (!req.user || req.user.id !== post.author_id)) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
@@ -305,8 +235,10 @@ router.get('/:slug', async (req, res) => {
       slug: post.slug,
       body: post.body,
       authorId: post.author_id,
+      status: post.status,
       createdAt: post.created_at,
       updatedAt: post.updated_at,
+      publishedAt: post.published_at,
       author: {
         displayName: post.author_display_name,
         username: post.author_username,

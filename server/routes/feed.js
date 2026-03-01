@@ -18,13 +18,14 @@ router.get('/', async (req, res) => {
       copyright: `${new Date().getFullYear()} Involuntary Response`,
     });
 
-    // Fetch 20 most recent posts
+    // Fetch 20 most recent published posts
     const posts = await db.all(
-      `SELECT p.id, p.slug, p.body, p.created_at,
+      `SELECT p.id, p.slug, p.body, p.created_at, p.published_at,
               u.display_name AS author_display_name
        FROM posts p
        JOIN users u ON p.author_id = u.id
-       ORDER BY p.created_at DESC
+       WHERE p.status = 'published'
+       ORDER BY p.published_at DESC
        LIMIT 20`
     );
 
@@ -65,7 +66,7 @@ router.get('/', async (req, res) => {
         link: `${siteUrl}/posts/${post.slug}`,
         description: post.body.slice(0, 200),
         content,
-        date: new Date(post.created_at),
+        date: new Date(post.published_at || post.created_at),
         author: [{ name: post.author_display_name }],
       });
     }
