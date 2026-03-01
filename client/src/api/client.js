@@ -49,6 +49,7 @@ export const posts = {
   like: (slug) => api.post(`/posts/${slug}/like`),
   addComment: (slug, body) => api.post(`/posts/${slug}/comments`, { body }),
   deleteComment: (slug, commentId) => api.delete(`/posts/${slug}/comments/${commentId}`),
+  listMine: () => api.get('/posts/mine'),
 };
 
 export const browse = {

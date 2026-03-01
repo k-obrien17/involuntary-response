@@ -210,6 +210,34 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
   }
 });
 
+// GET /mine — Contributor's own posts (drafts + published)
+router.get('/mine', authenticateToken, requireContributor, async (req, res) => {
+  try {
+    const rows = await db.all(
+      `SELECT p.id, p.slug, p.body, p.status, p.created_at, p.updated_at, p.published_at,
+              u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
+       FROM posts p
+       JOIN users u ON p.author_id = u.id
+       WHERE p.author_id = ?
+       ORDER BY p.created_at DESC`,
+      req.user.id
+    );
+
+    const postIds = rows.map((p) => p.id);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap } = await batchLoadPostData(postIds, req.user.id);
+
+    const posts = rows.map((p) => ({
+      ...formatPosts([p], embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap)[0],
+      status: p.status,
+    }));
+
+    res.json({ posts });
+  } catch (err) {
+    console.error('List my posts error:', err);
+    res.status(500).json({ error: 'Failed to load posts' });
+  }
+});
+
 // POST /:slug/like — Toggle like on a post
 router.post('/:slug/like', authenticateToken, likeLimiter, async (req, res) => {
   try {
