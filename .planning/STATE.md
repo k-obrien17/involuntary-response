@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Reader Engagement & Editorial
-status: roadmap_complete
-last_updated: "2026-02-28T20:00:00.000Z"
+status: in_progress
+last_updated: "2026-03-01T04:20:06.182Z"
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 9
+  completed_plans: 1
 ---
 
 # Project State
@@ -23,20 +23,26 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 10 of 14 (Schema & Query Safety) -- first of 5 v2.1 phases
-Plan: --
-Status: Ready to plan
-Last activity: 2026-02-28 -- Roadmap created for v2.1
+Plan: 1 of 2 complete
+Status: In progress
+Last activity: 2026-03-01 -- Completed 10-01 (schema foundation)
 
-Progress: [####################..........] 69% overall (19/19 plans through v2.0)
-v2.1:    [.......................] 0%
+Progress: [#####################.........] 72% overall (20/19+9 plans through v2.0+v2.1)
+v2.1:    [##.....................] 1/9 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19 (v1.0: 12, v2.0: 7)
-- v2.1 plans completed: 0
+- Total plans completed: 20 (v1.0: 12, v2.0: 7, v2.1: 1)
+- v2.1 plans completed: 1
 
-**By Phase (v2.0 -- most recent):**
+**By Phase (v2.1 -- current):**
+
+| Phase | Plan | Duration | Tasks | Files |
+|-------|------|----------|-------|-------|
+| 10. Schema & Query Safety | 01 | 2min | 2 | 3 |
+
+**By Phase (v2.0 -- previous):**
 
 | Phase | Plans | Status |
 |-------|-------|--------|
@@ -53,6 +59,8 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - LIKE-based search (v2.0) -- may need FTS5 if data grows
 - BigInt coercion fix applied globally in db wrapper
 - oEmbed resolver supports 6 providers
+- [Phase 10]: parseCursor uses published_at instead of created_at for draft-aware feed ordering
+- [Phase 10]: formatPosts response shape includes updatedAt and publishedAt fields
 
 ### Key Research Findings (v2.1)
 
@@ -73,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-28
-Stopped at: Roadmap created for v2.1 milestone
+Last session: 2026-03-01
+Stopped at: Completed 10-01-PLAN.md
 Resume file: None

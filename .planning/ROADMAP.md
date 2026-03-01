@@ -55,7 +55,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
   3. `post_likes` and `post_comments` tables exist and accept inserts
   4. Feed pagination uses `published_at` (not `created_at`) for cursor ordering
   5. A shared `batchLoadPostData` helper exists and is used by all routes that return post lists
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 10-01-PLAN.md -- Migration, shared helper module, requireContributor middleware
 - [ ] 10-02-PLAN.md -- Status filters and cursor migration across all route files
@@ -126,7 +126,7 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 7. Artist Data | v2.0 | 3/3 | Complete | 2026-02-28 |
 | 8. Inline References | v2.0 | 1/1 | Complete | 2026-02-28 |
 | 9. Full-Text Search | v2.0 | 1/1 | Complete | 2026-02-28 |
-| 10. Schema & Query Safety | v2.1 | 0/2 | Planned | - |
+| 10. Schema & Query Safety | 1/2 | In Progress|  | - |
 | 11. Reader Accounts | v2.1 | 0/? | Not started | - |
 | 12. Likes | v2.1 | 0/? | Not started | - |
 | 13. Comments | v2.1 | 0/? | Not started | - |
