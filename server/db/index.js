@@ -38,14 +38,10 @@ const db = {
 };
 
 async function seedAdmin() {
+  // Admin env vars are validated at startup (server/index.js validateEnv)
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminPassword = process.env.ADMIN_PASSWORD;
   const adminDisplayName = process.env.ADMIN_DISPLAY_NAME || 'Admin';
-
-  if (!adminEmail || !adminPassword) {
-    console.log('No ADMIN_EMAIL/ADMIN_PASSWORD set, skipping admin seed');
-    return;
-  }
 
   const existing = await db.get('SELECT 1 FROM users WHERE role = ?', 'admin');
   if (existing) return; // Admin already exists
