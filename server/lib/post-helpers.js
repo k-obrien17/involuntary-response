@@ -18,8 +18,9 @@ export async function batchLoadPostData(postIds, userId = null) {
   const artistMap = {};
   const likeCountMap = {};
   const likedByUserMap = {};
+  const commentCountMap = {};
 
-  if (postIds.length === 0) return { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap };
+  if (postIds.length === 0) return { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap };
 
   const ph = postIds.map(() => '?').join(',');
 
@@ -77,14 +78,22 @@ export async function batchLoadPostData(postIds, userId = null) {
     }
   }
 
-  return { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap };
+  const commentCounts = await db.all(
+    `SELECT post_id, COUNT(*) as count FROM post_comments WHERE post_id IN (${ph}) GROUP BY post_id`,
+    ...postIds
+  );
+  for (const row of commentCounts) {
+    commentCountMap[row.post_id] = row.count;
+  }
+
+  return { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap };
 }
 
 /**
  * Format post rows into the standard response shape.
  * Includes publishedAt, updatedAt, likeCount, and likedByUser fields.
  */
-export function formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap = {}, likedByUserMap = {}) {
+export function formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap = {}, likedByUserMap = {}, commentCountMap = {}) {
   return rows.map((p) => ({
     id: p.id,
     slug: p.slug,
@@ -102,6 +111,7 @@ export function formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap = {}
     artists: artistMap[p.id] || [],
     likeCount: likeCountMap[p.id] || 0,
     likedByUser: !!likedByUserMap[p.id],
+    commentCount: commentCountMap[p.id] || 0,
   }));
 }
 

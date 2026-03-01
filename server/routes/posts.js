@@ -35,6 +35,12 @@ const likeLimiter = rateLimit({
   message: { error: 'Too many like actions, try again later' },
 });
 
+const commentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { error: 'Too many comments, try again later' },
+});
+
 // --- Helper functions ---
 
 function sanitize(str, maxLength) {
@@ -136,8 +142,8 @@ router.get('/', optionalAuth, async (req, res) => {
     if (hasMore) rows.pop();
 
     const postIds = rows.map((p) => p.id);
-    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } = await batchLoadPostData(postIds, req.user?.id);
-    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap);
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
@@ -238,6 +244,91 @@ router.post('/:slug/like', authenticateToken, likeLimiter, async (req, res) => {
   }
 });
 
+// POST /:slug/comments — Add comment to a post
+router.post('/:slug/comments', authenticateToken, commentLimiter, async (req, res) => {
+  try {
+    const post = await db.get(
+      "SELECT id FROM posts WHERE slug = ? AND status = 'published'",
+      req.params.slug
+    );
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const body = sanitize(req.body.body, 500);
+    if (!body) {
+      return res.status(400).json({ error: 'Comment body is required' });
+    }
+
+    const result = await db.run(
+      'INSERT INTO post_comments (post_id, user_id, body) VALUES (?, ?, ?)',
+      post.id, req.user.id, body
+    );
+
+    const comment = await db.get(
+      `SELECT c.id, c.body, c.created_at, u.display_name, u.username, u.email
+       FROM post_comments c
+       JOIN users u ON c.user_id = u.id
+       WHERE c.id = ?`,
+      result.lastInsertRowid
+    );
+
+    res.status(201).json({
+      id: comment.id,
+      body: comment.body,
+      createdAt: comment.created_at,
+      author: {
+        displayName: comment.display_name,
+        username: comment.username,
+        emailHash: emailHash(comment.email),
+      },
+      canDelete: true,
+    });
+  } catch (err) {
+    console.error('Create comment error:', err);
+    res.status(500).json({ error: 'Failed to create comment' });
+  }
+});
+
+// DELETE /:slug/comments/:commentId — Delete a comment
+router.delete('/:slug/comments/:commentId', authenticateToken, async (req, res) => {
+  try {
+    const post = await db.get(
+      'SELECT id, author_id FROM posts WHERE slug = ?',
+      req.params.slug
+    );
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const comment = await db.get(
+      'SELECT id, user_id FROM post_comments WHERE id = ? AND post_id = ?',
+      req.params.commentId, post.id
+    );
+
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    const isCommentAuthor = comment.user_id === req.user.id;
+    const isPostAuthor = post.author_id === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isCommentAuthor && !isPostAuthor && !isAdmin) {
+      return res.status(403).json({ error: 'Not authorized to delete this comment' });
+    }
+
+    await db.run('DELETE FROM post_comments WHERE id = ?', comment.id);
+
+    res.json({ message: 'Comment deleted' });
+  } catch (err) {
+    console.error('Delete comment error:', err);
+    res.status(500).json({ error: 'Failed to delete comment' });
+  }
+});
+
 // GET /:slug — Read single post
 router.get('/:slug', optionalAuth, async (req, res) => {
   try {
@@ -291,6 +382,32 @@ router.get('/:slug', optionalAuth, async (req, res) => {
       likedByUser = !!userLike;
     }
 
+    // Fetch comments
+    const commentRows = await db.all(
+      `SELECT c.id, c.body, c.created_at, c.user_id,
+              u.display_name, u.username, u.email
+       FROM post_comments c
+       JOIN users u ON c.user_id = u.id
+       WHERE c.post_id = ?
+       ORDER BY c.created_at ASC`,
+      post.id
+    );
+
+    const comments = commentRows.map((c) => ({
+      id: c.id,
+      body: c.body,
+      createdAt: c.created_at,
+      author: {
+        displayName: c.display_name,
+        username: c.username,
+        emailHash: emailHash(c.email),
+      },
+      canDelete:
+        (req.user && c.user_id === req.user.id) ||
+        (req.user && post.author_id === req.user.id) ||
+        (req.user && req.user.role === 'admin'),
+    }));
+
     res.json({
       id: post.id,
       slug: post.slug,
@@ -320,6 +437,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
       artists: artistRows.map((a) => ({ name: a.artist_name, spotifyId: a.spotify_id })),
       likeCount: likeRow.count,
       likedByUser,
+      comments,
     });
   } catch (err) {
     console.error('Get post error:', err);
