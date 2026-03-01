@@ -172,6 +172,36 @@ export async function initDatabase() {
       name: 'add_post_artists_source',
       sql: `ALTER TABLE post_artists ADD COLUMN source TEXT DEFAULT 'spotify';`,
     },
+    {
+      id: 5,
+      name: 'add_post_status_likes_comments',
+      sql: `
+        ALTER TABLE posts ADD COLUMN status TEXT NOT NULL DEFAULT 'published';
+        ALTER TABLE posts ADD COLUMN published_at DATETIME;
+        UPDATE posts SET published_at = created_at WHERE published_at IS NULL;
+        CREATE TABLE IF NOT EXISTS post_likes (
+          post_id INTEGER NOT NULL,
+          user_id INTEGER NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (post_id, user_id),
+          FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+        CREATE TABLE IF NOT EXISTS post_comments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          post_id INTEGER NOT NULL,
+          user_id INTEGER NOT NULL,
+          body TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
+        CREATE INDEX IF NOT EXISTS idx_posts_published_at ON posts(published_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_post_likes_post ON post_likes(post_id);
+        CREATE INDEX IF NOT EXISTS idx_post_comments_post ON post_comments(post_id, created_at);
+      `,
+    },
   ];
 
   for (const m of migrations) {

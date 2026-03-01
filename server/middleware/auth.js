@@ -46,3 +46,10 @@ export function generateToken(user) {
     { expiresIn: '365d' }
   );
 }
+
+export function requireContributor(req, res, next) {
+  if (!req.user || (req.user.role !== 'contributor' && req.user.role !== 'admin')) {
+    return res.status(403).json({ error: 'Contributor access required' });
+  }
+  next();
+}
