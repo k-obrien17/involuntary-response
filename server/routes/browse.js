@@ -1,95 +1,8 @@
-import { createHash } from 'crypto';
 import { Router } from 'express';
 import db from '../db/index.js';
-
-const emailHash = (email) => createHash('md5').update(email.trim().toLowerCase()).digest('hex');
+import { batchLoadPostData, formatPosts, parseCursor, emailHash } from '../lib/post-helpers.js';
 
 const router = Router();
-
-/**
- * Helper: batch-load embeds, tags, and artists for a set of post IDs.
- * Returns { embedMap, tagMap, artistMap } keyed by post_id.
- */
-async function batchLoadPostData(postIds) {
-  const embedMap = {};
-  const tagMap = {};
-  const artistMap = {};
-
-  if (postIds.length === 0) return { embedMap, tagMap, artistMap };
-
-  const ph = postIds.map(() => '?').join(',');
-
-  const embeds = await db.all(
-    `SELECT post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html
-     FROM post_embeds WHERE post_id IN (${ph})`,
-    ...postIds
-  );
-  for (const e of embeds) {
-    embedMap[e.post_id] = {
-      provider: e.provider,
-      embedType: e.embed_type,
-      embedUrl: e.embed_url,
-      originalUrl: e.original_url,
-      title: e.title,
-      thumbnailUrl: e.thumbnail_url,
-      embedHtml: e.embed_html,
-    };
-  }
-
-  const tags = await db.all(
-    `SELECT post_id, tag FROM post_tags WHERE post_id IN (${ph}) ORDER BY tag`,
-    ...postIds
-  );
-  for (const t of tags) {
-    (tagMap[t.post_id] ||= []).push(t.tag);
-  }
-
-  const artistRows = await db.all(
-    `SELECT post_id, artist_name, spotify_id FROM post_artists WHERE post_id IN (${ph})`,
-    ...postIds
-  );
-  for (const a of artistRows) {
-    (artistMap[a.post_id] ||= []).push({
-      name: a.artist_name,
-      spotifyId: a.spotify_id,
-    });
-  }
-
-  return { embedMap, tagMap, artistMap };
-}
-
-/**
- * Helper: format post rows into the standard response shape.
- */
-function formatPosts(rows, embedMap, tagMap, artistMap) {
-  return rows.map((p) => ({
-    id: p.id,
-    slug: p.slug,
-    body: p.body,
-    createdAt: p.created_at,
-    author: {
-      displayName: p.author_display_name,
-      username: p.author_username,
-      emailHash: emailHash(p.author_email),
-    },
-    embed: embedMap[p.id] || null,
-    tags: tagMap[p.id] || [],
-    artists: artistMap[p.id] || [],
-  }));
-}
-
-/**
- * Helper: parse cursor and apply cursor-based WHERE clause.
- * Returns { whereClause, whereParams } to append to queries.
- */
-function parseCursor(cursor) {
-  if (!cursor) return { cursorClause: '', cursorParams: [] };
-  const [cursorDate, cursorId] = cursor.split('|');
-  return {
-    cursorClause: 'AND (p.created_at < ? OR (p.created_at = ? AND p.id < ?))',
-    cursorParams: [cursorDate, cursorDate, parseInt(cursorId)],
-  };
-}
 
 // GET /tag/:tag — Posts filtered by tag
 router.get('/tag/:tag', async (req, res) => {
@@ -99,13 +12,13 @@ router.get('/tag/:tag', async (req, res) => {
     const { cursorClause, cursorParams } = parseCursor(req.query.cursor);
 
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.created_at,
+      `SELECT p.id, p.slug, p.body, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
        JOIN post_tags pt ON pt.post_id = p.id
-       WHERE pt.tag = ? ${cursorClause}
-       ORDER BY p.created_at DESC, p.id DESC
+       WHERE pt.tag = ? AND p.status = 'published' ${cursorClause}
+       ORDER BY p.published_at DESC, p.id DESC
        LIMIT ?`,
       tag, ...cursorParams, limit + 1
     );
@@ -119,7 +32,7 @@ router.get('/tag/:tag', async (req, res) => {
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
-      hasMore && lastPost ? `${lastPost.created_at}|${lastPost.id}` : null;
+      hasMore && lastPost ? `${lastPost.published_at}|${lastPost.id}` : null;
 
     res.json({ tag, posts, nextCursor });
   } catch (err) {
@@ -144,13 +57,13 @@ router.get('/artist/:name', async (req, res) => {
     );
 
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.created_at,
+      `SELECT p.id, p.slug, p.body, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
        JOIN post_artists pa ON pa.post_id = p.id
-       WHERE pa.artist_name = ? COLLATE NOCASE ${cursorClause}
-       ORDER BY p.created_at DESC, p.id DESC
+       WHERE pa.artist_name = ? COLLATE NOCASE AND p.status = 'published' ${cursorClause}
+       ORDER BY p.published_at DESC, p.id DESC
        LIMIT ?`,
       artistName, ...cursorParams, limit + 1
     );
@@ -164,7 +77,7 @@ router.get('/artist/:name', async (req, res) => {
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
-      hasMore && lastPost ? `${lastPost.created_at}|${lastPost.id}` : null;
+      hasMore && lastPost ? `${lastPost.published_at}|${lastPost.id}` : null;
 
     res.json({
       artist: { name: artistName, image: artistInfo?.artist_image || null },
@@ -194,12 +107,12 @@ router.get('/contributor/:username', async (req, res) => {
     }
 
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.created_at,
+      `SELECT p.id, p.slug, p.body, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
-       WHERE p.author_id = ? ${cursorClause}
-       ORDER BY p.created_at DESC, p.id DESC
+       WHERE p.author_id = ? AND p.status = 'published' ${cursorClause}
+       ORDER BY p.published_at DESC, p.id DESC
        LIMIT ?`,
       user.id, ...cursorParams, limit + 1
     );
@@ -213,7 +126,7 @@ router.get('/contributor/:username', async (req, res) => {
 
     const lastPost = rows[rows.length - 1];
     const nextCursor =
-      hasMore && lastPost ? `${lastPost.created_at}|${lastPost.id}` : null;
+      hasMore && lastPost ? `${lastPost.published_at}|${lastPost.id}` : null;
 
     res.json({
       contributor: {
@@ -236,6 +149,7 @@ router.get('/explore', async (req, res) => {
       `SELECT pt.tag, MAX(p.created_at) as latest
        FROM post_tags pt
        JOIN posts p ON pt.post_id = p.id
+       WHERE p.status = 'published'
        GROUP BY pt.tag
        ORDER BY latest DESC
        LIMIT 10`
@@ -245,6 +159,7 @@ router.get('/explore', async (req, res) => {
       `SELECT pa.artist_name, pa.artist_image, MAX(p.created_at) as latest
        FROM post_artists pa
        JOIN posts p ON pa.post_id = p.id
+       WHERE p.status = 'published'
        GROUP BY pa.artist_name COLLATE NOCASE
        ORDER BY latest DESC
        LIMIT 10`
@@ -254,7 +169,7 @@ router.get('/explore', async (req, res) => {
       `SELECT u.username, u.display_name, u.email, MAX(p.created_at) as latest
        FROM users u
        JOIN posts p ON u.id = p.author_id
-       WHERE u.is_active = 1
+       WHERE u.is_active = 1 AND p.status = 'published'
        GROUP BY u.id
        ORDER BY latest DESC
        LIMIT 10`
