@@ -100,7 +100,10 @@ Plans:
   3. The comment author sees a delete option on their own comment and can remove it
   4. The post's contributor author and any admin see a delete option on ALL comments on that post
   5. A logged-out visitor can read comments but cannot post or delete
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 13-01-PLAN.md -- Server-side comment CRUD: endpoints, batchLoadPostData commentCountMap, full comments on permalink
+- [ ] 13-02-PLAN.md -- CommentSection component, API client methods, ViewPost integration
 
 ### Phase 14: Drafts & Post Editing
 **Goal**: Contributors can save work in progress, preview before publishing, and fix published posts after the fact
@@ -134,6 +137,6 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 9. Full-Text Search | v2.0 | 1/1 | Complete | 2026-02-28 |
 | 10. Schema & Query Safety | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 11. Reader Accounts | v2.1 | 2/2 | Complete | 2026-03-01 |
-| 12. Likes | 2/2 | Complete    | 2026-03-01 | - |
-| 13. Comments | v2.1 | 0/? | Not started | - |
+| 12. Likes | v2.1 | 2/2 | Complete | 2026-03-01 |
+| 13. Comments | v2.1 | 0/2 | Planned | - |
 | 14. Drafts & Post Editing | v2.1 | 0/? | Not started | - |
