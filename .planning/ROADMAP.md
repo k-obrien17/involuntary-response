@@ -40,7 +40,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 - [x] **Phase 10: Schema & Query Safety** - Database migration, status filtering across all public queries, shared helpers extraction (completed 2026-03-01)
 - [x] **Phase 11: Reader Accounts** - Lightweight reader signup, role-based auth, contributor route protection (completed 2026-03-01)
 - [x] **Phase 12: Likes** - Post like/unlike toggle, like counts in feed and permalink, liked state for readers (completed 2026-03-01)
-- [ ] **Phase 13: Comments** - Flat top-level comments, chronological display, author/admin/self moderation
+- [x] **Phase 13: Comments** - Flat top-level comments, chronological display, author/admin/self moderation (completed 2026-03-01)
 - [ ] **Phase 14: Drafts & Post Editing** - Draft save/preview/publish workflow, post editing, edited indicator
 
 ## Phase Details
@@ -100,7 +100,7 @@ Plans:
   3. The comment author sees a delete option on their own comment and can remove it
   4. The post's contributor author and any admin see a delete option on ALL comments on that post
   5. A logged-out visitor can read comments but cannot post or delete
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 13-01-PLAN.md -- Server-side comment CRUD: endpoints, batchLoadPostData commentCountMap, full comments on permalink
 - [ ] 13-02-PLAN.md -- CommentSection component, API client methods, ViewPost integration
@@ -138,5 +138,5 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 10. Schema & Query Safety | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 11. Reader Accounts | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 12. Likes | v2.1 | 2/2 | Complete | 2026-03-01 |
-| 13. Comments | 1/2 | In Progress|  | - |
+| 13. Comments | 2/2 | Complete   | 2026-03-01 | - |
 | 14. Drafts & Post Editing | v2.1 | 0/? | Not started | - |

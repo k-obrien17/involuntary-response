@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Reader Engagement & Editorial
 status: unknown
-last_updated: "2026-03-01T15:52:07.191Z"
+last_updated: "2026-03-01T15:55:20.062Z"
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -23,18 +23,18 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 13 of 14 (Comments)
-Plan: 1 of 2 complete
-Status: Completed 13-01 (Comment API endpoints)
-Last activity: 2026-03-01 -- Completed 13-01 (Comment API endpoints)
+Plan: 2 of 2 complete
+Status: Phase 13 complete (Comments)
+Last activity: 2026-03-01 -- Completed 13-02 (Comment UI)
 
-Progress: [#############################.] 96% overall (27/19+9 plans through v2.0+v2.1)
-v2.1:    [##############........] 7/9 plans complete
+Progress: [##############################] 100% overall (28/19+9 plans through v2.0+v2.1)
+v2.1:    [################....] 8/9 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27 (v1.0: 12, v2.0: 7, v2.1: 7)
-- v2.1 plans completed: 7
+- Total plans completed: 28 (v1.0: 12, v2.0: 7, v2.1: 8)
+- v2.1 plans completed: 8
 
 **By Phase (v2.1 -- current):**
 
@@ -47,6 +47,7 @@ v2.1:    [##############........] 7/9 plans complete
 | 12. Likes | 01 | 3min | 2 | 5 |
 | 12. Likes | 02 | 2min | 2 | 5 |
 | 13. Comments | 01 | 2min | 2 | 5 |
+| 13. Comments | 02 | 1min | 2 | 3 |
 
 **By Phase (v2.0 -- previous):**
 
@@ -83,6 +84,9 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - [Phase 13-comments]: Three-way delete auth: comment author OR post author OR admin
 - [Phase 13-comments]: Comments loaded inline on single-post endpoint (not separate request)
 - [Phase 13-comments]: Backward-compatible formatPosts defaults (commentCountMap={}) follows likeCountMap pattern
+- [Phase 13-comments]: Text "Delete" button (not icon) for comment deletion, consistent with existing patterns
+- [Phase 13-comments]: Optimistic delete with array rollback on error (matches LikeButton pattern)
+- [Phase 13-comments]: Auth-aware compose: form for logged-in, Link to /join for visitors
 
 ### Key Research Findings (v2.1)
 
@@ -104,5 +108,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 13-01-PLAN.md (Comment API endpoints)
+Stopped at: Completed 13-02-PLAN.md (Comment UI)
 Resume file: None
