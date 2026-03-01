@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Reader Engagement & Editorial
 status: unknown
-last_updated: "2026-03-01T15:58:44.479Z"
+last_updated: "2026-03-01T16:24:31.127Z"
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 8
-  total_plans: 15
-  completed_plans: 15
+  total_plans: 17
+  completed_plans: 16
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** Phase 13 -- Comments
+**Current focus:** Phase 14 -- Drafts & Post Editing
 
 ## Current Position
 
-Phase: 13 of 14 (Comments)
-Plan: 2 of 2 complete
-Status: Phase 13 complete (Comments)
-Last activity: 2026-03-01 -- Completed 13-02 (Comment UI)
+Phase: 14 of 14 (Drafts & Post Editing)
+Plan: 1 of 2 complete
+Status: Executing Phase 14
+Last activity: 2026-03-01 -- Completed 14-01 (Draft API Endpoints)
 
-Progress: [##############################] 100% overall (28/19+9 plans through v2.0+v2.1)
-v2.1:    [################....] 8/9 plans complete
+Progress: [##############################] 100% overall (29/19+9+1 plans through v2.0+v2.1)
+v2.1:    [##################..] 9/10 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28 (v1.0: 12, v2.0: 7, v2.1: 8)
-- v2.1 plans completed: 8
+- Total plans completed: 29 (v1.0: 12, v2.0: 7, v2.1: 9)
+- v2.1 plans completed: 9
 
 **By Phase (v2.1 -- current):**
 
@@ -48,6 +48,7 @@ v2.1:    [################....] 8/9 plans complete
 | 12. Likes | 02 | 2min | 2 | 5 |
 | 13. Comments | 01 | 2min | 2 | 5 |
 | 13. Comments | 02 | 1min | 2 | 3 |
+| 14. Drafts & Post Editing | 01 | 2min | 2 | 2 |
 
 **By Phase (v2.0 -- previous):**
 
@@ -87,6 +88,10 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - [Phase 13-comments]: Text "Delete" button (not icon) for comment deletion, consistent with existing patterns
 - [Phase 13-comments]: Optimistic delete with array rollback on error (matches LikeButton pattern)
 - [Phase 13-comments]: Auth-aware compose: form for logged-in, Link to /join for visitors
+- [Phase 14-drafts]: Default status 'published' when not specified (backward compatible with existing create calls)
+- [Phase 14-drafts]: One-time safety backfill on next POST for pre-existing NULL published_at
+- [Phase 14-drafts]: GET /mine registered before GET /:slug to avoid Express param collision
+- [Phase 14-drafts]: Unpublish rejected with 400 (no revert from published to draft)
 
 ### Key Research Findings (v2.1)
 
@@ -108,5 +113,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 13-02-PLAN.md (Comment UI)
+Stopped at: Completed 14-01-PLAN.md (Draft API Endpoints)
 Resume file: None

@@ -28,10 +28,10 @@ Requirements for Reader Engagement & Editorial milestone. Each maps to roadmap p
 
 ### Drafts & Publishing
 
-- [ ] **EDIT-01**: Contributor can save a post as draft (not visible publicly)
+- [x] **EDIT-01**: Contributor can save a post as draft (not visible publicly)
 - [ ] **EDIT-02**: Contributor can preview a draft before publishing
-- [ ] **EDIT-03**: Contributor can publish a draft
-- [ ] **EDIT-04**: Contributor can edit a published post (content, embeds, tags)
+- [x] **EDIT-03**: Contributor can publish a draft
+- [x] **EDIT-04**: Contributor can edit a published post (content, embeds, tags)
 - [ ] **EDIT-05**: Edited posts show an "edited" indicator
 
 ## Future Requirements
@@ -77,10 +77,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CMNT-02 | Phase 13 | Complete |
 | CMNT-03 | Phase 13 | Complete |
 | CMNT-04 | Phase 13 | Complete |
-| EDIT-01 | Phase 14 | Pending |
+| EDIT-01 | Phase 14 | Complete |
 | EDIT-02 | Phase 14 | Pending |
-| EDIT-03 | Phase 14 | Pending |
-| EDIT-04 | Phase 14 | Pending |
+| EDIT-03 | Phase 14 | Complete |
+| EDIT-04 | Phase 14 | Complete |
 | EDIT-05 | Phase 14 | Pending |
 
 **Coverage:**
