@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Reader Engagement & Editorial
-status: unknown
-last_updated: "2026-03-01T04:29:42.020Z"
+status: in-progress
+last_updated: "2026-03-01T04:50:50.454Z"
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 5
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 11
+  completed_plans: 10
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** Phase 10 -- Schema & Query Safety
+**Current focus:** Phase 11 -- Reader Accounts
 
 ## Current Position
 
-Phase: 10 of 14 (Schema & Query Safety) -- COMPLETE
-Plan: 2 of 2 complete
-Status: Phase 10 complete, ready for Phase 11
-Last activity: 2026-03-01 -- Completed 10-02 (status filter & query safety)
+Phase: 11 of 14 (Reader Accounts) -- IN PROGRESS
+Plan: 1 of 2 complete
+Status: Completed 11-01 (reader registration API & route protection)
+Last activity: 2026-03-01 -- Completed 11-01 (reader registration & route protection)
 
-Progress: [#######################.......] 75% overall (22/19+9 plans through v2.0+v2.1)
-v2.1:    [#####.................] 2/9 plans complete
+Progress: [########################......] 79% overall (23/19+9 plans through v2.0+v2.1)
+v2.1:    [######................] 3/9 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22 (v1.0: 12, v2.0: 7, v2.1: 2)
-- v2.1 plans completed: 2
+- Total plans completed: 23 (v1.0: 12, v2.0: 7, v2.1: 3)
+- v2.1 plans completed: 3
 
 **By Phase (v2.1 -- current):**
 
@@ -42,6 +42,7 @@ v2.1:    [#####.................] 2/9 plans complete
 |-------|------|----------|-------|-------|
 | 10. Schema & Query Safety | 01 | 2min | 2 | 3 |
 | 10. Schema & Query Safety | 02 | 3min | 2 | 5 |
+| 11. Reader Accounts | 01 | 2min | 2 | 4 |
 
 **By Phase (v2.0 -- previous):**
 
@@ -64,6 +65,8 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - [Phase 10]: formatPosts response shape includes updatedAt and publishedAt fields
 - [Phase 10]: GET /posts/:slug returns status and publishedAt fields to prepare clients for draft workflow
 - [Phase 10]: RSS feed uses published_at || created_at fallback for date safety
+- [Phase 11]: Separate /register-reader endpoint preserves invite-only contributor flow
+- [Phase 11]: requireContributor middleware order: authenticateToken -> requireContributor -> rateLimiter
 
 ### Key Research Findings (v2.1)
 
@@ -85,5 +88,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 10-02-PLAN.md (Phase 10 complete)
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None

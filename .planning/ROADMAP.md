@@ -70,7 +70,7 @@ Plans:
   3. A logged-in reader sees their display name in the Navbar but does NOT see contributor-only UI (create post, drafts)
   4. A reader's JWT produces 403 (not 201) when hitting `POST /api/posts`
   5. Existing contributor accounts and the invite flow work exactly as before
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 11-01-PLAN.md -- Reader registration endpoint, requireContributor on mutation routes
 - [ ] 11-02-PLAN.md -- JoinPage, ContributorRoute guard, role-aware Navbar, route wiring
@@ -130,7 +130,7 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 8. Inline References | v2.0 | 1/1 | Complete | 2026-02-28 |
 | 9. Full-Text Search | v2.0 | 1/1 | Complete | 2026-02-28 |
 | 10. Schema & Query Safety | v2.1 | 2/2 | Complete | 2026-03-01 |
-| 11. Reader Accounts | v2.1 | 0/2 | In progress | - |
+| 11. Reader Accounts | 1/2 | In Progress|  | - |
 | 12. Likes | v2.1 | 0/? | Not started | - |
 | 13. Comments | v2.1 | 0/? | Not started | - |
 | 14. Drafts & Post Editing | v2.1 | 0/? | Not started | - |
