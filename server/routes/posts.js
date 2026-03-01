@@ -162,6 +162,7 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
     const { embedUrl, tags } = req.body;
     const body = sanitize(req.body.body, 1200);
     const artistName = sanitize(req.body.artistName, 200);
+    const status = req.body.status === 'draft' ? 'draft' : 'published';
 
     if (!body) {
       return res.status(400).json({ error: 'Post body is required' });
@@ -170,10 +171,16 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
     const slug = nanoid();
 
     const result = await db.run(
-      'INSERT INTO posts (slug, body, author_id) VALUES (?, ?, ?)',
-      slug, body, req.user.id
+      `INSERT INTO posts (slug, body, author_id, status, published_at) VALUES (?, ?, ?, ?, ${status === 'published' ? 'CURRENT_TIMESTAMP' : 'NULL'})`,
+      slug, body, req.user.id, status
     );
     const postId = result.lastInsertRowid;
+
+    // One-time safety backfill: fix any published posts with NULL published_at
+    await db.run(
+      "UPDATE posts SET published_at = created_at WHERE status = 'published' AND published_at IS NULL AND id != ?",
+      postId
+    );
 
     // Handle embed
     let resolved = null;
@@ -196,7 +203,7 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
       await insertTags(postId, tags);
     }
 
-    res.status(201).json({ id: postId, slug });
+    res.status(201).json({ id: postId, slug, status });
   } catch (err) {
     console.error('Create post error:', err);
     res.status(500).json({ error: 'Failed to create post' });
@@ -448,13 +455,20 @@ router.get('/:slug', optionalAuth, async (req, res) => {
 // PUT /:slug — Update post
 router.put('/:slug', authenticateToken, requireContributor, updateLimiter, async (req, res) => {
   try {
-    const post = await db.get('SELECT id, author_id FROM posts WHERE slug = ?', req.params.slug);
+    const post = await db.get('SELECT id, author_id, status FROM posts WHERE slug = ?', req.params.slug);
 
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
     if (post.author_id !== req.user.id) {
       return res.status(403).json({ error: 'Not authorized to edit this post' });
+    }
+
+    const newStatus = req.body.status;
+
+    // Reject unpublish: published posts cannot revert to draft
+    if (post.status === 'published' && newStatus === 'draft') {
+      return res.status(400).json({ error: 'Cannot unpublish a published post' });
     }
 
     const { embedUrl, tags } = req.body;
@@ -465,10 +479,20 @@ router.put('/:slug', authenticateToken, requireContributor, updateLimiter, async
       return res.status(400).json({ error: 'Post body is required' });
     }
 
-    await db.run(
-      'UPDATE posts SET body = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      body, post.id
-    );
+    // Detect publish transition: draft -> published
+    const isPublishing = post.status === 'draft' && newStatus === 'published';
+
+    if (isPublishing) {
+      await db.run(
+        "UPDATE posts SET body = ?, status = 'published', published_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        body, post.id
+      );
+    } else {
+      await db.run(
+        'UPDATE posts SET body = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        body, post.id
+      );
+    }
 
     // Replace embed
     await db.run('DELETE FROM post_embeds WHERE post_id = ?', post.id);
@@ -494,7 +518,7 @@ router.put('/:slug', authenticateToken, requireContributor, updateLimiter, async
       await insertTags(post.id, tags);
     }
 
-    res.json({ id: post.id, slug: req.params.slug });
+    res.json({ id: post.id, slug: req.params.slug, status: isPublishing ? 'published' : post.status });
   } catch (err) {
     console.error('Update post error:', err);
     res.status(500).json({ error: 'Failed to update post' });
