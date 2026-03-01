@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Reader Engagement & Editorial
-status: unknown
-last_updated: "2026-03-01T14:40:02.076Z"
+status: in-progress
+last_updated: "2026-03-01T15:22:52Z"
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 6
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 13
+  completed_plans: 12
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** Phase 11 -- Reader Accounts
+**Current focus:** Phase 12 -- Likes
 
 ## Current Position
 
-Phase: 11 of 14 (Reader Accounts) -- COMPLETE
-Plan: 2 of 2 complete
-Status: Completed 11-02 (frontend reader registration & role-aware UI)
-Last activity: 2026-03-01 -- Completed 11-02 (frontend reader registration & role-aware UI)
+Phase: 12 of 14 (Likes)
+Plan: 1 of 2 complete
+Status: Completed 12-01 (server-side like API)
+Last activity: 2026-03-01 -- Completed 12-01 (server-side like API)
 
-Progress: [#########################.....] 82% overall (24/19+9 plans through v2.0+v2.1)
-v2.1:    [########..............] 4/9 plans complete
+Progress: [##########################....] 86% overall (25/19+9 plans through v2.0+v2.1)
+v2.1:    [##########............] 5/9 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24 (v1.0: 12, v2.0: 7, v2.1: 4)
-- v2.1 plans completed: 4
+- Total plans completed: 25 (v1.0: 12, v2.0: 7, v2.1: 5)
+- v2.1 plans completed: 5
 
 **By Phase (v2.1 -- current):**
 
@@ -44,6 +44,7 @@ v2.1:    [########..............] 4/9 plans complete
 | 10. Schema & Query Safety | 02 | 3min | 2 | 5 |
 | 11. Reader Accounts | 01 | 2min | 2 | 4 |
 | 11. Reader Accounts | 02 | 2min | 2 | 8 |
+| 12. Likes | 01 | 3min | 2 | 5 |
 
 **By Phase (v2.0 -- previous):**
 
@@ -70,6 +71,9 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - [Phase 11]: requireContributor middleware order: authenticateToken -> requireContributor -> rateLimiter
 - [Phase 11]: Positive isContributor check (contributor OR admin) rather than negative role check for route guards
 - [Phase 11]: ProtectedRoute import removed from App.jsx after ContributorRoute swap -- re-add in Phase 12 if needed
+- [Phase 12]: Check-then-act pattern for like toggle (not INSERT OR IGNORE) due to Turso concern
+- [Phase 12]: optionalAuth on all 6 post-list endpoints for consistent likedByUser availability
+- [Phase 12]: Backward-compatible formatPosts defaults (likeCountMap={}, likedByUserMap={})
 
 ### Key Research Findings (v2.1)
 
@@ -91,5 +95,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 11-02-PLAN.md
+Stopped at: Completed 12-01-PLAN.md
 Resume file: None

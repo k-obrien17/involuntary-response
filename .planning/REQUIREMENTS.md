@@ -15,9 +15,9 @@ Requirements for Reader Engagement & Editorial milestone. Each maps to roadmap p
 
 ### Likes
 
-- [ ] **LIKE-01**: Reader can like/unlike a post (toggle, one per reader per post)
-- [ ] **LIKE-02**: Like count displays on posts in feed and permalink
-- [ ] **LIKE-03**: Logged-in reader sees which posts they've already liked
+- [x] **LIKE-01**: Reader can like/unlike a post (toggle, one per reader per post)
+- [x] **LIKE-02**: Like count displays on posts in feed and permalink
+- [x] **LIKE-03**: Logged-in reader sees which posts they've already liked
 
 ### Comments
 
@@ -70,9 +70,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ACCT-01 | Phase 11 | Complete |
 | ACCT-02 | Phase 11 | Complete |
 | ACCT-03 | Phase 11 | Complete |
-| LIKE-01 | Phase 12 | Pending |
-| LIKE-02 | Phase 12 | Pending |
-| LIKE-03 | Phase 12 | Pending |
+| LIKE-01 | Phase 12 | Complete |
+| LIKE-02 | Phase 12 | Complete |
+| LIKE-03 | Phase 12 | Complete |
 | CMNT-01 | Phase 13 | Pending |
 | CMNT-02 | Phase 13 | Pending |
 | CMNT-03 | Phase 13 | Pending |
