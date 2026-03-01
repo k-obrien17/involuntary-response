@@ -10,8 +10,8 @@ Requirements for Production Launch milestone. Each maps to roadmap phases.
 ### Deployment
 
 - [ ] **DEPLOY-01**: Vercel API proxy routes to actual Render backend URL (not placeholder)
-- [ ] **DEPLOY-02**: Admin seed account env vars validated on startup with clear error messages
-- [ ] **DEPLOY-03**: SMTP configuration validated on startup; password reset endpoint returns error if email unavailable
+- [x] **DEPLOY-02**: Admin seed account env vars validated on startup with clear error messages
+- [x] **DEPLOY-03**: SMTP configuration validated on startup; password reset endpoint returns error if email unavailable
 - [ ] **DEPLOY-04**: robots.txt and sitemap.xml served from public directory
 
 ### Social Sharing
@@ -67,8 +67,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | DEPLOY-01 | Phase 15 | Pending |
-| DEPLOY-02 | Phase 15 | Pending |
-| DEPLOY-03 | Phase 15 | Pending |
+| DEPLOY-02 | Phase 15 | Complete |
+| DEPLOY-03 | Phase 15 | Complete |
 | DEPLOY-04 | Phase 15 | Pending |
 | SHARE-01 | Phase 16 | Pending |
 | SHARE-02 | Phase 16 | Pending |
