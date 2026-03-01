@@ -41,7 +41,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 - [x] **Phase 11: Reader Accounts** - Lightweight reader signup, role-based auth, contributor route protection (completed 2026-03-01)
 - [x] **Phase 12: Likes** - Post like/unlike toggle, like counts in feed and permalink, liked state for readers (completed 2026-03-01)
 - [x] **Phase 13: Comments** - Flat top-level comments, chronological display, author/admin/self moderation (completed 2026-03-01)
-- [ ] **Phase 14: Drafts & Post Editing** - Draft save/preview/publish workflow, post editing, edited indicator
+- [x] **Phase 14: Drafts & Post Editing** - Draft save/preview/publish workflow, post editing, edited indicator (completed 2026-03-01)
 
 ## Phase Details
 
@@ -116,7 +116,7 @@ Plans:
   4. A contributor can edit a published post's content, embeds, and tags from the post's permalink
   5. An edited post displays a visible "edited" indicator so readers know the content changed after original publication
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 14-01-PLAN.md -- Server-side draft/publish API: status on create, publish transition, /mine endpoint
 - [ ] 14-02-PLAN.md -- Client-side draft UI: PostForm dual buttons, MyPosts page, draft preview/publish, edited indicator
@@ -142,4 +142,4 @@ Note: Phase 14 depends on Phase 10 (not 13) but executes last because reader-fac
 | 11. Reader Accounts | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 12. Likes | v2.1 | 2/2 | Complete | 2026-03-01 |
 | 13. Comments | v2.1 | 2/2 | Complete | 2026-03-01 |
-| 14. Drafts & Post Editing | 1/2 | In Progress|  | - |
+| 14. Drafts & Post Editing | 2/2 | Complete   | 2026-03-01 | - |

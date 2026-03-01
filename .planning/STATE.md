@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Reader Engagement & Editorial
-status: unknown
-last_updated: "2026-03-01T16:24:31.127Z"
+status: complete
+last_updated: "2026-03-01T16:28:15Z"
 progress:
   total_phases: 9
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 17
-  completed_plans: 16
+  completed_plans: 17
 ---
 
 # Project State
@@ -22,19 +22,19 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 14 of 14 (Drafts & Post Editing)
-Plan: 1 of 2 complete
-Status: Executing Phase 14
-Last activity: 2026-03-01 -- Completed 14-01 (Draft API Endpoints)
+Phase: 14 of 14 (Drafts & Post Editing) -- COMPLETE
+Plan: 2 of 2 complete
+Status: v1.0 Milestone Complete
+Last activity: 2026-03-01 -- Completed 14-02 (Contributor Editorial UI)
 
-Progress: [##############################] 100% overall (29/19+9+1 plans through v2.0+v2.1)
-v2.1:    [##################..] 9/10 plans complete
+Progress: [##############################] 100% overall (30/19+9+2 plans through v2.0+v2.1)
+v2.1:    [####################] 10/10 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29 (v1.0: 12, v2.0: 7, v2.1: 9)
-- v2.1 plans completed: 9
+- Total plans completed: 30 (v1.0: 12, v2.0: 7, v2.1: 10)
+- v2.1 plans completed: 10
 
 **By Phase (v2.1 -- current):**
 
@@ -49,6 +49,7 @@ v2.1:    [##################..] 9/10 plans complete
 | 13. Comments | 01 | 2min | 2 | 5 |
 | 13. Comments | 02 | 1min | 2 | 3 |
 | 14. Drafts & Post Editing | 01 | 2min | 2 | 2 |
+| 14. Drafts & Post Editing | 02 | 3min | 3 | 8 |
 
 **By Phase (v2.0 -- previous):**
 
@@ -92,6 +93,10 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - [Phase 14-drafts]: One-time safety backfill on next POST for pre-existing NULL published_at
 - [Phase 14-drafts]: GET /mine registered before GET /:slug to avoid Express param collision
 - [Phase 14-drafts]: Unpublish rejected with 400 (no revert from published to draft)
+- [Phase 14-drafts-ui]: PostForm uses optional onSaveDraft callback for dual-button vs single-button mode
+- [Phase 14-drafts-ui]: MyPosts uses filter+section approach (not tabs) for draft/published grouping
+- [Phase 14-drafts-ui]: ViewPost Publish uses window.location.reload() to force fresh state after publish
+- [Phase 14-drafts-ui]: PostCard 'edited' indicator uses middot separator (no parentheses) for feed density
 
 ### Key Research Findings (v2.1)
 
@@ -113,5 +118,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 14-01-PLAN.md (Draft API Endpoints)
+Stopped at: Completed 14-02-PLAN.md (Contributor Editorial UI) -- v1.0 milestone complete
 Resume file: None
