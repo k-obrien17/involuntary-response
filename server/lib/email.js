@@ -16,6 +16,10 @@ if (process.env.SMTP_HOST) {
   console.warn('SMTP_HOST not configured — email sending is disabled');
 }
 
+export function isEmailConfigured() {
+  return !!transporter;
+}
+
 export async function sendResetEmail(to, resetUrl) {
   if (!transporter) {
     console.warn('Email not configured, skipping password reset email to:', to);

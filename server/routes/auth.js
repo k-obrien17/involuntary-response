@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import db from '../db/index.js';
 import { generateToken } from '../middleware/auth.js';
-import { sendResetEmail } from '../lib/email.js';
+import { sendResetEmail, isEmailConfigured } from '../lib/email.js';
 
 const router = Router();
 
@@ -196,6 +196,11 @@ router.post('/login', authLimiter, async (req, res) => {
 // POST /api/auth/forgot-password
 router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
   const { email } = req.body;
+
+  // Return 503 early if email is not configured
+  if (!isEmailConfigured()) {
+    return res.status(503).json({ error: 'Password reset is temporarily unavailable. Please contact the site administrator.' });
+  }
 
   // Always respond 200 to prevent email enumeration
   res.json({ message: 'If an account exists, a reset link has been sent' });
