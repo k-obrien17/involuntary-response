@@ -38,14 +38,26 @@ export function AuthProvider({ children }) {
     return handleAuthResponse(res);
   };
 
+  const registerReader = async (email, password, displayName) => {
+    const res = await auth.registerReader(email, password, displayName);
+    return handleAuthResponse(res);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
   };
 
+  const isContributor = user?.role === 'contributor' || user?.role === 'admin';
+  const isReader = user?.role === 'reader';
+  const isAdmin = user?.role === 'admin';
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{
+      user, loading, login, register, registerReader, logout,
+      isContributor, isReader, isAdmin
+    }}>
       {children}
     </AuthContext.Provider>
   );
