@@ -20,6 +20,7 @@ import Explore from './pages/Explore';
 import Profile from './pages/Profile';
 import Search from './pages/Search';
 import JoinPage from './pages/JoinPage';
+import MyPosts from './pages/MyPosts';
 
 function App() {
   return (
@@ -62,6 +63,14 @@ function App() {
             element={
               <ContributorRoute>
                 <CreatePost />
+              </ContributorRoute>
+            }
+          />
+          <Route
+            path="/my-posts"
+            element={
+              <ContributorRoute>
+                <MyPosts />
               </ContributorRoute>
             }
           />

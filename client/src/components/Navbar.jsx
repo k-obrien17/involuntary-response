@@ -103,12 +103,20 @@ export default function Navbar() {
           {user ? (
             <>
               {isContributor && (
-                <Link
-                  to="/posts/new"
-                  className="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
-                >
-                  New post
-                </Link>
+                <>
+                  <Link
+                    to="/my-posts"
+                    className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    My Posts
+                  </Link>
+                  <Link
+                    to="/posts/new"
+                    className="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+                  >
+                    New post
+                  </Link>
+                </>
               )}
               {user.role === 'admin' && (
                 <Link
