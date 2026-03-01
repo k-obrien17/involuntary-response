@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Reader Engagement & Editorial
 status: unknown
-last_updated: "2026-03-01T15:31:17.570Z"
+last_updated: "2026-03-01T15:52:07.191Z"
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 7
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 15
+  completed_plans: 14
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** Phase 12 -- Likes
+**Current focus:** Phase 13 -- Comments
 
 ## Current Position
 
-Phase: 12 of 14 (Likes) -- COMPLETE
-Plan: 2 of 2 complete
-Status: Completed 12-02 (LikeButton client integration)
-Last activity: 2026-03-01 -- Completed 12-02 (LikeButton client integration)
+Phase: 13 of 14 (Comments)
+Plan: 1 of 2 complete
+Status: Completed 13-01 (Comment API endpoints)
+Last activity: 2026-03-01 -- Completed 13-01 (Comment API endpoints)
 
-Progress: [############################..] 93% overall (26/19+9 plans through v2.0+v2.1)
-v2.1:    [############..........] 6/9 plans complete
+Progress: [#############################.] 96% overall (27/19+9 plans through v2.0+v2.1)
+v2.1:    [##############........] 7/9 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26 (v1.0: 12, v2.0: 7, v2.1: 6)
-- v2.1 plans completed: 6
+- Total plans completed: 27 (v1.0: 12, v2.0: 7, v2.1: 7)
+- v2.1 plans completed: 7
 
 **By Phase (v2.1 -- current):**
 
@@ -46,6 +46,7 @@ v2.1:    [############..........] 6/9 plans complete
 | 11. Reader Accounts | 02 | 2min | 2 | 8 |
 | 12. Likes | 01 | 3min | 2 | 5 |
 | 12. Likes | 02 | 2min | 2 | 5 |
+| 13. Comments | 01 | 2min | 2 | 5 |
 
 **By Phase (v2.0 -- previous):**
 
@@ -78,6 +79,10 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - [Phase 12]: LikeButton manages own liked/count state independently from parent post data (avoids stale closures)
 - [Phase 12]: useRef for toggling guard (not useState) to prevent rapid double-tap without re-render
 - [Phase 12]: PostListItem gets text-only count, not interactive button (too compact)
+- [Phase 13-comments]: commentLimiter at 30/15min (lower than likes at 60 -- comments are heavier content)
+- [Phase 13-comments]: Three-way delete auth: comment author OR post author OR admin
+- [Phase 13-comments]: Comments loaded inline on single-post endpoint (not separate request)
+- [Phase 13-comments]: Backward-compatible formatPosts defaults (commentCountMap={}) follows likeCountMap pattern
 
 ### Key Research Findings (v2.1)
 
@@ -99,5 +104,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 12-02-PLAN.md (Phase 12 Likes complete)
+Stopped at: Completed 13-01-PLAN.md (Comment API endpoints)
 Resume file: None

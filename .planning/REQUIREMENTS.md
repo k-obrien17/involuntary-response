@@ -21,10 +21,10 @@ Requirements for Reader Engagement & Editorial milestone. Each maps to roadmap p
 
 ### Comments
 
-- [ ] **CMNT-01**: Reader can post a top-level comment on a post
-- [ ] **CMNT-02**: Comments display chronologically on the post permalink
-- [ ] **CMNT-03**: Comment author can delete their own comment
-- [ ] **CMNT-04**: Post author and admin can delete any comment on the post
+- [x] **CMNT-01**: Reader can post a top-level comment on a post
+- [x] **CMNT-02**: Comments display chronologically on the post permalink
+- [x] **CMNT-03**: Comment author can delete their own comment
+- [x] **CMNT-04**: Post author and admin can delete any comment on the post
 
 ### Drafts & Publishing
 
@@ -73,10 +73,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LIKE-01 | Phase 12 | Complete |
 | LIKE-02 | Phase 12 | Complete |
 | LIKE-03 | Phase 12 | Complete |
-| CMNT-01 | Phase 13 | Pending |
-| CMNT-02 | Phase 13 | Pending |
-| CMNT-03 | Phase 13 | Pending |
-| CMNT-04 | Phase 13 | Pending |
+| CMNT-01 | Phase 13 | Complete |
+| CMNT-02 | Phase 13 | Complete |
+| CMNT-03 | Phase 13 | Complete |
+| CMNT-04 | Phase 13 | Complete |
 | EDIT-01 | Phase 14 | Pending |
 | EDIT-02 | Phase 14 | Pending |
 | EDIT-03 | Phase 14 | Pending |
