@@ -64,8 +64,15 @@ export default function PostCard({ post }) {
           to={`/posts/${post.slug}`}
           className="hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
-          {relativeTime(post.createdAt)}
+          {relativeTime(post.publishedAt || post.createdAt)}
         </Link>
+        {post.updatedAt && post.publishedAt &&
+          new Date(post.updatedAt) > new Date(post.publishedAt) && (
+            <>
+              <span>&middot;</span>
+              <span className="text-gray-400 dark:text-gray-500">edited</span>
+            </>
+        )}
         <span>&middot;</span>
         <LikeButton
           postSlug={post.slug}

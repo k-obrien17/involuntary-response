@@ -37,10 +37,26 @@ export default function EditPost() {
     setSubmitting(true);
     setError(null);
     try {
-      await posts.update(slug, { body, embedUrl, tags, artistName });
+      const updateData = { body, embedUrl, tags, artistName };
+      if (post.status === 'draft') {
+        updateData.status = 'published';
+      }
+      await posts.update(slug, updateData);
       navigate(`/posts/${slug}`);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update post');
+      setSubmitting(false);
+    }
+  };
+
+  const handleSaveDraft = async ({ body, embedUrl, tags, artistName }) => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      await posts.update(slug, { body, embedUrl, tags, artistName });
+      navigate(`/posts/${slug}`);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to save draft');
       setSubmitting(false);
     }
   };
@@ -68,7 +84,9 @@ export default function EditPost() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Edit post</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+        {post.status === 'draft' ? 'Edit draft' : 'Edit post'}
+      </h1>
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-3 rounded mb-4">
           {error}
@@ -82,6 +100,7 @@ export default function EditPost() {
           artistName: post.artists?.[0]?.name || '',
         }}
         onSubmit={handleSubmit}
+        onSaveDraft={post.status === 'draft' ? handleSaveDraft : undefined}
         submitting={submitting}
       />
       <button
