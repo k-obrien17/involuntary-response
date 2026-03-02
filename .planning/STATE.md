@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Production Launch
-status: unknown
-last_updated: "2026-03-02T01:07:25.259Z"
+status: in-progress
+last_updated: "2026-03-02T01:22:26Z"
 progress:
   total_phases: 7
   completed_phases: 7
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 12
+  completed_plans: 12
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
-**Current focus:** v3.0 Production Launch -- Phase 17 executing
+**Current focus:** v3.0 Production Launch -- Phase 18 complete
 
 ## Current Position
 
-Phase: 17 of 19 (Security Hardening) -- third of 5 v3.0 phases -- COMPLETE
+Phase: 18 of 19 (Performance) -- fourth of 5 v3.0 phases -- COMPLETE
 Plan: 1 of 1 (done)
-Status: Phase 17 complete, ready for Phase 18
-Last activity: 2026-03-02 -- Completed 17-01 (Security Headers + JWT Hardening)
+Status: Phase 18 complete, ready for Phase 19
+Last activity: 2026-03-02 -- Completed 18-01 (N+1 Query Fix + Profile Pagination)
 
-Progress: [██████░░░░] 60% (v3.0)
+Progress: [████████░░] 80% (v3.0)
 
 ## Performance Metrics
 
@@ -43,6 +43,7 @@ Progress: [██████░░░░] 60% (v3.0)
 | 15-deployment-wiring | 02 | 1min | 2 | 3 |
 | 16-social-sharing | 01 | 1min | 2 | 3 |
 | 17-security-hardening | 01 | 2min | 2 | 4 |
+| 18-performance | 01 | 2min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -59,14 +60,16 @@ Decisions logged in PROJECT.md Key Decisions table. Carried from v2.1:
 - Helmet v8 removed xXssProtection -- manually set X-XSS-Protection: 1; mode=block (17-01)
 - JWT expiry 30d balances security with UX, no refresh token needed (17-01)
 - Security middleware order: securityHeaders before CORS, validateOrigin after CORS (17-01)
+- Comments query kept separate in single-post endpoint -- batchLoadPostData only returns counts, not full objects with canDelete (18-01)
+- Profile pagination default 20, max 50 -- matches feed endpoint pattern (18-01)
 
 ### Key Research Findings (v3.0)
 
 - ~~vercel.json has placeholder RENDER_BACKEND_URL -- must be replaced with actual URL~~ (FIXED: 15-02 -- replaced with YOUR-APP.onrender.com placeholder, user will update before deploy)
 - ~~index.html has __OG_TITLE__ / __OG_DESCRIPTION__ / __OG_IMAGE__ placeholders -- need server endpoint~~ (FIXED: 16-01 -- serverless OG function replaces all placeholders, crawler UA rewrite routes bots through it)
 - ~~JWT expires in 365 days (server/middleware/auth.js:46) -- reduce to 7-30 days~~ (FIXED: 17-01 -- reduced to 30 days, existing tokens unaffected)
-- GET /posts/:slug has ~8 serial queries (N+1) -- should use batch loads
-- Profile route loads ALL posts without pagination
+- ~~GET /posts/:slug has ~8 serial queries (N+1) -- should use batch loads~~ (FIXED: 18-01 -- batchLoadPostData reduces to 3 queries)
+- ~~Profile route loads ALL posts without pagination~~ (FIXED: 18-01 -- cursor pagination with nextCursor, default 20 per page)
 - ~~No security headers (CSP, X-Frame-Options, X-Content-Type-Options)~~ (FIXED: 17-01 -- helmet + manual X-XSS-Protection on all responses)
 - ~~Email/SMTP silently fails if env vars missing~~ (FIXED: 15-01 -- 503 on forgot-password, warning at startup)
 - ~~Admin seed requires ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_DISPLAY_NAME env vars~~ (FIXED: 15-01 -- fail-fast validation at startup)
@@ -82,5 +85,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 17-01-PLAN.md (Security Headers + JWT Hardening) -- Phase 17 complete
+Stopped at: Completed 18-01-PLAN.md (N+1 Query Fix + Profile Pagination) -- Phase 18 complete
 Resume file: None

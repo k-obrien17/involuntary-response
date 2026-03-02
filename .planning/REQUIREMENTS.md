@@ -27,8 +27,8 @@ Requirements for Production Launch milestone. Each maps to roadmap phases.
 
 ### Performance
 
-- [ ] **PERF-01**: Single-post route uses batched queries instead of serial N+1 pattern
-- [ ] **PERF-02**: Profile page paginates posts with cursor pagination
+- [x] **PERF-01**: Single-post route uses batched queries instead of serial N+1 pattern
+- [x] **PERF-02**: Profile page paginates posts with cursor pagination
 
 ### UX
 
@@ -75,8 +75,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SEC-01 | Phase 17 | Complete |
 | SEC-02 | Phase 17 | Complete |
 | SEC-03 | Phase 17 | Complete |
-| PERF-01 | Phase 18 | Pending |
-| PERF-02 | Phase 18 | Pending |
+| PERF-01 | Phase 18 | Complete |
+| PERF-02 | Phase 18 | Complete |
 | UX-01 | Phase 19 | Pending |
 | UX-02 | Phase 19 | Pending |
 

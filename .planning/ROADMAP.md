@@ -52,7 +52,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 - [x] **Phase 15: Deployment Wiring** - Production env config, admin seed validation, SMTP checks, robots/sitemap (completed 2026-03-01)
 - [x] **Phase 16: Social Sharing** - Dynamic OG meta tags for post permalinks and default pages (completed 2026-03-02)
 - [x] **Phase 17: Security Hardening** - Response headers, JWT expiry reduction, CSRF protection (completed 2026-03-02)
-- [ ] **Phase 18: Performance** - Single-post N+1 fix and profile pagination
+- [x] **Phase 18: Performance** - Single-post N+1 fix and profile pagination (completed 2026-03-02)
 - [ ] **Phase 19: UX Polish** - 404 page and error states for Search/Explore
 
 ## Phase Details
@@ -104,7 +104,7 @@ Plans:
   1. GET /posts/:slug executes a bounded number of queries regardless of post data (batched, not serial N+1)
   2. Profile pages paginate posts with cursor pagination, loading a fixed page size rather than all posts
   3. Navigating to page 2+ of a profile returns the next batch without re-fetching previous posts
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 18-01-PLAN.md -- Batch single-post queries + profile cursor pagination
 
@@ -128,5 +128,5 @@ Plans:
 | 15. Deployment Wiring | 2/2 | Complete    | 2026-03-01 | - |
 | 16. Social Sharing | 1/1 | Complete    | 2026-03-02 | - |
 | 17. Security Hardening | 1/1 | Complete    | 2026-03-02 | - |
-| 18. Performance | v3.0 | 0/1 | Not started | - |
+| 18. Performance | 1/1 | Complete   | 2026-03-02 | - |
 | 19. UX Polish | v3.0 | 0/? | Not started | - |
