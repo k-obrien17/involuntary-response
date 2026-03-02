@@ -1,5 +1,16 @@
 {
   "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i)(bot|crawl|spider|facebookexternalhit|Twitterbot|Slackbot|TelegramBot|WhatsApp|LinkedInBot|Discordbot|Applebot|Googlebot|Bingbot|iMessageBot)"
+        }
+      ],
+      "destination": "/api/og"
+    },
     { "source": "/posts/:slug", "destination": "/api/og" },
     { "source": "/api/:path*", "destination": "https://YOUR-APP.onrender.com/api/:path*" },
     { "source": "/(.*)", "destination": "/" }
