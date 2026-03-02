@@ -116,7 +116,9 @@ Plans:
   1. Visiting a URL that does not match any route renders a styled 404 page (not a redirect to home)
   2. The 404 page includes a link back to the homepage
   3. Search and Explore pages display an error message with a retry button when the API request fails
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 19-01-PLAN.md -- 404 page + error states with retry for Search/Explore
 
 ## Progress
 
@@ -129,4 +131,4 @@ Plans:
 | 16. Social Sharing | 1/1 | Complete    | 2026-03-02 | - |
 | 17. Security Hardening | 1/1 | Complete    | 2026-03-02 | - |
 | 18. Performance | 1/1 | Complete    | 2026-03-02 | - |
-| 19. UX Polish | v3.0 | 0/? | Not started | - |
+| 19. UX Polish | v3.0 | 0/1 | Not started | - |
