@@ -131,4 +131,4 @@ Plans:
 | 16. Social Sharing | 1/1 | Complete    | 2026-03-02 | - |
 | 17. Security Hardening | 1/1 | Complete    | 2026-03-02 | - |
 | 18. Performance | 1/1 | Complete    | 2026-03-02 | - |
-| 19. UX Polish | 1/1 | Complete   | 2026-03-02 | - |
+| 19. UX Polish | 1/1 | Complete    | 2026-03-02 | - |
