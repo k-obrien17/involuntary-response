@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import AdminRoute from './components/AdminRoute';
@@ -21,6 +21,7 @@ import Profile from './pages/Profile';
 import Search from './pages/Search';
 import JoinPage from './pages/JoinPage';
 import MyPosts from './pages/MyPosts';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -88,7 +89,7 @@ function App() {
             }
           />
           <Route path="/search" element={<Search />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
