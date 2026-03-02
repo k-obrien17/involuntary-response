@@ -50,7 +50,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 ### v3.0 Production Launch
 
 - [x] **Phase 15: Deployment Wiring** - Production env config, admin seed validation, SMTP checks, robots/sitemap (completed 2026-03-01)
-- [ ] **Phase 16: Social Sharing** - Dynamic OG meta tags for post permalinks and default pages
+- [x] **Phase 16: Social Sharing** - Dynamic OG meta tags for post permalinks and default pages (completed 2026-03-02)
 - [ ] **Phase 17: Security Hardening** - Response headers, JWT expiry reduction, CSRF protection
 - [ ] **Phase 18: Performance** - Single-post N+1 fix and profile pagination
 - [ ] **Phase 19: UX Polish** - 404 page and error states for Search/Explore
@@ -79,7 +79,7 @@ Plans:
   1. Pasting a post permalink URL into Twitter/Slack/iMessage renders a card with the post title, a snippet of the take, and album art from the embed
   2. Pasting the homepage, explore page, or profile page URL renders a default OG card with site name and description
   3. Social crawler requests (identified by user-agent) receive server-rendered HTML with OG meta tags, not the SPA shell
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 16-01-PLAN.md -- Expand OG serverless function + crawler-aware routing + index.html defaults
 
@@ -122,7 +122,7 @@ Plans:
 | 6-9 | v2.0 | 7/7 | Complete | 2026-02-28 |
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
 | 15. Deployment Wiring | 2/2 | Complete    | 2026-03-01 | - |
-| 16. Social Sharing | v3.0 | 0/1 | Planned | - |
+| 16. Social Sharing | 1/1 | Complete   | 2026-03-02 | - |
 | 17. Security Hardening | v3.0 | 0/? | Not started | - |
 | 18. Performance | v3.0 | 0/? | Not started | - |
 | 19. UX Polish | v3.0 | 0/? | Not started | - |

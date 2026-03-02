@@ -16,8 +16,8 @@ Requirements for Production Launch milestone. Each maps to roadmap phases.
 
 ### Social Sharing
 
-- [ ] **SHARE-01**: Post permalink pages render dynamic OG meta tags (title, description, album art) for social crawlers
-- [ ] **SHARE-02**: Default OG tags for non-post pages (homepage, explore, profiles)
+- [x] **SHARE-01**: Post permalink pages render dynamic OG meta tags (title, description, album art) for social crawlers
+- [x] **SHARE-02**: Default OG tags for non-post pages (homepage, explore, profiles)
 
 ### Security
 
@@ -70,8 +70,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEPLOY-02 | Phase 15 | Complete |
 | DEPLOY-03 | Phase 15 | Complete |
 | DEPLOY-04 | Phase 15 | Complete |
-| SHARE-01 | Phase 16 | Pending |
-| SHARE-02 | Phase 16 | Pending |
+| SHARE-01 | Phase 16 | Complete |
+| SHARE-02 | Phase 16 | Complete |
 | SEC-01 | Phase 17 | Pending |
 | SEC-02 | Phase 17 | Pending |
 | SEC-03 | Phase 17 | Pending |
