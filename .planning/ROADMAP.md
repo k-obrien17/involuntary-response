@@ -51,7 +51,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 - [x] **Phase 15: Deployment Wiring** - Production env config, admin seed validation, SMTP checks, robots/sitemap (completed 2026-03-01)
 - [x] **Phase 16: Social Sharing** - Dynamic OG meta tags for post permalinks and default pages (completed 2026-03-02)
-- [ ] **Phase 17: Security Hardening** - Response headers, JWT expiry reduction, CSRF protection
+- [x] **Phase 17: Security Hardening** - Response headers, JWT expiry reduction, CSRF protection (completed 2026-03-02)
 - [ ] **Phase 18: Performance** - Single-post N+1 fix and profile pagination
 - [ ] **Phase 19: UX Polish** - 404 page and error states for Search/Explore
 
@@ -92,7 +92,7 @@ Plans:
   2. Newly issued JWT tokens expire after 30 days (not 365)
   3. State-changing endpoints (POST, PUT, DELETE) reject requests without a valid CSRF token
   4. Existing sessions with old JWT expiry continue to work until natural expiration (no forced logout)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 17-01-PLAN.md -- Security headers (helmet + CSP), JWT 30-day expiry, origin validation
 
@@ -125,6 +125,6 @@ Plans:
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
 | 15. Deployment Wiring | 2/2 | Complete    | 2026-03-01 | - |
 | 16. Social Sharing | 1/1 | Complete    | 2026-03-02 | - |
-| 17. Security Hardening | v3.0 | 0/1 | Planned | - |
+| 17. Security Hardening | 1/1 | Complete   | 2026-03-02 | - |
 | 18. Performance | v3.0 | 0/? | Not started | - |
 | 19. UX Polish | v3.0 | 0/? | Not started | - |

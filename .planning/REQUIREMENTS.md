@@ -21,9 +21,9 @@ Requirements for Production Launch milestone. Each maps to roadmap phases.
 
 ### Security
 
-- [ ] **SEC-01**: Response headers include CSP, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
-- [ ] **SEC-02**: JWT token expiry reduced to 30 days
-- [ ] **SEC-03**: CSRF protection on state-changing endpoints
+- [x] **SEC-01**: Response headers include CSP, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
+- [x] **SEC-02**: JWT token expiry reduced to 30 days
+- [x] **SEC-03**: CSRF protection on state-changing endpoints
 
 ### Performance
 
@@ -72,9 +72,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEPLOY-04 | Phase 15 | Complete |
 | SHARE-01 | Phase 16 | Complete |
 | SHARE-02 | Phase 16 | Complete |
-| SEC-01 | Phase 17 | Pending |
-| SEC-02 | Phase 17 | Pending |
-| SEC-03 | Phase 17 | Pending |
+| SEC-01 | Phase 17 | Complete |
+| SEC-02 | Phase 17 | Complete |
+| SEC-03 | Phase 17 | Complete |
 | PERF-01 | Phase 18 | Pending |
 | PERF-02 | Phase 18 | Pending |
 | UX-01 | Phase 19 | Pending |
