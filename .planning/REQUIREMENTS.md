@@ -32,8 +32,8 @@ Requirements for Production Launch milestone. Each maps to roadmap phases.
 
 ### UX
 
-- [ ] **UX-01**: Unknown routes render a 404 page (not redirect to home)
-- [ ] **UX-02**: Search and Explore pages show error states with retry affordance
+- [x] **UX-01**: Unknown routes render a 404 page (not redirect to home)
+- [x] **UX-02**: Search and Explore pages show error states with retry affordance
 
 ## Future Requirements
 
@@ -77,8 +77,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SEC-03 | Phase 17 | Complete |
 | PERF-01 | Phase 18 | Complete |
 | PERF-02 | Phase 18 | Complete |
-| UX-01 | Phase 19 | Pending |
-| UX-02 | Phase 19 | Pending |
+| UX-01 | Phase 19 | Complete |
+| UX-02 | Phase 19 | Complete |
 
 **Coverage:**
 - v3.0 requirements: 13 total
