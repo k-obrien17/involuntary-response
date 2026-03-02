@@ -12,13 +12,16 @@ import embedsRoutes from './routes/embeds.js';
 import feedRoutes from './routes/feed.js';
 import searchRoutes from './routes/search.js';
 import { initDatabase } from './db/index.js';
+import { securityHeaders, validateOrigin } from './middleware/security.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.use(securityHeaders);
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
 }));
+app.use(validateOrigin);
 app.use(express.json());
 
 // Routes
