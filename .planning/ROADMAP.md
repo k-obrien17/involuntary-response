@@ -104,7 +104,9 @@ Plans:
   1. GET /posts/:slug executes a bounded number of queries regardless of post data (batched, not serial N+1)
   2. Profile pages paginate posts with cursor pagination, loading a fixed page size rather than all posts
   3. Navigating to page 2+ of a profile returns the next batch without re-fetching previous posts
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 18-01-PLAN.md -- Batch single-post queries + profile cursor pagination
 
 ### Phase 19: UX Polish
 **Goal**: Users see helpful feedback when things go wrong instead of blank screens or silent redirects
@@ -126,5 +128,5 @@ Plans:
 | 15. Deployment Wiring | 2/2 | Complete    | 2026-03-01 | - |
 | 16. Social Sharing | 1/1 | Complete    | 2026-03-02 | - |
 | 17. Security Hardening | 1/1 | Complete    | 2026-03-02 | - |
-| 18. Performance | v3.0 | 0/? | Not started | - |
+| 18. Performance | v3.0 | 0/1 | Not started | - |
 | 19. UX Polish | v3.0 | 0/? | Not started | - |
