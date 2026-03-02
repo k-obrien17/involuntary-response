@@ -36,16 +36,18 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - ✓ Contributors can edit published posts (content, embeds, tags) — v2.1
 - ✓ Edited posts show "edited" indicator — v2.1
 
+- ✓ Production deployment wiring (Render URL, env var validation, admin seed) — v3.0
+- ✓ Dynamic OG meta tags for social sharing previews — v3.0
+- ✓ 404 page, robots.txt, sitemap for SEO — v3.0
+- ✓ Security headers (CSP, X-Frame-Options, X-Content-Type-Options) — v3.0
+- ✓ JWT expiry reduction and origin validation (CSRF defense-in-depth) — v3.0
+- ✓ Single-post N+1 query fix and profile pagination — v3.0
+- ✓ Error state UI for Search/Explore pages — v3.0
+- ✓ Email/SMTP validation for password reset — v3.0
+
 ### Active
 
-- Production deployment wiring (Render URL, env var validation, admin seed) — v3.0
-- Dynamic OG meta tags for social sharing previews — v3.0
-- 404 page, robots.txt, sitemap for SEO — v3.0
-- Security headers (CSP, X-Frame-Options, X-Content-Type-Options) — v3.0
-- JWT expiry reduction and CSRF protection — v3.0
-- Single-post N+1 query fix and profile pagination — v3.0
-- Error state UI for Search/Explore pages — v3.0
-- Email/SMTP validation for password reset — v3.0
+(None — next milestone TBD)
 
 ### Deferred
 
@@ -65,16 +67,20 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 
 ## Context
 
-**Shipped v2.1 Reader Engagement & Editorial** (2026-03-01): ~15,000 LOC across React 18 + Express 5 + Turso.
-- 56 files modified in v2.1 (+6,712 lines)
-- 5 DB migrations (schema init + post_artists + status/published_at + post_likes + post_comments)
-- Reader accounts: separate /register-reader endpoint, /join page, role-aware UI
-- Engagement: like toggle with optimistic UI, flat comments with three-way moderation
-- Editorial: draft save/preview/publish workflow, post editing with "edited" indicator, My Posts dashboard
-- Shared helpers: batchLoadPostData prevents N+1 across all 6 post-list endpoints
-- Status filtering: `AND p.status = 'published'` on all 14 public query sites
+**Shipped v3.0 Production Launch** (2026-03-02): ~18,000 LOC across React 18 + Express 5 + Turso.
+- 73 files modified in v3.0 (+3,095 lines)
+- Server startup validates required env vars (admin seed, SMTP) with fail-fast behavior
+- Dynamic OG meta tags via Vercel serverless function with crawler UA rewrite
+- Security: helmet + CSP (6 embed providers in frame-src), JWT 30d expiry, origin validation
+- Performance: batchLoadPostData on single-post route (8 → 3 queries), cursor pagination on profiles
+- UX: styled 404 page, error/retry states on Search and Explore
+- robots.txt and sitemap.xml for SEO
 
-**Known issue:** Spotify artist auto-extraction requires `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` in `server/.env`. Apple Music extraction (iTunes Search API) works without credentials.
+**Pre-deploy checklist:**
+- Replace `YOUR-APP.onrender.com` in `client/vercel.json` with actual Render URL
+- Replace `YOURDOMAIN.com` in `client/public/robots.txt` and `client/public/sitemap.xml`
+- Add `og-default.png` to `client/public/` for default social sharing image
+- Set Spotify credentials in `server/.env` (affects artist auto-extraction only)
 
 ## Constraints
 
@@ -111,6 +117,11 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | published_at for feed ordering | Drafts use NULL published_at; feed orders by publish time not creation | ✓ Good — drafts don't bury in feed when later published |
 | No unpublish | Once published, post cannot revert to draft (protects engagement data) | ✓ Good — simple mental model, 400 rejection on attempt |
 | Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | — Pending — revisit in next milestone |
+| Origin validation over CSRF tokens | JWT-in-Authorization-header is inherently CSRF-resistant; origin check is defense-in-depth | ✓ Good — simpler than token-based CSRF, correct for this auth model |
+| Helmet v8 + manual X-XSS-Protection | Helmet v8 removed xXssProtection default; manually set for browsers that support it | ✓ Good — comprehensive header coverage |
+| Placeholder URLs for pre-deploy config | User doesn't have Render URL/domain yet; obvious placeholders easy to find-and-replace | ✓ Good — 3 files, clear pattern (YOUR-APP, YOURDOMAIN) |
+| Comments query separate from batchLoadPostData | Single-post endpoint needs full comment objects with canDelete, not just counts | ✓ Good — keeps batch helper focused on post metadata |
+| Profile pagination default 20, max 50 | Matches feed endpoint pattern; bounded via Math.min/Math.max | ✓ Good — consistent API design |
 
 ---
-*Last updated: 2026-03-01 after v3.0 milestone started*
+*Last updated: 2026-03-02 after v3.0 milestone completed*
