@@ -13,6 +13,9 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
+  const [nextCursor, setNextCursor] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
   const [editing, setEditing] = useState(false);
   const [bio, setBio] = useState('');
   const [saving, setSaving] = useState(false);
@@ -24,6 +27,7 @@ export default function Profile() {
     setNotFound(false);
     setProfileData(null);
     setPosts([]);
+    setNextCursor(null);
     setEditing(false);
 
     const fetchProfile = async () => {
@@ -31,6 +35,7 @@ export default function Profile() {
         const res = await profile.get(username);
         setProfileData(res.data.user);
         setPosts(res.data.posts);
+        setNextCursor(res.data.nextCursor);
         setBio(res.data.user.bio || '');
       } catch (err) {
         if (err.response?.status === 404) {
@@ -55,6 +60,20 @@ export default function Profile() {
       console.error('Failed to update bio:', err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const res = await profile.get(username, { cursor: nextCursor });
+      setPosts((prev) => [...prev, ...res.data.posts]);
+      setNextCursor(res.data.nextCursor);
+    } catch (err) {
+      console.error('Failed to load more:', err);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -158,6 +177,17 @@ export default function Profile() {
             {posts.map((post) => (
               <PostListItem key={post.slug} post={post} />
             ))}
+            {nextCursor && (
+              <div className="mt-8 text-center">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 text-sm transition"
+                >
+                  {loadingMore ? 'Loading...' : 'Older posts'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
