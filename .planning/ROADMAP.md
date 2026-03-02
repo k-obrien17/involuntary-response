@@ -125,6 +125,6 @@ Plans:
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
 | 15. Deployment Wiring | 2/2 | Complete    | 2026-03-01 | - |
 | 16. Social Sharing | 1/1 | Complete    | 2026-03-02 | - |
-| 17. Security Hardening | 1/1 | Complete   | 2026-03-02 | - |
+| 17. Security Hardening | 1/1 | Complete    | 2026-03-02 | - |
 | 18. Performance | v3.0 | 0/? | Not started | - |
 | 19. UX Polish | v3.0 | 0/? | Not started | - |
