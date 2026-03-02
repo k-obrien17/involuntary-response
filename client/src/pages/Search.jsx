@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { search as searchApi } from '../api/client';
 import PostCard from '../components/PostCard';
@@ -11,6 +11,25 @@ export default function Search() {
   const [nextCursor, setNextCursor] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchResults = useCallback(async () => {
+    if (!q) return;
+    setLoading(true);
+    setError(null);
+    setPosts([]);
+    setNextCursor(null);
+    try {
+      const res = await searchApi.query(q);
+      setPosts(res.data.posts);
+      setNextCursor(res.data.nextCursor);
+    } catch (err) {
+      console.error('Search failed:', err);
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [q]);
 
   useEffect(() => {
     if (!q) {
@@ -18,33 +37,20 @@ export default function Search() {
       setNextCursor(null);
       return;
     }
-
-    const fetchResults = async () => {
-      setLoading(true);
-      setPosts([]);
-      setNextCursor(null);
-      try {
-        const res = await searchApi.query(q);
-        setPosts(res.data.posts);
-        setNextCursor(res.data.nextCursor);
-      } catch (err) {
-        console.error('Search failed:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchResults();
-  }, [q]);
+  }, [q, fetchResults]);
 
   const loadMore = async () => {
     if (!nextCursor || loadingMore) return;
     setLoadingMore(true);
+    setError(null);
     try {
       const res = await searchApi.query(q, { cursor: nextCursor });
       setPosts((prev) => [...prev, ...res.data.posts]);
       setNextCursor(res.data.nextCursor);
     } catch (err) {
       console.error('Failed to load more:', err);
+      setError('Failed to load more results.');
     } finally {
       setLoadingMore(false);
     }
@@ -64,6 +70,22 @@ export default function Search() {
     return (
       <main className="max-w-2xl mx-auto px-4 py-12">
         <p className="text-gray-400 dark:text-gray-500 text-center">Searching...</p>
+      </main>
+    );
+  }
+
+  if (error && posts.length === 0) {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-12">
+        <div className="text-center">
+          <p className="text-gray-400 dark:text-gray-500 mb-4">{error}</p>
+          <button
+            onClick={fetchResults}
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 text-sm transition"
+          >
+            Retry
+          </button>
+        </div>
       </main>
     );
   }
