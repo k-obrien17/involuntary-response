@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import db from '../db/index.js';
-import { generateToken } from '../middleware/auth.js';
+import { generateToken, authenticateToken } from '../middleware/auth.js';
 import { sendResetEmail } from '../lib/email.js';
 
 const router = Router();
@@ -18,6 +18,25 @@ const forgotPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
   message: { error: 'Too many attempts, try again later' },
+});
+
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many attempts, try again later' },
+});
+
+// GET /api/auth/me
+router.get('/me', authenticateToken, (req, res) => {
+  res.json({
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      displayName: req.user.displayName,
+      username: req.user.username,
+      role: req.user.role,
+    },
+  });
 });
 
 // Username generation from display name
@@ -52,9 +71,9 @@ function isValidEmail(email) {
 
 // POST /api/auth/register
 router.post('/register', authLimiter, async (req, res) => {
-  const { email, password, displayName, token } = req.body;
+  const { email, password, displayName: rawDisplayName, token } = req.body;
 
-  if (!email || !password || !displayName || !token) {
+  if (!email || !password || !rawDisplayName || !token) {
     return res.status(400).json({ error: 'All fields are required' });
   }
   if (!isValidEmail(email)) {
@@ -62,6 +81,12 @@ router.post('/register', authLimiter, async (req, res) => {
   }
   if (password.length < 8) {
     return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
+
+  // Sanitize displayName: strip HTML tags and limit length
+  const displayName = rawDisplayName.replace(/<[^>]*>/g, '').trim().substring(0, 50);
+  if (!displayName) {
+    return res.status(400).json({ error: 'Display name is required' });
   }
 
   try {
@@ -221,7 +246,7 @@ router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
 });
 
 // POST /api/auth/reset-password
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', resetPasswordLimiter, async (req, res) => {
   const { token, password } = req.body;
 
   if (!token || !password) {
