@@ -25,17 +25,32 @@ export async function authenticateToken(req, res, next) {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
+  let decoded;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    // Check if user is still active in the database
-    const user = await db.get('SELECT is_active FROM users WHERE id = ?', decoded.id);
-    if (!user || user.is_active === 0) {
-      return res.status(403).json({ error: 'Account deactivated' });
-    }
-    req.user = decoded;
-    next();
+    decoded = jwt.verify(token, JWT_SECRET);
   } catch {
     return res.status(403).json({ error: 'Invalid or expired token' });
+  }
+
+  try {
+    const user = await db.get(
+      'SELECT id, email, role, username, display_name, is_active FROM users WHERE id = ?',
+      decoded.id
+    );
+    if (!user || user.is_active === 0) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    req.user = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      username: user.username,
+      displayName: user.display_name,
+    };
+    next();
+  } catch (err) {
+    console.error('Auth DB error for user', decoded.id, err);
+    return res.status(503).json({ error: 'Service temporarily unavailable' });
   }
 }
 
