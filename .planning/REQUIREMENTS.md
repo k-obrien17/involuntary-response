@@ -7,12 +7,12 @@
 
 ### Auth Hardening
 
-- [ ] **AUTH-01**: `authenticateToken` middleware reads user role from DB on every request instead of trusting JWT payload
-- [ ] **AUTH-02**: `optionalAuth` middleware checks `is_active` against DB, rejecting deactivated users
-- [ ] **AUTH-03**: Server exposes `GET /auth/me` endpoint that validates token and returns current user data
+- [x] **AUTH-01**: `authenticateToken` middleware reads user role from DB on every request instead of trusting JWT payload
+- [x] **AUTH-02**: `optionalAuth` middleware checks `is_active` against DB, rejecting deactivated users
+- [x] **AUTH-03**: Server exposes `GET /auth/me` endpoint that validates token and returns current user data
 - [ ] **AUTH-04**: Client calls `/auth/me` on startup to validate stored token and hydrate fresh user state
 - [ ] **AUTH-05**: Axios response interceptor clears auth state and redirects to `/login` on 401 responses
-- [ ] **AUTH-06**: `POST /api/auth/reset-password` has rate limiter matching `forgotPasswordLimiter`
+- [x] **AUTH-06**: `POST /api/auth/reset-password` has rate limiter matching `forgotPasswordLimiter`
 
 ### Security Infrastructure
 
@@ -62,12 +62,12 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 15 | Pending |
-| AUTH-02 | Phase 15 | Pending |
-| AUTH-03 | Phase 15 | Pending |
+| AUTH-01 | Phase 15 | Complete |
+| AUTH-02 | Phase 15 | Complete |
+| AUTH-03 | Phase 15 | Complete |
 | AUTH-04 | Phase 16 | Pending |
 | AUTH-05 | Phase 16 | Pending |
-| AUTH-06 | Phase 15 | Pending |
+| AUTH-06 | Phase 15 | Complete |
 | SEC-01 | Phase 15 | Complete |
 | SEC-02 | Phase 15 | Complete |
 | SEC-03 | Phase 15 | Complete |

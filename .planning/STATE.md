@@ -49,7 +49,11 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - v3.0 major version bump due to auth model changes
 - Server auth changes (Phase 15) must land before client auth integration (Phase 16)
 - Phase 17 (client robustness) independent of Phase 16; both depend on Phase 15
-- [Phase 15]: Helmet CSP allows frame-src for Spotify, Apple Music, YouTube, SoundCloud, Bandcamp embed domains
+- [Phase 15-01]: Auth middleware sources req.user from DB, JWT only used for ID extraction
+- [Phase 15-01]: authenticateToken returns 503 on DB failure (separate try/catch for JWT vs DB)
+- [Phase 15-01]: optionalAuth DB failures silently degrade to unauthenticated
+- [Phase 15-01]: Generic 401 for deactivated users — no account status leak
+- [Phase 15-02]: Helmet CSP allows frame-src for Spotify, Apple Music, YouTube, SoundCloud, Bandcamp embed domains
 
 ### Key Audit Findings (v3.0 driver)
 
