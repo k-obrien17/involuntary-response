@@ -150,9 +150,9 @@ const readerRegLimiter = rateLimit({
 
 // POST /api/auth/register-reader
 router.post('/register-reader', readerRegLimiter, async (req, res) => {
-  const { email, password, displayName } = req.body;
+  const { email, password, displayName: rawDisplayName } = req.body;
 
-  if (!email || !password || !displayName) {
+  if (!email || !password || !rawDisplayName) {
     return res.status(400).json({ error: 'Email, password, and display name are required' });
   }
   if (!isValidEmail(email)) {
@@ -160,6 +160,12 @@ router.post('/register-reader', readerRegLimiter, async (req, res) => {
   }
   if (password.length < 8) {
     return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
+
+  // Sanitize displayName: strip HTML tags and limit length
+  const displayName = rawDisplayName.replace(/<[^>]*>/g, '').trim().substring(0, 50);
+  if (!displayName) {
+    return res.status(400).json({ error: 'Display name is required' });
   }
 
   try {

@@ -4,6 +4,11 @@ import db from '../db/index.js';
 
 const router = Router();
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 // GET / — RSS feed of recent posts
 router.get('/', async (req, res) => {
   try {
@@ -52,12 +57,12 @@ router.get('/', async (req, res) => {
     for (const post of posts) {
       const embed = embedMap[post.id];
       const itemTitle = embed?.title
-        ? `${post.author_display_name} on ${embed.title}`
-        : `Post by ${post.author_display_name}`;
+        ? `${escapeHtml(post.author_display_name)} on ${escapeHtml(embed.title)}`
+        : `Post by ${escapeHtml(post.author_display_name)}`;
 
-      let content = `<p>${post.body}</p>`;
+      let content = `<p>${escapeHtml(post.body)}</p>`;
       if (embed?.originalUrl) {
-        content += `<p><a href="${embed.originalUrl}">${embed.title || 'Listen'}</a></p>`;
+        content += `<p><a href="${escapeHtml(embed.originalUrl)}">${escapeHtml(embed.title) || 'Listen'}</a></p>`;
       }
 
       feed.addItem({
