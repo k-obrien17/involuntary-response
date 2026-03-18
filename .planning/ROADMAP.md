@@ -51,7 +51,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 **Milestone Goal:** Fix all critical/high security and reliability issues from full app audit.
 
-- [ ] **Phase 15: Server Auth & Security** - Harden auth middleware, add security headers and rate limiting
+- [x] **Phase 15: Server Auth & Security** - Harden auth middleware, add security headers and rate limiting (completed 2026-03-18)
 - [ ] **Phase 16: Client Auth Integration** - Wire client to validate tokens on startup and handle 401s
 - [ ] **Phase 17: Client Robustness & UX** - Fix null-safety, race conditions, dead code, and UX rough edges
 
@@ -97,6 +97,6 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 | 1-5 | v1.0 | 12/12 | Complete | 2026-02-28 |
 | 6-9 | v2.0 | 7/7 | Complete | 2026-02-28 |
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
-| 15. Server Auth & Security | v3.0 | 0/TBD | Not started | - |
+| 15. Server Auth & Security | 2/2 | Complete   | 2026-03-18 | - |
 | 16. Client Auth Integration | v3.0 | 0/TBD | Not started | - |
 | 17. Client Robustness & UX | v3.0 | 0/TBD | Not started | - |

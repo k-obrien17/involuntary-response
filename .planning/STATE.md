@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.0
+milestone: v1.0
 milestone_name: Hardening
-status: ready_to_plan
-last_updated: "2026-03-18"
+status: unknown
+last_updated: "2026-03-18T17:22:40.807Z"
 progress:
-  total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 9
+  completed_plans: 9
 ---
 
 # Project State
@@ -23,16 +23,21 @@ See: .planning/PROJECT.md (updated 2026-03-18)
 ## Current Position
 
 Phase: 15 (first of 3 in v3.0)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-18 — Roadmap created for v3.0 Hardening milestone
+Plan: 2 of 2 in current phase (phase complete)
+Status: Phase 15 complete
+Last activity: 2026-03-18 — Completed 15-02 Security Infrastructure
 
-Progress (v3.0): [░░░░░░░░░░] 0%
+Progress (v3.0): [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 36 (v1.0: 12, v2.0: 7, v2.1: 17)
+- Total plans completed: 38 (v1.0: 12, v2.0: 7, v2.1: 17, v3.0: 2)
+
+| Phase | Plan | Duration | Tasks | Files |
+|-------|------|----------|-------|-------|
+| 15    | 01   | 2min     | 3     | 2     |
+| 15    | 02   | 2min     | 2     | 4     |
 
 ## Accumulated Context
 
@@ -44,6 +49,7 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - v3.0 major version bump due to auth model changes
 - Server auth changes (Phase 15) must land before client auth integration (Phase 16)
 - Phase 17 (client robustness) independent of Phase 16; both depend on Phase 15
+- [Phase 15]: Helmet CSP allows frame-src for Spotify, Apple Music, YouTube, SoundCloud, Bandcamp embed domains
 
 ### Key Audit Findings (v3.0 driver)
 
@@ -65,5 +71,5 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: Roadmap created for v3.0 Hardening (3 phases, 21 requirements)
+Stopped at: Completed 15-02-PLAN.md (Security Infrastructure) — Phase 15 complete
 Resume file: None

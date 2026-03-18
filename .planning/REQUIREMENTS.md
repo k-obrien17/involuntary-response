@@ -16,11 +16,11 @@
 
 ### Security Infrastructure
 
-- [ ] **SEC-01**: Server uses helmet middleware for security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
-- [ ] **SEC-02**: RSS feed HTML-entity-encodes `embed.originalUrl` and `embed.title` before inserting into content
-- [ ] **SEC-03**: Global rate limiter applied as baseline on all routes (e.g., 200 req/min per IP)
-- [ ] **SEC-04**: `displayName` is sanitized (HTML stripped) and length-limited (50 chars) on registration
-- [ ] **SEC-05**: `express.json()` has explicit body size limit (`{ limit: '100kb' }`)
+- [x] **SEC-01**: Server uses helmet middleware for security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
+- [x] **SEC-02**: RSS feed HTML-entity-encodes `embed.originalUrl` and `embed.title` before inserting into content
+- [x] **SEC-03**: Global rate limiter applied as baseline on all routes (e.g., 200 req/min per IP)
+- [x] **SEC-04**: `displayName` is sanitized (HTML stripped) and length-limited (50 chars) on registration
+- [x] **SEC-05**: `express.json()` has explicit body size limit (`{ limit: '100kb' }`)
 
 ### Client Robustness
 
@@ -68,11 +68,11 @@
 | AUTH-04 | Phase 16 | Pending |
 | AUTH-05 | Phase 16 | Pending |
 | AUTH-06 | Phase 15 | Pending |
-| SEC-01 | Phase 15 | Pending |
-| SEC-02 | Phase 15 | Pending |
-| SEC-03 | Phase 15 | Pending |
-| SEC-04 | Phase 15 | Pending |
-| SEC-05 | Phase 15 | Pending |
+| SEC-01 | Phase 15 | Complete |
+| SEC-02 | Phase 15 | Complete |
+| SEC-03 | Phase 15 | Complete |
+| SEC-04 | Phase 15 | Complete |
+| SEC-05 | Phase 15 | Complete |
 | ROBU-01 | Phase 17 | Pending |
 | ROBU-02 | Phase 17 | Pending |
 | ROBU-03 | Phase 17 | Pending |
