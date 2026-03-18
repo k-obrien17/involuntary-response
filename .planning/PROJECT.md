@@ -38,7 +38,15 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 
 ### Active
 
-(None — planning next milestone)
+#### Current Milestone: v3.0 Hardening
+
+**Goal:** Fix all critical/high security and reliability issues identified by full app audit (2026-03-18).
+
+**Target features:**
+- Auth hardening: DB-sourced roles, `/auth/me` validation, `optionalAuth` `is_active` check, 401 interceptor
+- Security infrastructure: helmet headers, RSS XSS fix, `displayName` sanitization, global rate limiter, password reset rate limit
+- Client robustness: null-safety fixes, EditPost race condition, double-decode bug, debounce cleanup, date parsing, dead code removal
+- UX fixes: publish reload hack, delete error feedback, embed iframe attribute allowlist
 
 ### Deferred
 
@@ -57,6 +65,8 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - Email notifications — contributor pool is small enough to check dashboard
 
 ## Context
+
+**Full app audit conducted** (2026-03-18): 4 Critical, 5 High, 15 Medium, 10 Low findings across server, client, and infrastructure. Primary themes: stale JWT roles, missing security headers, client auth gaps, scattered null-safety issues.
 
 **Shipped v2.1 Reader Engagement & Editorial** (2026-03-01): ~15,000 LOC across React 18 + Express 5 + Turso.
 - 56 files modified in v2.1 (+6,712 lines)
@@ -103,7 +113,8 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | Three-way comment delete auth | Comment author, post author, or admin can delete | ✓ Good — server-enforced, canDelete boolean in response |
 | published_at for feed ordering | Drafts use NULL published_at; feed orders by publish time not creation | ✓ Good — drafts don't bury in feed when later published |
 | No unpublish | Once published, post cannot revert to draft (protects engagement data) | ✓ Good — simple mental model, 400 rejection on attempt |
-| Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | — Pending — revisit in next milestone |
+| Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | — Pending — deferred again from v3.0 (hardening focus) |
+| v3.0 as hardening milestone | Audit found 4 critical + 5 high issues; fix before adding features | — Pending |
 
 ---
-*Last updated: 2026-03-01 after v2.1 milestone shipped*
+*Last updated: 2026-03-18 after v3.0 milestone initialization (driven by full app audit)*
