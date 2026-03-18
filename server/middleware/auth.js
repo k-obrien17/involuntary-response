@@ -6,13 +6,35 @@ if (!process.env.JWT_SECRET) {
 }
 export const JWT_SECRET = process.env.JWT_SECRET;
 
-export function optionalAuth(req, res, next) {
+export async function optionalAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (token) {
+    let decoded;
     try {
-      req.user = jwt.verify(token, JWT_SECRET);
-    } catch {}
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch {
+      // Invalid/expired token — treat as unauthenticated
+      return next();
+    }
+    try {
+      const user = await db.get(
+        'SELECT id, email, role, username, display_name, is_active FROM users WHERE id = ?',
+        decoded.id
+      );
+      if (user && user.is_active !== 0) {
+        req.user = {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          username: user.username,
+          displayName: user.display_name,
+        };
+      }
+    } catch (err) {
+      console.error('optionalAuth DB error for user', decoded.id, err);
+      // DB failure — treat as unauthenticated (graceful degradation)
+    }
   }
   next();
 }
