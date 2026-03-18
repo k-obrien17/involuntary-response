@@ -62,33 +62,33 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| AUTH-06 | — | Pending |
-| SEC-01 | — | Pending |
-| SEC-02 | — | Pending |
-| SEC-03 | — | Pending |
-| SEC-04 | — | Pending |
-| SEC-05 | — | Pending |
-| ROBU-01 | — | Pending |
-| ROBU-02 | — | Pending |
-| ROBU-03 | — | Pending |
-| ROBU-04 | — | Pending |
-| ROBU-05 | — | Pending |
-| ROBU-06 | — | Pending |
-| ROBU-07 | — | Pending |
-| ROBU-08 | — | Pending |
-| UX-01 | — | Pending |
-| UX-02 | — | Pending |
+| AUTH-01 | Phase 15 | Pending |
+| AUTH-02 | Phase 15 | Pending |
+| AUTH-03 | Phase 15 | Pending |
+| AUTH-04 | Phase 16 | Pending |
+| AUTH-05 | Phase 16 | Pending |
+| AUTH-06 | Phase 15 | Pending |
+| SEC-01 | Phase 15 | Pending |
+| SEC-02 | Phase 15 | Pending |
+| SEC-03 | Phase 15 | Pending |
+| SEC-04 | Phase 15 | Pending |
+| SEC-05 | Phase 15 | Pending |
+| ROBU-01 | Phase 17 | Pending |
+| ROBU-02 | Phase 17 | Pending |
+| ROBU-03 | Phase 17 | Pending |
+| ROBU-04 | Phase 17 | Pending |
+| ROBU-05 | Phase 17 | Pending |
+| ROBU-06 | Phase 17 | Pending |
+| ROBU-07 | Phase 17 | Pending |
+| ROBU-08 | Phase 17 | Pending |
+| UX-01 | Phase 17 | Pending |
+| UX-02 | Phase 17 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21 ⚠️
+- Mapped to phases: 21
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-18*
-*Last updated: 2026-03-18 after initial definition*
+*Last updated: 2026-03-18 after roadmap creation*

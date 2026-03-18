@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Hardening
-status: defining_requirements
+status: ready_to_plan
 last_updated: "2026-03-18"
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -18,14 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music — and the music is right there to listen to.
-**Current focus:** Defining requirements for v3.0 Hardening
+**Current focus:** v3.0 Hardening — Phase 15: Server Auth & Security
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-18 — Milestone v3.0 started (driven by full app audit)
+Phase: 15 (first of 3 in v3.0)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-03-18 — Roadmap created for v3.0 Hardening milestone
+
+Progress (v3.0): [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -40,6 +42,8 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - v3.0 milestone scoped from full app audit findings (4 Critical, 5 High, 15 Medium, 10 Low)
 - Scheduled posts deferred again — hardening takes priority
 - v3.0 major version bump due to auth model changes
+- Server auth changes (Phase 15) must land before client auth integration (Phase 16)
+- Phase 17 (client robustness) independent of Phase 16; both depend on Phase 15
 
 ### Key Audit Findings (v3.0 driver)
 
@@ -61,5 +65,5 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: Defining v3.0 requirements from audit findings
+Stopped at: Roadmap created for v3.0 Hardening (3 phases, 21 requirements)
 Resume file: None
