@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 import authRoutes from './routes/auth.js';
 import invitesRoutes from './routes/invites.js';
@@ -16,10 +18,45 @@ import { initDatabase } from './db/index.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      frameSrc: [
+        "'self'",
+        "https://open.spotify.com",
+        "https://embed.music.apple.com",
+        "https://www.youtube.com",
+        "https://w.soundcloud.com",
+        "https://bandcamp.com",
+        "https://*.bandcamp.com",
+      ],
+      imgSrc: ["'self'", "https:", "data:"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    },
+  },
+  frameguard: { action: 'deny' },
+  hsts: { maxAge: 31536000, includeSubDomains: true },
+}));
+
+// CORS
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
 }));
-app.use(express.json());
+
+// Global rate limiter — 200 req/min per IP
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+});
+app.use(globalLimiter);
+
+app.use(express.json({ limit: '100kb' }));
 
 // Routes
 app.use('/api/auth', authRoutes);
