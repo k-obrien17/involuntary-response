@@ -162,17 +162,38 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
     const { embedUrl, tags } = req.body;
     const body = sanitize(req.body.body, 1200);
     const artistName = sanitize(req.body.artistName, 200);
-    const status = req.body.status === 'draft' ? 'draft' : 'published';
+    let status;
+    if (req.body.status === 'draft') {
+      status = 'draft';
+    } else if (req.body.status === 'scheduled') {
+      status = 'scheduled';
+    } else {
+      status = 'published';
+    }
 
     if (!body) {
       return res.status(400).json({ error: 'Post body is required' });
     }
 
+    // Validate scheduledAt for scheduled posts
+    let scheduledAt = null;
+    if (status === 'scheduled') {
+      const rawScheduledAt = req.body.scheduledAt;
+      if (!rawScheduledAt || isNaN(new Date(rawScheduledAt).getTime())) {
+        return res.status(400).json({ error: 'Scheduled time is required for scheduled posts' });
+      }
+      const parsed = new Date(rawScheduledAt);
+      if (parsed.getTime() <= Date.now()) {
+        return res.status(400).json({ error: 'Scheduled time must be in the future' });
+      }
+      scheduledAt = parsed.toISOString();
+    }
+
     const slug = nanoid();
 
     const result = await db.run(
-      `INSERT INTO posts (slug, body, author_id, status, published_at) VALUES (?, ?, ?, ?, ${status === 'published' ? 'CURRENT_TIMESTAMP' : 'NULL'})`,
-      slug, body, req.user.id, status
+      `INSERT INTO posts (slug, body, author_id, status, published_at, scheduled_at) VALUES (?, ?, ?, ?, ${status === 'published' ? 'CURRENT_TIMESTAMP' : 'NULL'}, ?)`,
+      slug, body, req.user.id, status, scheduledAt
     );
     const postId = result.lastInsertRowid;
 
@@ -203,7 +224,7 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
       await insertTags(postId, tags);
     }
 
-    res.status(201).json({ id: postId, slug, status });
+    res.status(201).json({ id: postId, slug, status, ...(scheduledAt && { scheduledAt }) });
   } catch (err) {
     console.error('Create post error:', err);
     res.status(500).json({ error: 'Failed to create post' });
@@ -214,7 +235,7 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
 router.get('/mine', authenticateToken, requireContributor, async (req, res) => {
   try {
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.status, p.created_at, p.updated_at, p.published_at,
+      `SELECT p.id, p.slug, p.body, p.status, p.scheduled_at, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
@@ -229,6 +250,7 @@ router.get('/mine', authenticateToken, requireContributor, async (req, res) => {
     const posts = rows.map((p) => ({
       ...formatPosts([p], embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap)[0],
       status: p.status,
+      scheduledAt: p.scheduled_at || null,
     }));
 
     res.json({ posts });
@@ -368,7 +390,7 @@ router.delete('/:slug/comments/:commentId', authenticateToken, async (req, res) 
 router.get('/:slug', optionalAuth, async (req, res) => {
   try {
     const post = await db.get(
-      `SELECT p.id, p.slug, p.body, p.author_id, p.status, p.created_at, p.updated_at, p.published_at,
+      `SELECT p.id, p.slug, p.body, p.author_id, p.status, p.scheduled_at, p.created_at, p.updated_at, p.published_at,
               u.display_name as author_display_name, u.username as author_username, u.email as author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
@@ -452,6 +474,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
       createdAt: post.created_at,
       updatedAt: post.updated_at,
       publishedAt: post.published_at,
+      scheduledAt: post.scheduled_at || null,
       author: {
         displayName: post.author_display_name,
         username: post.author_username,
@@ -492,11 +515,28 @@ router.put('/:slug', authenticateToken, requireContributor, updateLimiter, async
       return res.status(403).json({ error: 'Not authorized to edit this post' });
     }
 
-    const newStatus = req.body.status;
+    const newStatus = req.body.status || post.status;
 
-    // Reject unpublish: published posts cannot revert to draft
+    // Reject invalid transitions
     if (post.status === 'published' && newStatus === 'draft') {
       return res.status(400).json({ error: 'Cannot unpublish a published post' });
+    }
+    if (post.status === 'published' && newStatus === 'scheduled') {
+      return res.status(400).json({ error: 'Cannot schedule an already published post' });
+    }
+
+    // Handle scheduling validation
+    let scheduledAt = null;
+    if (newStatus === 'scheduled') {
+      const rawScheduledAt = req.body.scheduledAt;
+      if (!rawScheduledAt || isNaN(new Date(rawScheduledAt).getTime())) {
+        return res.status(400).json({ error: 'Scheduled time is required for scheduled posts' });
+      }
+      const parsed = new Date(rawScheduledAt);
+      if (parsed.getTime() <= Date.now()) {
+        return res.status(400).json({ error: 'Scheduled time must be in the future' });
+      }
+      scheduledAt = parsed.toISOString();
     }
 
     const { embedUrl, tags } = req.body;
@@ -507,12 +547,23 @@ router.put('/:slug', authenticateToken, requireContributor, updateLimiter, async
       return res.status(400).json({ error: 'Post body is required' });
     }
 
-    // Detect publish transition: draft -> published
-    const isPublishing = post.status === 'draft' && newStatus === 'published';
+    const isPublishing = (post.status === 'draft' || post.status === 'scheduled') && newStatus === 'published';
+    const isScheduling = newStatus === 'scheduled';
+    const isCancellingSchedule = post.status === 'scheduled' && newStatus === 'draft';
 
     if (isPublishing) {
       await db.run(
-        "UPDATE posts SET body = ?, status = 'published', published_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        "UPDATE posts SET body = ?, status = 'published', published_at = CURRENT_TIMESTAMP, scheduled_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        body, post.id
+      );
+    } else if (isScheduling) {
+      await db.run(
+        "UPDATE posts SET body = ?, status = 'scheduled', scheduled_at = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        body, scheduledAt, post.id
+      );
+    } else if (isCancellingSchedule) {
+      await db.run(
+        "UPDATE posts SET body = ?, status = 'draft', scheduled_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         body, post.id
       );
     } else {
@@ -546,7 +597,8 @@ router.put('/:slug', authenticateToken, requireContributor, updateLimiter, async
       await insertTags(post.id, tags);
     }
 
-    res.json({ id: post.id, slug: req.params.slug, status: isPublishing ? 'published' : post.status });
+    const finalStatus = isPublishing ? 'published' : (isScheduling ? 'scheduled' : (isCancellingSchedule ? 'draft' : post.status));
+    res.json({ id: post.id, slug: req.params.slug, status: finalStatus, ...(scheduledAt && { scheduledAt }) });
   } catch (err) {
     console.error('Update post error:', err);
     res.status(500).json({ error: 'Failed to update post' });

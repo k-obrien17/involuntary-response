@@ -202,6 +202,11 @@ export async function initDatabase() {
         CREATE INDEX IF NOT EXISTS idx_post_comments_post ON post_comments(post_id, created_at);
       `,
     },
+    {
+      id: 6,
+      name: 'add_scheduled_at',
+      sql: `ALTER TABLE posts ADD COLUMN scheduled_at DATETIME;`,
+    },
   ];
 
   for (const m of migrations) {
