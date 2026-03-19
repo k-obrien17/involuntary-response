@@ -69,6 +69,7 @@ export default function EditPost() {
       await posts.delete(slug);
       navigate('/');
     } catch {
+      setError('Failed to delete post. Please try again.');
       setDeleting(false);
     }
   };

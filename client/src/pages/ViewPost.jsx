@@ -60,8 +60,9 @@ export default function ViewPost() {
                   artistName: post.artists?.[0]?.name || null,
                   status: 'published',
                 });
-                navigate(`/posts/${post.slug}`);
-                window.location.reload();
+                const res = await posts.getBySlug(post.slug);
+                setPost(res.data);
+                setPublishing(false);
               } catch {
                 setPublishing(false);
               }
