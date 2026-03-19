@@ -12,6 +12,25 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// 401 response interceptor — clears auth state on expired/invalid tokens
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/register-reader', '/auth/google'];
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      const requestUrl = error.config?.url || '';
+      const isAuthEndpoint = AUTH_ENDPOINTS.some((ep) => requestUrl.includes(ep));
+      if (!isAuthEndpoint) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const auth = {
   login: (email, password) => api.post('/auth/login', { email, password }),
   register: (email, password, displayName, token) =>
@@ -21,6 +40,7 @@ export const auth = {
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
   resetPassword: (token, password) =>
     api.post('/auth/reset-password', { token, password }),
+  me: () => api.get('/auth/me'),
 };
 
 export const invites = {
