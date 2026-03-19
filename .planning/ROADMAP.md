@@ -90,7 +90,9 @@ Plans:
   3. Deleting a post that fails server-side shows an error message to the user instead of silently failing
   4. The `EditPost` page does not flash "unauthorized" before auth context finishes loading
   5. Embed iframes only contain allowlisted attributes (src, width, height, allow, sandbox)
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 17-01-PLAN.md — Robustness fixes (null-safety, dead code, cleanup) and UX improvements (publish re-fetch, delete error)
 
 ## Progress
 
@@ -101,4 +103,4 @@ Plans:
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
 | 15. Server Auth & Security | 2/2 | Complete    | 2026-03-19 | - |
 | 16. Client Auth Integration | 1/1 | Complete    | 2026-03-19 | - |
-| 17. Client Robustness & UX | v3.0 | 0/TBD | Not started | - |
+| 17. Client Robustness & UX | v3.0 | 0/1 | Not started | - |
