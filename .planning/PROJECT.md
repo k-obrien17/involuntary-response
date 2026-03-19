@@ -51,11 +51,19 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 
 ### Active
 
-(None — planning next milestone)
+#### Current Milestone: v3.1 Scheduled Posts
+
+**Goal:** Contributors can schedule draft posts to publish automatically at a future date/time.
+
+**Target features:**
+- Contributor picks a date/time in their local timezone to schedule a draft
+- Server-side polling checks for due posts every few minutes and publishes them
+- Scheduled posts appear in My Posts dashboard with their scheduled time
+- Contributors can edit or cancel a scheduled post before it goes live
 
 ### Deferred
 
-- Contributors can schedule posts for future publish dates (deferred from v2.1)
+(None)
 
 ### Out of Scope
 
@@ -123,11 +131,11 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | Three-way comment delete auth | Comment author, post author, or admin can delete | ✓ Good — server-enforced, canDelete boolean in response |
 | published_at for feed ordering | Drafts use NULL published_at; feed orders by publish time not creation | ✓ Good — drafts don't bury in feed when later published |
 | No unpublish | Once published, post cannot revert to draft (protects engagement data) | ✓ Good — simple mental model, 400 rejection on attempt |
-| Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | — Pending — deferred again from v3.0 (hardening focus) |
+| Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | — Pending — now active in v3.1 |
 | v3.0 as hardening milestone | Audit found 4 critical + 5 high issues; fix before adding features | ✓ Good — all 21 requirements shipped, 0 gaps |
 | DB-sourced roles over shorter JWT expiry | Reading role from DB on every request eliminates stale-role risk without disrupting UX (365d expiry stays) | ✓ Good — simpler than refresh tokens, equally effective |
 | Permissive CSP with provider allowlist | Strict CSP would break Spotify/Apple Music embeds; allowlist covers all 5 oEmbed providers + Gravatar | ✓ Good — embeds work, clickjacking blocked |
 | optionalAuth graceful degradation | DB failure on public routes → treat as unauthenticated (feed still loads without personalization) | ✓ Good — availability over correctness for read-only data |
 
 ---
-*Last updated: 2026-03-19 after v3.0 Hardening milestone shipped*
+*Last updated: 2026-03-19 after v3.1 milestone initialization*
