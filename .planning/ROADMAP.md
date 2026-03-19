@@ -88,7 +88,10 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
   2. Contributor can cancel a scheduled post from My Posts or the edit view, reverting it to draft status
   3. Contributor can edit a scheduled post's content or change its scheduled time to a different future date/time
   4. My Posts dashboard shows scheduled posts in a distinct section or with a visible scheduled badge and the scheduled date/time in the contributor's local timezone
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 19-01-PLAN.md — PostForm scheduling controls + CreatePost/EditPost wiring
+- [ ] 19-02-PLAN.md — My Posts scheduled section with date/time display
 
 ## Progress
 
@@ -97,4 +100,4 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 18. Scheduling Backend | 2/2 | Complete    | 2026-03-19 | - |
-| 19. Scheduling UI | v3.1 | 0/TBD | Not started | - |
+| 19. Scheduling UI | v3.1 | 0/2 | Not started | - |
