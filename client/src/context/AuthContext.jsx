@@ -9,16 +9,35 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    // Immediately set user from localStorage to avoid flash of logged-out state
     const storedUser = localStorage.getItem('user');
-    if (token && storedUser) {
+    if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
       } catch {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        // Invalid JSON — will be cleared after /auth/me fails
       }
     }
-    setLoading(false);
+
+    // Validate token with server
+    auth.me()
+      .then((res) => {
+        setUser(res.data.user);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+      })
+      .catch(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const handleAuthResponse = (res) => {
