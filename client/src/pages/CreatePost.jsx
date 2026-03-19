@@ -32,6 +32,18 @@ export default function CreatePost() {
     }
   };
 
+  const handleSchedule = async ({ body, embedUrl, tags, artistName, scheduledAt }) => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      await posts.create({ body, embedUrl, tags, artistName, status: 'scheduled', scheduledAt });
+      navigate('/my-posts');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to schedule post');
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Write a take</h1>
@@ -40,7 +52,12 @@ export default function CreatePost() {
           {error}
         </div>
       )}
-      <PostForm onSubmit={handleSubmit} onSaveDraft={handleSaveDraft} submitting={submitting} />
+      <PostForm
+        onSubmit={handleSubmit}
+        onSaveDraft={handleSaveDraft}
+        onSchedule={handleSchedule}
+        submitting={submitting}
+      />
     </div>
   );
 }
