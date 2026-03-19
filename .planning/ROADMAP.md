@@ -103,4 +103,4 @@ Plans:
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
 | 15. Server Auth & Security | 2/2 | Complete    | 2026-03-19 | - |
 | 16. Client Auth Integration | 1/1 | Complete    | 2026-03-19 | - |
-| 17. Client Robustness & UX | 1/1 | Complete   | 2026-03-19 | - |
+| 17. Client Robustness & UX | 1/1 | Complete    | 2026-03-19 | - |
