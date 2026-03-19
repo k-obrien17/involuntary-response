@@ -13,7 +13,7 @@
 - [x] **SCHED-04**: Server automatically publishes scheduled posts within a few minutes of their scheduled time
 - [ ] **SCHED-05**: Contributor can cancel a scheduled post (reverts to draft)
 - [ ] **SCHED-06**: Contributor can edit a scheduled post's content or reschedule its time
-- [ ] **SCHED-07**: My Posts dashboard shows scheduled posts with their scheduled date/time
+- [x] **SCHED-07**: My Posts dashboard shows scheduled posts with their scheduled date/time
 - [x] **SCHED-08**: Scheduled posts do not appear in public feed until published
 
 ## Future Requirements
@@ -43,7 +43,7 @@
 | SCHED-04 | Phase 18 | Complete |
 | SCHED-05 | Phase 19 | Pending |
 | SCHED-06 | Phase 19 | Pending |
-| SCHED-07 | Phase 19 | Pending |
+| SCHED-07 | Phase 19 | Complete |
 | SCHED-08 | Phase 18 | Complete |
 
 **Coverage:**
