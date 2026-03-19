@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Hardening
 status: unknown
-last_updated: "2026-03-19T12:02:14.725Z"
+last_updated: "2026-03-19T12:13:12.289Z"
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 10
-  completed_plans: 10
+  total_phases: 7
+  completed_phases: 7
+  total_plans: 11
+  completed_plans: 11
 ---
 
 # Project State
@@ -18,27 +18,28 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music — and the music is right there to listen to.
-**Current focus:** v3.0 Hardening — Phase 16: Client Auth Integration
+**Current focus:** v3.0 Hardening — Phase 17: Client Robustness & UX
 
 ## Current Position
 
-Phase: 16 (second of 3 in v3.0)
+Phase: 17 (third of 3 in v3.0)
 Plan: 1 of 1 in current phase (phase complete)
-Status: Phase 16 complete
-Last activity: 2026-03-19 — Completed 16-01 Client Auth Integration
+Status: Phase 17 complete
+Last activity: 2026-03-19 — Completed 17-01 Client Robustness & UX
 
-Progress (v3.0): [██████░░░░] 60%
+Progress (v3.0): [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 39 (v1.0: 12, v2.0: 7, v2.1: 17, v3.0: 3)
+- Total plans completed: 40 (v1.0: 12, v2.0: 7, v2.1: 17, v3.0: 4)
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 15    | 01   | 2min     | 3     | 2     |
 | 15    | 02   | 2min     | 2     | 4     |
 | 16    | 01   | 2min     | 2     | 2     |
+| 17    | 01   | 2min     | 2     | 9     |
 
 ## Accumulated Context
 
@@ -58,6 +59,7 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 - [Phase 16-01]: 401 interceptor operates on localStorage/window.location directly, not via AuthContext (avoids circular dep)
 - [Phase 16-01]: Auth endpoints excluded from 401 interception so failed login shows inline error
 - [Phase 16-01]: Optimistic localStorage read before async /auth/me prevents flash of logged-out UI
+- [Phase 17]: Renamed EditPost loading to loadingPost to avoid collision with auth context loading
 
 ### Key Audit Findings (v3.0 driver)
 
@@ -79,5 +81,5 @@ Decisions logged in PROJECT.md Key Decisions table. Recent:
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 16-01-PLAN.md (Client Auth Integration) — Phase 16 complete
+Stopped at: Completed 17-01-PLAN.md (Client Robustness & UX) -- Phase 17 complete
 Resume file: None

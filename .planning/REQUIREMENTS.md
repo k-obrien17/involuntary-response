@@ -24,19 +24,19 @@
 
 ### Client Robustness
 
-- [ ] **ROBU-01**: `PostCard` uses optional chaining for `post.tags` and `post.author` access
-- [ ] **ROBU-02**: `PostListItem` uses optional chaining for `post.author` access with fallback values
-- [ ] **ROBU-03**: `ArtistPage` removes redundant `decodeURIComponent` call on already-decoded `useParams()` value
-- [ ] **ROBU-04**: `EditPost` waits for auth context `loading` to complete before checking ownership
-- [ ] **ROBU-05**: `EmbedInput` cleans up debounce timer on component unmount
-- [ ] **ROBU-06**: `formatDate` helper handles dates that already end with 'Z' without double-appending
-- [ ] **ROBU-07**: `ProtectedRoute` component removed (dead code, unused anywhere)
-- [ ] **ROBU-08**: `EmbedPreview` allowlists specific iframe attributes (src, width, height, allow, sandbox) instead of accepting all
+- [x] **ROBU-01**: `PostCard` uses optional chaining for `post.tags` and `post.author` access
+- [x] **ROBU-02**: `PostListItem` uses optional chaining for `post.author` access with fallback values
+- [x] **ROBU-03**: `ArtistPage` removes redundant `decodeURIComponent` call on already-decoded `useParams()` value
+- [x] **ROBU-04**: `EditPost` waits for auth context `loading` to complete before checking ownership
+- [x] **ROBU-05**: `EmbedInput` cleans up debounce timer on component unmount
+- [x] **ROBU-06**: `formatDate` helper handles dates that already end with 'Z' without double-appending
+- [x] **ROBU-07**: `ProtectedRoute` component removed (dead code, unused anywhere)
+- [x] **ROBU-08**: `EmbedPreview` allowlists specific iframe attributes (src, width, height, allow, sandbox) instead of accepting all
 
 ### UX Fixes
 
-- [ ] **UX-01**: `ViewPost` re-fetches post data after publish instead of using `window.location.reload()`
-- [ ] **UX-02**: `EditPost` shows error message to user when post deletion fails
+- [x] **UX-01**: `ViewPost` re-fetches post data after publish instead of using `window.location.reload()`
+- [x] **UX-02**: `EditPost` shows error message to user when post deletion fails
 
 ## Future Requirements
 
@@ -73,16 +73,16 @@
 | SEC-03 | Phase 15 | Complete |
 | SEC-04 | Phase 15 | Complete |
 | SEC-05 | Phase 15 | Complete |
-| ROBU-01 | Phase 17 | Pending |
-| ROBU-02 | Phase 17 | Pending |
-| ROBU-03 | Phase 17 | Pending |
-| ROBU-04 | Phase 17 | Pending |
-| ROBU-05 | Phase 17 | Pending |
-| ROBU-06 | Phase 17 | Pending |
-| ROBU-07 | Phase 17 | Pending |
-| ROBU-08 | Phase 17 | Pending |
-| UX-01 | Phase 17 | Pending |
-| UX-02 | Phase 17 | Pending |
+| ROBU-01 | Phase 17 | Complete |
+| ROBU-02 | Phase 17 | Complete |
+| ROBU-03 | Phase 17 | Complete |
+| ROBU-04 | Phase 17 | Complete |
+| ROBU-05 | Phase 17 | Complete |
+| ROBU-06 | Phase 17 | Complete |
+| ROBU-07 | Phase 17 | Complete |
+| ROBU-08 | Phase 17 | Complete |
+| UX-01 | Phase 17 | Complete |
+| UX-02 | Phase 17 | Complete |
 
 **Coverage:**
 - v3.0 requirements: 21 total

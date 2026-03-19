@@ -53,7 +53,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 - [x] **Phase 15: Server Auth & Security** - Harden auth middleware, add security headers and rate limiting (completed 2026-03-18)
 - [x] **Phase 16: Client Auth Integration** - Wire client to validate tokens on startup and handle 401s (completed 2026-03-19)
-- [ ] **Phase 17: Client Robustness & UX** - Fix null-safety, race conditions, dead code, and UX rough edges
+- [x] **Phase 17: Client Robustness & UX** - Fix null-safety, race conditions, dead code, and UX rough edges (completed 2026-03-19)
 
 ## Phase Details
 
@@ -103,4 +103,4 @@ Plans:
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
 | 15. Server Auth & Security | 2/2 | Complete    | 2026-03-19 | - |
 | 16. Client Auth Integration | 1/1 | Complete    | 2026-03-19 | - |
-| 17. Client Robustness & UX | v3.0 | 0/1 | Not started | - |
+| 17. Client Robustness & UX | 1/1 | Complete   | 2026-03-19 | - |
