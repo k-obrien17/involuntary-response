@@ -14,6 +14,7 @@ import embedsRoutes from './routes/embeds.js';
 import feedRoutes from './routes/feed.js';
 import searchRoutes from './routes/search.js';
 import { initDatabase } from './db/index.js';
+import { startScheduler } from './lib/scheduler.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -82,6 +83,7 @@ app.use((err, req, res, next) => {
 
 // Init DB then start server
 await initDatabase();
+startScheduler();
 
 app.listen(PORT, () => {
   console.log(`Involuntary Response server running on http://localhost:${PORT}`);
