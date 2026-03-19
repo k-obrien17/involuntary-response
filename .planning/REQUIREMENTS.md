@@ -37,20 +37,20 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCHED-01 | — | Pending |
-| SCHED-02 | — | Pending |
-| SCHED-03 | — | Pending |
-| SCHED-04 | — | Pending |
-| SCHED-05 | — | Pending |
-| SCHED-06 | — | Pending |
-| SCHED-07 | — | Pending |
-| SCHED-08 | — | Pending |
+| SCHED-01 | Phase 19 | Pending |
+| SCHED-02 | Phase 19 | Pending |
+| SCHED-03 | Phase 18 | Pending |
+| SCHED-04 | Phase 18 | Pending |
+| SCHED-05 | Phase 19 | Pending |
+| SCHED-06 | Phase 19 | Pending |
+| SCHED-07 | Phase 19 | Pending |
+| SCHED-08 | Phase 18 | Pending |
 
 **Coverage:**
 - v3.1 requirements: 8 total
-- Mapped to phases: 0
-- Unmapped: 8 ⚠️
+- Mapped to phases: 8
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after initial definition*
+*Last updated: 2026-03-19 after roadmap creation*
