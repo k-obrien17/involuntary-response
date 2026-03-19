@@ -63,7 +63,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 **Milestone Goal:** Contributors can schedule draft posts to publish automatically at a future date/time.
 
-- [ ] **Phase 18: Scheduling Backend** - Schema, scheduled status, auto-publish mechanism, feed filtering
+- [x] **Phase 18: Scheduling Backend** - Schema, scheduled status, auto-publish mechanism, feed filtering (completed 2026-03-19)
 - [ ] **Phase 19: Scheduling UI** - Date/time picker, timezone display, cancel/reschedule, My Posts updates
 
 ## Phase Details
@@ -96,5 +96,5 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Scheduling Backend | 1/2 | In Progress|  | - |
+| 18. Scheduling Backend | 2/2 | Complete   | 2026-03-19 | - |
 | 19. Scheduling UI | v3.1 | 0/TBD | Not started | - |
