@@ -76,7 +76,9 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 **Success Criteria** (what must be TRUE):
   1. On page load, the client validates its stored token against the server and shows current user state (not stale localStorage data)
   2. When a logged-in user's session becomes invalid, they are redirected to `/login` and stale auth state is cleared
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 16-01-PLAN.md — 401 interceptor + /auth/me startup validation
 
 ### Phase 17: Client Robustness & UX
 **Goal**: Client handles edge cases gracefully and provides proper user feedback
@@ -98,5 +100,5 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 | 6-9 | v2.0 | 7/7 | Complete | 2026-02-28 |
 | 10-14 | v2.1 | 10/10 | Complete | 2026-03-01 |
 | 15. Server Auth & Security | 2/2 | Complete    | 2026-03-19 | - |
-| 16. Client Auth Integration | v3.0 | 0/TBD | Not started | - |
+| 16. Client Auth Integration | v3.0 | 0/1 | Planned | - |
 | 17. Client Robustness & UX | v3.0 | 0/TBD | Not started | - |
