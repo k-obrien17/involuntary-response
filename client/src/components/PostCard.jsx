@@ -33,7 +33,7 @@ export default function PostCard({ post }) {
         </div>
       )}
 
-      {post.tags.length > 0 && (
+      {post.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-4">
           {post.tags.map((tag) => (
             <Link
@@ -49,15 +49,15 @@ export default function PostCard({ post }) {
 
       <div className="mt-4 flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
         <Avatar
-          emailHash={post.author.emailHash}
-          displayName={post.author.displayName}
+          emailHash={post.author?.emailHash}
+          displayName={post.author?.displayName || 'Unknown'}
           size={24}
         />
         <Link
-          to={`/u/${post.author.username}`}
+          to={`/u/${post.author?.username}`}
           className="hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
-          {post.author.displayName}
+          {post.author?.displayName || 'Unknown'}
         </Link>
         <span>&middot;</span>
         <Link

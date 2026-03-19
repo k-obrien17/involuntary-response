@@ -7,14 +7,15 @@ import { useAuth } from '../context/AuthContext';
 export default function EditPost() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingPost, setLoadingPost] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
+    if (loading) return;
     const fetchPost = async () => {
       try {
         const res = await posts.getBySlug(slug);
@@ -27,11 +28,11 @@ export default function EditPost() {
       } catch {
         navigate('/');
       } finally {
-        setLoading(false);
+        setLoadingPost(false);
       }
     };
     fetchPost();
-  }, [slug, user, navigate]);
+  }, [slug, user, loading, navigate]);
 
   const handleSubmit = async ({ body, embedUrl, tags, artistName }) => {
     setSubmitting(true);
@@ -72,7 +73,7 @@ export default function EditPost() {
     }
   };
 
-  if (loading) {
+  if (loading || loadingPost) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8 text-center text-gray-500 dark:text-gray-400">
         Loading...

@@ -15,15 +15,15 @@ export default function PostListItem({ post }) {
       </Link>
       <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-400 dark:text-gray-500">
         <Avatar
-          emailHash={post.author.emailHash}
-          displayName={post.author.displayName}
+          emailHash={post.author?.emailHash}
+          displayName={post.author?.displayName || 'Unknown'}
           size={18}
         />
         <Link
-          to={`/u/${post.author.username}`}
+          to={`/u/${post.author?.username}`}
           className="hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
-          {post.author.displayName}
+          {post.author?.displayName || 'Unknown'}
         </Link>
         <span>&middot;</span>
         <span>{relativeTime(post.createdAt)}</span>

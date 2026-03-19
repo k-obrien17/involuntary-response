@@ -7,10 +7,17 @@ export default function EmbedPreview({ embed }) {
     const iframeOnly = embed.embedHtml.match(/<iframe\s[^>]*><\/iframe>/i)?.[0];
     if (!iframeOnly) return null;
 
+    const allowed = ['src', 'width', 'height', 'allow', 'sandbox'];
+    const attrs = [...iframeOnly.matchAll(/(\w+)="([^"]*)"/g)]
+      .filter(([, name]) => allowed.includes(name))
+      .map(([, name, value]) => `${name}="${value}"`)
+      .join(' ');
+    const safeIframe = `<iframe ${attrs}></iframe>`;
+
     return (
       <div
         className="rounded-lg overflow-hidden [&>iframe]:w-full"
-        dangerouslySetInnerHTML={{ __html: iframeOnly }}
+        dangerouslySetInnerHTML={{ __html: safeIframe }}
       />
     );
   }

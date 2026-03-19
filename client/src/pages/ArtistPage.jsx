@@ -5,7 +5,6 @@ import PostListItem from '../components/PostListItem';
 
 export default function ArtistPage() {
   const { name } = useParams();
-  const artistName = decodeURIComponent(name);
   const [artist, setArtist] = useState(null);
   const [posts, setPosts] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);
@@ -61,17 +60,17 @@ export default function ArtistPage() {
         {artist?.image ? (
           <img
             src={artist.image}
-            alt={artistName}
+            alt={name}
             className="w-16 h-16 rounded-full object-cover"
           />
         ) : (
           <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700" />
         )}
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{artistName}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{name}</h1>
       </div>
 
       {posts.length === 0 ? (
-        <p className="text-gray-400 dark:text-gray-500">No posts about {artistName} yet.</p>
+        <p className="text-gray-400 dark:text-gray-500">No posts about {name} yet.</p>
       ) : (
         <div>
           {posts.map((post) => (

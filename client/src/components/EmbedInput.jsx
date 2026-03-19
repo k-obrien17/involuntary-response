@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { embeds } from '../api/client';
 import EmbedPreview from './EmbedPreview';
 
@@ -7,6 +7,12 @@ export default function EmbedInput({ embed, onChange }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const value = e.target.value;
