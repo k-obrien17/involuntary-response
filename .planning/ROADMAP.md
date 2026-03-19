@@ -96,5 +96,5 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 18. Scheduling Backend | v3.1 | 0/TBD | Not started | - |
+| 18. Scheduling Backend | 1/2 | In Progress|  | - |
 | 19. Scheduling UI | v3.1 | 0/TBD | Not started | - |
