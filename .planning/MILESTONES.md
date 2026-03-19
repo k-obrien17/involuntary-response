@@ -42,3 +42,20 @@
 
 ---
 
+
+## v3.0 Hardening (Shipped: 2026-03-19)
+
+**Phases completed:** 3 phases, 4 plans
+
+**Key accomplishments:**
+- Auth middleware hardened: DB-sourced roles on every request, optionalAuth is_active check, /auth/me endpoint for client validation
+- Security headers via helmet (CSP with oEmbed provider allowlist, HSTS, X-Frame-Options: DENY)
+- Global rate limiter (200 req/min per IP), password reset rate limiter, displayName sanitization
+- Client auth integration: /auth/me startup validation, 401 response interceptor with auto-logout
+- RSS feed XSS fix (HTML-encoded embed URLs/titles), explicit body size limit
+- Client robustness: null-safety (PostCard, PostListItem), EditPost auth loading gate, debounce cleanup, embed iframe attribute allowlist, dead code removal
+
+**Stats:** +1,198 / -110 LOC | 28 files | 9 feature commits
+
+---
+

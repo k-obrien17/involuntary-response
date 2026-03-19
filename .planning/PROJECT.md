@@ -36,17 +36,22 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - ✓ Contributors can edit published posts (content, embeds, tags) — v2.1
 - ✓ Edited posts show "edited" indicator — v2.1
 
+- ✓ Auth middleware reads role from DB on every request (no stale JWT roles) — v3.0
+- ✓ Deactivated users rejected even with valid JWT (optionalAuth checks is_active) — v3.0
+- ✓ Client validates stored token via /auth/me on startup — v3.0
+- ✓ 401 response interceptor clears auth and redirects to login — v3.0
+- ✓ Security headers via helmet (CSP, HSTS, X-Frame-Options: DENY) — v3.0
+- ✓ Global rate limiter (200 req/min per IP) and password reset rate limiter — v3.0
+- ✓ RSS feed XSS fix (HTML-encoded embed URLs/titles) — v3.0
+- ✓ displayName sanitized and length-limited on registration — v3.0
+- ✓ Client null-safety fixes (PostCard, PostListItem, ArtistPage) — v3.0
+- ✓ EditPost auth loading gate, debounce cleanup, formatDate Z-handling — v3.0
+- ✓ Embed iframe attribute allowlist (src, width, height, allow, sandbox only) — v3.0
+- ✓ ViewPost re-fetches after publish (no reload hack), delete error feedback — v3.0
+
 ### Active
 
-#### Current Milestone: v3.0 Hardening
-
-**Goal:** Fix all critical/high security and reliability issues identified by full app audit (2026-03-18).
-
-**Target features:**
-- Auth hardening: DB-sourced roles, `/auth/me` validation, `optionalAuth` `is_active` check, 401 interceptor
-- Security infrastructure: helmet headers, RSS XSS fix, `displayName` sanitization, global rate limiter, password reset rate limit
-- Client robustness: null-safety fixes, EditPost race condition, double-decode bug, debounce cleanup, date parsing, dead code removal
-- UX fixes: publish reload hack, delete error feedback, embed iframe attribute allowlist
+(None — planning next milestone)
 
 ### Deferred
 
@@ -66,7 +71,12 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 
 ## Context
 
-**Full app audit conducted** (2026-03-18): 4 Critical, 5 High, 15 Medium, 10 Low findings across server, client, and infrastructure. Primary themes: stale JWT roles, missing security headers, client auth gaps, scattered null-safety issues.
+**Shipped v3.0 Hardening** (2026-03-19): Full app audit → 21 fixes across auth, security, client robustness, UX.
+- Auth: DB-sourced roles, /auth/me validation, 401 interceptor, optionalAuth is_active check
+- Security: helmet headers, global rate limiter, RSS XSS fix, displayName sanitization
+- Client: null-safety, EditPost race condition, debounce cleanup, embed iframe allowlist, dead code removal
+- UX: publish re-fetch, delete error feedback
+- 28 files changed, +1,198 / -110 lines
 
 **Shipped v2.1 Reader Engagement & Editorial** (2026-03-01): ~15,000 LOC across React 18 + Express 5 + Turso.
 - 56 files modified in v2.1 (+6,712 lines)
@@ -114,7 +124,10 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | published_at for feed ordering | Drafts use NULL published_at; feed orders by publish time not creation | ✓ Good — drafts don't bury in feed when later published |
 | No unpublish | Once published, post cannot revert to draft (protects engagement data) | ✓ Good — simple mental model, 400 rejection on attempt |
 | Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | — Pending — deferred again from v3.0 (hardening focus) |
-| v3.0 as hardening milestone | Audit found 4 critical + 5 high issues; fix before adding features | — Pending |
+| v3.0 as hardening milestone | Audit found 4 critical + 5 high issues; fix before adding features | ✓ Good — all 21 requirements shipped, 0 gaps |
+| DB-sourced roles over shorter JWT expiry | Reading role from DB on every request eliminates stale-role risk without disrupting UX (365d expiry stays) | ✓ Good — simpler than refresh tokens, equally effective |
+| Permissive CSP with provider allowlist | Strict CSP would break Spotify/Apple Music embeds; allowlist covers all 5 oEmbed providers + Gravatar | ✓ Good — embeds work, clickjacking blocked |
+| optionalAuth graceful degradation | DB failure on public routes → treat as unauthenticated (feed still loads without personalization) | ✓ Good — availability over correctness for read-only data |
 
 ---
-*Last updated: 2026-03-18 after v3.0 milestone initialization (driven by full app audit)*
+*Last updated: 2026-03-19 after v3.0 Hardening milestone shipped*
