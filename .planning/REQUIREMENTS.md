@@ -7,12 +7,12 @@
 
 ### Scheduling
 
-- [ ] **SCHED-01**: Contributor can set a future date/time when creating or editing a draft post
-- [ ] **SCHED-02**: Date/time picker displays in contributor's local timezone, stored as UTC
+- [x] **SCHED-01**: Contributor can set a future date/time when creating or editing a draft post
+- [x] **SCHED-02**: Date/time picker displays in contributor's local timezone, stored as UTC
 - [x] **SCHED-03**: Scheduled posts have status `scheduled` (distinct from `draft` and `published`)
 - [x] **SCHED-04**: Server automatically publishes scheduled posts within a few minutes of their scheduled time
-- [ ] **SCHED-05**: Contributor can cancel a scheduled post (reverts to draft)
-- [ ] **SCHED-06**: Contributor can edit a scheduled post's content or reschedule its time
+- [x] **SCHED-05**: Contributor can cancel a scheduled post (reverts to draft)
+- [x] **SCHED-06**: Contributor can edit a scheduled post's content or reschedule its time
 - [x] **SCHED-07**: My Posts dashboard shows scheduled posts with their scheduled date/time
 - [x] **SCHED-08**: Scheduled posts do not appear in public feed until published
 
@@ -37,12 +37,12 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCHED-01 | Phase 19 | Pending |
-| SCHED-02 | Phase 19 | Pending |
+| SCHED-01 | Phase 19 | Complete |
+| SCHED-02 | Phase 19 | Complete |
 | SCHED-03 | Phase 18 | Complete |
 | SCHED-04 | Phase 18 | Complete |
-| SCHED-05 | Phase 19 | Pending |
-| SCHED-06 | Phase 19 | Pending |
+| SCHED-05 | Phase 19 | Complete |
+| SCHED-06 | Phase 19 | Complete |
 | SCHED-07 | Phase 19 | Complete |
 | SCHED-08 | Phase 18 | Complete |
 
