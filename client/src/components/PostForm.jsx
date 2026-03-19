@@ -6,11 +6,26 @@ import TagInput from './TagInput';
 const SOFT_LIMIT = 800;
 const HARD_LIMIT = 1200;
 
-export default function PostForm({ initialData, onSubmit, onSaveDraft, submitting }) {
+function toLocalDatetimeValue(isoString) {
+  const d = new Date(isoString);
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
+function getMinDateTime() {
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
+export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedule, initialScheduledAt, submitting }) {
   const [body, setBody] = useState(initialData?.body || '');
   const [embed, setEmbed] = useState(initialData?.embed || null);
   const [tags, setTags] = useState(initialData?.tags || []);
   const [artistName, setArtistName] = useState(initialData?.artistName || '');
+  const [scheduledAt, setScheduledAt] = useState(
+    initialScheduledAt ? toLocalDatetimeValue(initialScheduledAt) : ''
+  );
 
   // Auto-populate artist name from embed when resolved
   useEffect(() => {
@@ -38,6 +53,17 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, submittin
 
   const isDisabled =
     !body.trim() || body.length > HARD_LIMIT || submitting;
+
+  const formData = {
+    body: body.trim(),
+    embedUrl: embed?.originalUrl || null,
+    tags,
+    artistName: artistName.trim() || null,
+  };
+
+  const draftButtonLabel = initialScheduledAt
+    ? (submitting ? 'Saving...' : 'Cancel schedule')
+    : (submitting ? 'Saving...' : 'Save as draft');
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -75,22 +101,43 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, submittin
 
       <TagInput tags={tags} onChange={setTags} maxTags={5} />
 
+      {onSchedule && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Schedule for later
+          </label>
+          <input
+            type="datetime-local"
+            value={scheduledAt}
+            onChange={(e) => setScheduledAt(e.target.value)}
+            min={getMinDateTime()}
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 mt-1"
+          />
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            Pick a date and time to auto-publish. Uses your local timezone.
+          </p>
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
         {onSaveDraft && (
           <button
             type="button"
             disabled={isDisabled}
-            onClick={() => {
-              onSaveDraft({
-                body: body.trim(),
-                embedUrl: embed?.originalUrl || null,
-                tags,
-                artistName: artistName.trim() || null,
-              });
-            }}
+            onClick={() => onSaveDraft(formData)}
             className="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 text-sm font-medium rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition disabled:opacity-50"
           >
-            {submitting ? 'Saving...' : 'Save as draft'}
+            {draftButtonLabel}
+          </button>
+        )}
+        {onSchedule && scheduledAt && (
+          <button
+            type="button"
+            disabled={isDisabled}
+            onClick={() => onSchedule({ ...formData, scheduledAt: new Date(scheduledAt).toISOString() })}
+            className="bg-blue-600 text-white px-6 py-3 text-sm font-medium rounded hover:bg-blue-700 transition disabled:opacity-50"
+          >
+            {submitting ? 'Saving...' : initialScheduledAt ? 'Reschedule' : 'Schedule'}
           </button>
         )}
         <button
