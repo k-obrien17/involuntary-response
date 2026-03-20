@@ -21,6 +21,7 @@ import Explore from './pages/Explore';
 import Profile from './pages/Profile';
 import Search from './pages/Search';
 import JoinPage from './pages/JoinPage';
+import About from './pages/About';
 import MyPosts from './pages/MyPosts';
 import Stats from './pages/Stats';
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/join" element={<JoinPage />} />
+          <Route path="/about" element={<About />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route
