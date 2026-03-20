@@ -86,6 +86,12 @@ export const search = {
   query: (q, params) => api.get('/search', { params: { q, ...params } }),
 };
 
+export const analytics = {
+  myStats: (sort) => api.get('/analytics/me', { params: { sort } }),
+  myArtists: () => api.get('/analytics/me/artists'),
+  myActivity: () => api.get('/analytics/me/activity'),
+};
+
 export const profile = {
   get: (username) =>
     api.get(`/users/${encodeURIComponent(username)}/profile`),
