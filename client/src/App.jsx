@@ -11,6 +11,7 @@ import ResetPassword from './pages/ResetPassword';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminInvites from './pages/admin/Invites';
 import AdminContributors from './pages/admin/Contributors';
+import AdminStats from './pages/admin/Stats';
 import CreatePost from './pages/CreatePost';
 import EditPost from './pages/EditPost';
 import ViewPost from './pages/ViewPost';
@@ -56,6 +57,14 @@ function App() {
             element={
               <AdminRoute>
                 <AdminContributors />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/stats"
+            element={
+              <AdminRoute>
+                <AdminStats />
               </AdminRoute>
             }
           />

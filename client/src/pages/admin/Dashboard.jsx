@@ -6,7 +6,7 @@ export default function Dashboard() {
       <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Admin Dashboard</h1>
       <p className="mt-2 text-gray-500 dark:text-gray-400">Manage your invite-only community.</p>
 
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
         <Link
           to="/admin/invites"
           className="block p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow"
@@ -24,6 +24,16 @@ export default function Dashboard() {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Manage Contributors</h2>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             View all contributors, deactivate accounts, and manage roles.
+          </p>
+        </Link>
+
+        <Link
+          to="/admin/stats"
+          className="block p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+        >
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Site Stats</h2>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            View site-wide analytics: posts, engagement, top contributors, and top artists.
           </p>
         </Link>
       </div>
