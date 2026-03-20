@@ -11,7 +11,7 @@
 - [x] **ANLY-02**: Contributor can see their most-liked and most-commented posts ranked
 - [x] **ANLY-03**: Contributor can see their top artists (most-written-about) with post counts
 - [x] **ANLY-04**: Contributor can see activity stats: total posts, posts this month, current posting streak
-- [ ] **ANLY-05**: Stats page is accessible from the navbar (contributor-only)
+- [x] **ANLY-05**: Stats page is accessible from the navbar (contributor-only)
 
 ### Admin Analytics
 
@@ -52,7 +52,7 @@
 | ANLY-02 | Phase 20 | Complete |
 | ANLY-03 | Phase 20 | Complete |
 | ANLY-04 | Phase 20 | Complete |
-| ANLY-05 | Phase 20 | Pending |
+| ANLY-05 | Phase 20 | Complete |
 | ADMN-01 | Phase 21 | Pending |
 | ADMN-02 | Phase 21 | Pending |
 | ADMN-03 | Phase 21 | Pending |
