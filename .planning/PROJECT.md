@@ -48,6 +48,13 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - ✓ EditPost auth loading gate, debounce cleanup, formatDate Z-handling — v3.0
 - ✓ Embed iframe attribute allowlist (src, width, height, allow, sandbox only) — v3.0
 - ✓ ViewPost re-fetches after publish (no reload hack), delete error feedback — v3.0
+- ✓ Production deployment wiring (Render URL, env var validation, admin seed) — v3.0
+- ✓ Dynamic OG meta tags for social sharing previews — v3.0
+- ✓ 404 page, robots.txt, sitemap for SEO — v3.0
+- ✓ JWT expiry reduction and origin validation (CSRF defense-in-depth) — v3.0
+- ✓ Single-post N+1 query fix and profile pagination — v3.0
+- ✓ Error state UI for Search/Explore pages — v3.0
+- ✓ Email/SMTP validation for password reset — v3.0
 
 - ✓ Contributors can schedule draft posts for future publish dates — v3.1
 - ✓ Server auto-publishes scheduled posts within minutes of scheduled time — v3.1
@@ -104,6 +111,15 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - UX: publish re-fetch, delete error feedback
 - 28 files changed, +1,198 / -110 lines
 
+**Shipped v3.0 Production Launch** (2026-03-02): ~18,000 LOC across React 18 + Express 5 + Turso.
+- 73 files modified in v3.0 (+3,095 lines)
+- Server startup validates required env vars (admin seed, SMTP) with fail-fast behavior
+- Dynamic OG meta tags via Vercel serverless function with crawler UA rewrite
+- Security: helmet + CSP (6 embed providers in frame-src), JWT 30d expiry, origin validation
+- Performance: batchLoadPostData on single-post route (8 → 3 queries), cursor pagination on profiles
+- UX: styled 404 page, error/retry states on Search and Explore
+- robots.txt and sitemap.xml for SEO
+
 **Shipped v2.1 Reader Engagement & Editorial** (2026-03-01): ~15,000 LOC across React 18 + Express 5 + Turso.
 - 56 files modified in v2.1 (+6,712 lines)
 - 5 DB migrations (schema init + post_artists + status/published_at + post_likes + post_comments)
@@ -113,7 +129,11 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - Shared helpers: batchLoadPostData prevents N+1 across all 6 post-list endpoints
 - Status filtering: `AND p.status = 'published'` on all 14 public query sites
 
-**Known issue:** Spotify artist auto-extraction requires `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` in `server/.env`. Apple Music extraction (iTunes Search API) works without credentials.
+**Pre-deploy checklist:**
+- Replace `YOUR-APP.onrender.com` in `client/vercel.json` with actual Render URL
+- Replace `YOURDOMAIN.com` in `client/public/robots.txt` and `client/public/sitemap.xml`
+- Add `og-default.png` to `client/public/` for default social sharing image
+- Set Spotify credentials in `server/.env` (affects artist auto-extraction only)
 
 ## Constraints
 
@@ -156,6 +176,11 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | DB-sourced roles over shorter JWT expiry | Reading role from DB on every request eliminates stale-role risk without disrupting UX (365d expiry stays) | ✓ Good — simpler than refresh tokens, equally effective |
 | Permissive CSP with provider allowlist | Strict CSP would break Spotify/Apple Music embeds; allowlist covers all 5 oEmbed providers + Gravatar | ✓ Good — embeds work, clickjacking blocked |
 | optionalAuth graceful degradation | DB failure on public routes → treat as unauthenticated (feed still loads without personalization) | ✓ Good — availability over correctness for read-only data |
+| Origin validation over CSRF tokens | JWT-in-Authorization-header is inherently CSRF-resistant; origin check is defense-in-depth | ✓ Good — simpler than token-based CSRF, correct for this auth model |
+| Helmet v8 + manual X-XSS-Protection | Helmet v8 removed xXssProtection default; manually set for browsers that support it | ✓ Good — comprehensive header coverage |
+| Placeholder URLs for pre-deploy config | User doesn't have Render URL/domain yet; obvious placeholders easy to find-and-replace | ✓ Good — 3 files, clear pattern (YOUR-APP, YOURDOMAIN) |
+| Comments query separate from batchLoadPostData | Single-post endpoint needs full comment objects with canDelete, not just counts | ✓ Good — keeps batch helper focused on post metadata |
+| Profile pagination default 20, max 50 | Matches feed endpoint pattern; bounded via Math.min/Math.max | ✓ Good — consistent API design |
 
 ---
 | v4.0 as analytics + mobile milestone | New feature category (analytics) + UX overhaul warrants major bump | ✓ Good — analytics motivates contributors, mobile improves reading experience |

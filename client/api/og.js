@@ -22,17 +22,22 @@ export default async function handler(req, res) {
   const SITE_URL = process.env.SITE_URL || 'https://involuntary-response.vercel.app';
   const RENDER_API_URL = process.env.RENDER_API_URL;
 
-  // Extract slug from URL path
-  const slug = req.url.replace(/^\/posts\//, '').split('?')[0];
+  // Determine route type
+  const path = req.url.split('?')[0];
+  const postMatch = path.match(/^\/posts\/([^/]+)$/);
+  const isPostRoute = postMatch && postMatch[1] !== 'new';
+  const slug = isPostRoute ? postMatch[1] : null;
 
-  // Defaults
+  // Defaults (used for all non-post pages)
   let title = 'Involuntary Response';
   let description = 'Short-form music takes from people who care about music.';
   let image = `${SITE_URL}/og-default.png`;
-  let url = `${SITE_URL}/posts/${slug}`;
+  let url = `${SITE_URL}${path}`;
+  let ogType = 'website';
 
-  // Fetch post data from API
-  if (RENDER_API_URL && slug) {
+  // Fetch post data for post routes
+  if (isPostRoute && RENDER_API_URL && slug) {
+    ogType = 'article';
     try {
       const response = await fetch(`${RENDER_API_URL}/api/posts/${slug}`, {
         signal: AbortSignal.timeout(3000),
@@ -56,7 +61,7 @@ export default async function handler(req, res) {
         }
       }
     } catch (err) {
-      // Fetch failed or timed out — use defaults
+      // Fetch failed or timed out -- use defaults
     }
   }
 
@@ -71,6 +76,7 @@ export default async function handler(req, res) {
   html = html.replace(/__OG_DESCRIPTION__/g, safeDescription);
   html = html.replace(/__OG_IMAGE__/g, safeImage);
   html = html.replace(/__OG_URL__/g, safeUrl);
+  html = html.replace(/__OG_TYPE__/g, ogType);
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');

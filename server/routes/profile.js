@@ -2,7 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { authenticateToken, optionalAuth, requireContributor } from '../middleware/auth.js';
 import db from '../db/index.js';
-import { batchLoadPostData, formatPosts, emailHash } from '../lib/post-helpers.js';
+import { batchLoadPostData, formatPosts, parseCursor, emailHash } from '../lib/post-helpers.js';
 
 const router = Router();
 
@@ -24,20 +24,30 @@ router.get('/:username/profile', optionalAuth, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Fetch published posts by this user (no pagination — contributors write tens, not thousands)
+    // Cursor-paginated published posts for this user
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
+    const { cursorClause, cursorParams } = parseCursor(req.query.cursor);
+
     const rows = await db.all(
       `SELECT p.id, p.slug, p.body, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
-       WHERE p.author_id = ? AND p.status = 'published'
-       ORDER BY p.published_at DESC`,
-      user.id
+       WHERE p.author_id = ? AND p.status = 'published' ${cursorClause}
+       ORDER BY p.published_at DESC, p.id DESC
+       LIMIT ?`,
+      user.id, ...cursorParams, limit + 1
     );
+
+    const hasMore = rows.length > limit;
+    if (hasMore) rows.pop();
 
     const postIds = rows.map((p) => p.id);
     const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap } = await batchLoadPostData(postIds, req.user?.id);
     const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap);
+
+    const lastPost = rows[rows.length - 1];
+    const nextCursor = hasMore && lastPost ? `${lastPost.published_at}|${lastPost.id}` : null;
 
     res.json({
       user: {
@@ -48,6 +58,7 @@ router.get('/:username/profile', optionalAuth, async (req, res) => {
         emailHash: emailHash(user.email),
       },
       posts,
+      nextCursor,
     });
   } catch (err) {
     console.error('Get profile error:', err);

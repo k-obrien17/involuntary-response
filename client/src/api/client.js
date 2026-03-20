@@ -99,8 +99,8 @@ export const adminAnalytics = {
 };
 
 export const profile = {
-  get: (username) =>
-    api.get(`/users/${encodeURIComponent(username)}/profile`),
+  get: (username, params) =>
+    api.get(`/users/${encodeURIComponent(username)}/profile`, { params }),
   updateBio: (bio) => api.put('/users/me', { bio }),
 };
 

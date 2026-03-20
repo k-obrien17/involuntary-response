@@ -92,14 +92,108 @@
 
 ---
 
+## Milestone: v2.1 — Reader Engagement & Editorial
+
+**Shipped:** 2026-03-01
+**Phases:** 5 | **Plans:** 10 | **Timeline:** 1 day (~4 hours)
+
+### What Was Built
+- Schema safety net: BigInt coercion applied globally + status filtering on all 14 public query sites
+- Reader accounts with /join registration, role-aware UI, requireContributor middleware
+- Like system with optimistic UI, check-then-act toggle, one-per-reader constraint
+- Flat comments with three-way delete auth (comment author, post owner, admin), canDelete in API
+- Draft save/preview/publish workflow, post editing with "edited" indicator, My Posts dashboard
+
+### What Worked
+- batchLoadPostData helper eliminated N+1 across all 6 post-list endpoints in a single refactor
+- requireContributor middleware as positive check (contributor OR admin) was cleaner than negative role exclusion
+- Optimistic UI for likes/comments gave instant feedback while server confirmed
+- Check-then-act for like toggle avoided Turso INSERT OR IGNORE ambiguity
+
+### What Was Inefficient
+- published_at backfill required careful migration ordering — existing posts needed non-null values
+- Three separate status-filtering passes (posts, comments, profile) when it could have been a shared query builder
+
+### Patterns Established
+- batchLoadPostData pattern: single function loads embed, tags, artists, like counts for an array of post IDs
+- requireContributor middleware: positive role check gate on all mutation routes
+- Check-then-act for Turso: SELECT then INSERT/DELETE avoids INSERT OR IGNORE ambiguity
+- published_at for feed ordering: drafts use NULL, published posts order by publish time not creation
+
+### Key Lessons
+1. Turso's INSERT OR IGNORE behavior is inconsistent — check-then-act is more reliable for toggle operations.
+2. Batch data loading as a shared helper pays off fast — used by 6 endpoints immediately, extended to single-post in v3.0.
+3. Role-based middleware should be positive checks ("is contributor") not negative ("is not reader") — easier to reason about.
+
+### Cost Observations
+- Model mix: ~60% sonnet (agents), ~40% opus (orchestration)
+- Sessions: 1 (continuous)
+- Notable: 5 phases in a single session, auto-advance mode throughout
+
+---
+
+## Milestone: v3.0 — Production Launch
+
+**Shipped:** 2026-03-02
+**Phases:** 5 | **Plans:** 6 | **Timeline:** 1 day (~2 hours)
+
+### What Was Built
+- Server startup env validation (fail-fast on missing admin seed vars, SMTP warning + graceful 503)
+- Vercel API proxy config, robots.txt, and sitemap.xml with placeholder URLs for pre-deploy
+- Dynamic OG meta tags via expanded serverless function with crawler-aware UA rewrite
+- Security middleware: helmet + CSP (6 embed providers), origin validation, JWT 30d expiry
+- Performance: batchLoadPostData on single-post route (8 → 3 queries), cursor pagination on profiles
+- UX: styled 404 page, error/retry states on Search and Explore pages
+
+### What Worked
+- Infrastructure-focused milestone executed extremely fast — no new schemas, no complex UI, just hardening
+- Origin validation over CSRF tokens was the right architectural call for JWT-in-header auth
+- Reusing batchLoadPostData for single-post route was a one-line change thanks to v2.1's helper design
+- Placeholder URL approach for pre-deploy config was pragmatic — 3 files, obvious pattern
+
+### What Was Inefficient
+- Phase verifications all passed first try — could have skipped verification loop for this type of hardening milestone
+- CLI `milestone complete` counted phases across all milestones (9 instead of 5) — manual correction needed
+
+### Patterns Established
+- validateEnv() at server startup before any DB or route initialization (fail-fast)
+- isEmailConfigured() export for graceful degradation of optional services
+- Crawler UA rewrite in Vercel config routes bot traffic through serverless OG function
+- useCallback-extracted fetch functions enable retry-from-UI without stale closure issues
+- Security middleware ordering: securityHeaders before CORS, validateOrigin after CORS
+
+### Key Lessons
+1. Hardening milestones are fast — no new features means no design decisions, just applying known patterns.
+2. Origin validation is sufficient CSRF defense for JWT-in-Authorization-header APIs — no token dance needed.
+3. Placeholder URLs work well for pre-deploy config when the user doesn't have production URLs yet.
+4. helmet v8 dropped some headers silently (xXssProtection) — always verify what middleware actually sets.
+
+### Cost Observations
+- Model mix: ~60% sonnet (agents), ~40% opus (orchestration)
+- Sessions: 1 (continuous)
+- Notable: Fastest milestone — 5 phases in ~2 hours, all plans single-wave, zero gap closures needed
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
 
-| Milestone | Sessions | Phases | Key Change |
-|-----------|----------|--------|------------|
-| v1.0 | ~8 | 5 | Initial build — established phase/plan/verify cycle |
-| v2.0 | 1 | 4 | Auto-advance mode, UAT-driven gap closure, single-session execution |
+| Milestone | Sessions | Phases | Plans | Key Change |
+|-----------|----------|--------|-------|------------|
+| v1.0 | ~8 | 5 | 12 | Initial build — established phase/plan/verify cycle |
+| v2.0 | 1 | 4 | 7 | Auto-advance mode, UAT-driven gap closure, single-session execution |
+| v2.1 | 1 | 5 | 10 | Batch helpers, role-based middleware, optimistic UI patterns |
+| v3.0 | 1 | 5 | 6 | Hardening-only milestone — zero gap closures, fastest execution |
+
+### Velocity Trend
+
+| Milestone | Plans | Wall Clock | Plans/Hour |
+|-----------|-------|-----------|------------|
+| v1.0 | 12 | ~44 days | N/A (intermittent) |
+| v2.0 | 7 | ~3 hours | ~2.3 |
+| v2.1 | 10 | ~4 hours | ~2.5 |
+| v3.0 | 6 | ~2 hours | ~3.0 |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -108,3 +202,5 @@
 3. Deployment config should be verified alongside code, not deferred
 4. UAT testing catches integration bugs that static verifiers miss (confirmed v1.0 + v2.0)
 5. Global fixes at infrastructure layers (db wrapper, embed resolver) eliminate entire bug classes
+6. Shared helpers (batchLoadPostData) compound — built in v2.1, extended in v3.0 with zero effort
+7. Hardening milestones execute 2-3x faster than feature milestones — no design decisions needed

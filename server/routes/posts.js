@@ -407,39 +407,11 @@ router.get('/:slug', optionalAuth, async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    // Fetch embed
-    const embed = await db.get(
-      'SELECT provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html FROM post_embeds WHERE post_id = ?',
-      post.id
-    );
+    // Batch-load embeds, tags, artists, likes (replaces 5 serial queries)
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap } =
+      await batchLoadPostData([post.id], req.user?.id);
 
-    // Fetch tags
-    const tagRows = await db.all(
-      'SELECT tag FROM post_tags WHERE post_id = ? ORDER BY tag',
-      post.id
-    );
-
-    // Fetch artists
-    const artistRows = await db.all(
-      'SELECT artist_name, spotify_id FROM post_artists WHERE post_id = ?',
-      post.id
-    );
-
-    // Fetch like data
-    const likeRow = await db.get(
-      'SELECT COUNT(*) as count FROM post_likes WHERE post_id = ?',
-      post.id
-    );
-    let likedByUser = false;
-    if (req.user) {
-      const userLike = await db.get(
-        'SELECT 1 FROM post_likes WHERE post_id = ? AND user_id = ?',
-        post.id, req.user.id
-      );
-      likedByUser = !!userLike;
-    }
-
-    // Fetch comments
+    // Fetch comments separately — single-post endpoint returns full comment objects with canDelete
     const commentRows = await db.all(
       `SELECT c.id, c.body, c.created_at, c.user_id,
               u.display_name, u.username, u.email
@@ -480,21 +452,11 @@ router.get('/:slug', optionalAuth, async (req, res) => {
         username: post.author_username,
         emailHash: emailHash(post.author_email),
       },
-      embed: embed
-        ? {
-            provider: embed.provider,
-            embedType: embed.embed_type,
-            embedUrl: embed.embed_url,
-            originalUrl: embed.original_url,
-            title: embed.title,
-            thumbnailUrl: embed.thumbnail_url,
-            embedHtml: embed.embed_html,
-          }
-        : null,
-      tags: tagRows.map((r) => r.tag),
-      artists: artistRows.map((a) => ({ name: a.artist_name, spotifyId: a.spotify_id })),
-      likeCount: likeRow.count,
-      likedByUser,
+      embed: embedMap[post.id] || null,
+      tags: tagMap[post.id] || [],
+      artists: artistMap[post.id] || [],
+      likeCount: likeCountMap[post.id] || 0,
+      likedByUser: !!likedByUserMap[post.id],
       comments,
     });
   } catch (err) {

@@ -1,24 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { browse } from '../api/client';
 
 export default function Explore() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchExplore = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await browse.explore();
+      setData(res.data);
+    } catch (err) {
+      console.error('Failed to load explore:', err);
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchExplore = async () => {
-      try {
-        const res = await browse.explore();
-        setData(res.data);
-      } catch (err) {
-        console.error('Failed to load explore:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchExplore();
-  }, []);
+  }, [fetchExplore]);
 
   if (loading) {
     return (
@@ -28,10 +33,18 @@ export default function Explore() {
     );
   }
 
-  if (!data) {
+  if (error || !data) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-8">
-        <p className="text-gray-400 dark:text-gray-500 text-center">Failed to load explore data.</p>
+        <div className="text-center">
+          <p className="text-gray-400 dark:text-gray-500 mb-4">{error || 'Failed to load explore data.'}</p>
+          <button
+            onClick={fetchExplore}
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 text-sm transition"
+          >
+            Retry
+          </button>
+        </div>
       </main>
     );
   }

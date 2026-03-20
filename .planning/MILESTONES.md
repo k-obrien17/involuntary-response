@@ -35,10 +35,32 @@
 
 ## v2.1 Reader Engagement & Editorial (Shipped: 2026-03-01)
 
-**Phases completed:** 9 phases, 17 plans, 0 tasks
+**Phases completed:** 5 phases, 10 plans
 
 **Key accomplishments:**
-- (none recorded)
+- Schema safety net: BigInt coercion + status filtering across all 14 public query sites
+- Reader accounts with /join registration, role-aware UI, and separate auth flow
+- Like system with optimistic UI toggle and one-per-reader constraint
+- Flat comments with three-way moderation (author, post owner, admin)
+- Draft save/preview/publish workflow, post editing with "edited" indicator, My Posts dashboard
+
+**Stats:** +6,712 LOC | 56 files | 42 commits | 1 day
+
+---
+
+
+## v3.0 Production Launch (Shipped: 2026-03-02)
+
+**Phases completed:** 5 phases, 6 plans
+
+**Key accomplishments:**
+- Server startup env validation (fail-fast on missing admin seed vars, SMTP warning + 503 on password reset)
+- Dynamic OG meta tags for social sharing with crawler-aware Vercel rewrite routing
+- Security headers (helmet + CSP for 6 embed providers) and JWT expiry reduced from 365 to 30 days
+- Single-post N+1 queries eliminated (8 serial → 3 batched), profile cursor pagination added
+- Styled 404 page replacing redirect-to-home, error/retry states for Search and Explore
+
+**Stats:** +3,095 LOC | 73 files | 31 commits | 1 day
 
 ---
 

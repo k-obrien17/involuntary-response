@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
+milestone: v4.1
 milestone_name: Launch
-status: unknown
+status: in_progress
 last_updated: "2026-03-20T15:03:20.472Z"
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 8
-  completed_plans: 8
+  total_phases: 2
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
 ---
 
 # Project State
@@ -50,6 +50,8 @@ Progress: [█████░░░░░] 50%
 
 - Spotify credentials still missing from server/.env (not blocking v4.1)
 - Need to verify Vercel/Render deployment config is current
+- Pre-deploy: Replace placeholder URLs in vercel.json, robots.txt, sitemap.xml
+- Pre-deploy: Create og-default.png for social sharing fallback image
 
 ## Session Continuity
 
