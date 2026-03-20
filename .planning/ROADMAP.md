@@ -85,7 +85,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 **Milestone Goal:** Make the site ready for public sharing -- hero section on home page, dedicated /about page, deploy latest code to production.
 
-- [ ] **Phase 23: Hero & About Page** - Hero section on home page and dedicated /about route
+- [x] **Phase 23: Hero & About Page** - Hero section on home page and dedicated /about route (completed 2026-03-20)
 - [ ] **Phase 24: Production Deployment** - Deploy v3.0-v4.1 code to Vercel and Render
 
 ## Phase Details
@@ -100,7 +100,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   3. /about page exists with a route in the app, explaining the site's purpose in an editorial (not corporate) voice
   4. /about page describes who is behind the site
   5. /about page has clear calls to action: a link to /join (reader signup) and a link to the RSS feed
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 23-01-PLAN.md — Add hero section to Home page, create About page, add /about route
 
@@ -121,5 +121,5 @@ Phases execute in numeric order: 23 -> 24
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 23. Hero & About Page | v4.1 | 0/1 | Planned | - |
+| 23. Hero & About Page | 1/1 | Complete   | 2026-03-20 | - |
 | 24. Production Deployment | v4.1 | 0/? | Not started | - |

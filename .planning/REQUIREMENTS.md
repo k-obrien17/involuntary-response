@@ -7,15 +7,15 @@
 
 ### Home Page
 
-- [ ] **LNCH-01**: Home page has a hero section with a one-liner about the site above the feed
-- [ ] **LNCH-02**: Hero section links to /about for visitors who want to learn more
-- [ ] **LNCH-03**: Feed starts immediately below the hero -- no extra clicks to see content
+- [x] **LNCH-01**: Home page has a hero section with a one-liner about the site above the feed
+- [x] **LNCH-02**: Hero section links to /about for visitors who want to learn more
+- [x] **LNCH-03**: Feed starts immediately below the hero -- no extra clicks to see content
 
 ### About Page
 
-- [ ] **LNCH-04**: Dedicated /about page explains what Involuntary Response is
-- [ ] **LNCH-05**: About page describes who's behind it (editorial voice, not corporate)
-- [ ] **LNCH-06**: About page has clear CTAs: "Join as a reader" (/join) and "Subscribe via RSS"
+- [x] **LNCH-04**: Dedicated /about page explains what Involuntary Response is
+- [x] **LNCH-05**: About page describes who's behind it (editorial voice, not corporate)
+- [x] **LNCH-06**: About page has clear CTAs: "Join as a reader" (/join) and "Subscribe via RSS"
 
 ### Deployment
 
@@ -44,12 +44,12 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LNCH-01 | Phase 23 | Pending |
-| LNCH-02 | Phase 23 | Pending |
-| LNCH-03 | Phase 23 | Pending |
-| LNCH-04 | Phase 23 | Pending |
-| LNCH-05 | Phase 23 | Pending |
-| LNCH-06 | Phase 23 | Pending |
+| LNCH-01 | Phase 23 | Complete |
+| LNCH-02 | Phase 23 | Complete |
+| LNCH-03 | Phase 23 | Complete |
+| LNCH-04 | Phase 23 | Complete |
+| LNCH-05 | Phase 23 | Complete |
+| LNCH-06 | Phase 23 | Complete |
 | LNCH-07 | Phase 24 | Pending |
 | LNCH-08 | Phase 24 | Pending |
 
