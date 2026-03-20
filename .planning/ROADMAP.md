@@ -7,6 +7,7 @@
 - ✅ **v2.1 Reader Engagement & Editorial** -- Phases 10-14 (shipped 2026-03-01)
 - ✅ **v3.0 Hardening** -- Phases 15-17 (shipped 2026-03-19)
 - ✅ **v3.1 Scheduled Posts** -- Phases 18-19 (shipped 2026-03-20)
+- 🚧 **v4.0 Analytics & Mobile** -- Phases 20-22 (in progress)
 
 ## Phases
 
@@ -68,3 +69,68 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 Full details: `.planning/milestones/v3.1-ROADMAP.md`
 
 </details>
+
+### v4.0 Analytics & Mobile (In Progress)
+
+**Milestone Goal:** Contributor analytics dashboard, admin site-wide stats, and mobile UX polish so contributors understand their impact, admins monitor site health, and everyone gets a good experience on small screens.
+
+- [ ] **Phase 20: Contributor Analytics** - Stats API and dashboard for contributor post performance and activity
+- [ ] **Phase 21: Admin Analytics** - Site-wide stats API and admin overview page
+- [ ] **Phase 22: Mobile UX** - Hamburger nav, responsive embeds, touch-friendly interactions
+
+## Phase Details
+
+### Phase 20: Contributor Analytics
+**Goal**: Contributors can see how their posts perform and track their writing activity
+**Depends on**: Phase 19 (v3.1 complete)
+**Requirements**: ANLY-01, ANLY-02, ANLY-03, ANLY-04, ANLY-05
+**Success Criteria** (what must be TRUE):
+  1. Contributor can navigate to a stats page from the navbar and see per-post like and comment counts
+  2. Contributor can see their posts ranked by most-liked and most-commented
+  3. Contributor can see which artists they write about most, with post counts per artist
+  4. Contributor can see their total post count, posts this month, and current posting streak
+  5. Stats page link only appears for contributors and admins (not readers or logged-out users)
+**Plans**: TBD
+
+Plans:
+- [ ] 20-01: Analytics API endpoints (contributor stats SQL aggregation)
+- [ ] 20-02: Contributor Stats page (React UI consuming analytics API)
+
+### Phase 21: Admin Analytics
+**Goal**: Admins can monitor site-wide health and see top contributors and artists across the platform
+**Depends on**: Phase 20 (reuses analytics API patterns and shared components)
+**Requirements**: ADMN-01, ADMN-02, ADMN-03
+**Success Criteria** (what must be TRUE):
+  1. Admin can view a site-wide overview showing total posts, likes, comments, contributors, and readers
+  2. Admin can see contributors ranked by post count and total engagement (likes + comments)
+  3. Admin can see the most-written-about artists across all contributors with post counts
+**Plans**: TBD
+
+Plans:
+- [ ] 21-01: Admin analytics API endpoints (site-wide SQL aggregation)
+- [ ] 21-02: Admin Stats page (React UI consuming admin analytics API)
+
+### Phase 22: Mobile UX
+**Goal**: The app works well on mobile screens with proper navigation, touch targets, and responsive embeds
+**Depends on**: Nothing (independent of analytics phases)
+**Requirements**: MOBL-01, MOBL-02, MOBL-03, MOBL-04
+**Success Criteria** (what must be TRUE):
+  1. On mobile, contributor and admin navbar links collapse into a hamburger menu icon
+  2. Hamburger menu opens and closes with animation, and auto-closes when the user navigates to a new page
+  3. All buttons, links, and interactive elements (like, comment, share) are at least 44px touch targets on mobile
+  4. Spotify and Apple Music embed iframes scale down on narrow screens without horizontal overflow
+**Plans**: TBD
+
+Plans:
+- [ ] 22-01: Mobile navigation and responsive polish
+
+## Progress
+
+**Execution Order:**
+Phase 20 then 21 (sequential -- admin analytics reuses contributor patterns). Phase 22 can run anytime (independent).
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 20. Contributor Analytics | v4.0 | 0/2 | Not started | - |
+| 21. Admin Analytics | v4.0 | 0/2 | Not started | - |
+| 22. Mobile UX | v4.0 | 0/1 | Not started | - |

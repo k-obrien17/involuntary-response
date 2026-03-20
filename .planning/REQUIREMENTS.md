@@ -1,7 +1,7 @@
 # Requirements: Involuntary Response v4.0 Analytics & Mobile
 
 **Defined:** 2026-03-20
-**Core Value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music — and the music is right there to listen to.
+**Core Value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
 
 ## v4.0 Requirements
 
@@ -48,24 +48,24 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ANLY-01 | — | Pending |
-| ANLY-02 | — | Pending |
-| ANLY-03 | — | Pending |
-| ANLY-04 | — | Pending |
-| ANLY-05 | — | Pending |
-| ADMN-01 | — | Pending |
-| ADMN-02 | — | Pending |
-| ADMN-03 | — | Pending |
-| MOBL-01 | — | Pending |
-| MOBL-02 | — | Pending |
-| MOBL-03 | — | Pending |
-| MOBL-04 | — | Pending |
+| ANLY-01 | Phase 20 | Pending |
+| ANLY-02 | Phase 20 | Pending |
+| ANLY-03 | Phase 20 | Pending |
+| ANLY-04 | Phase 20 | Pending |
+| ANLY-05 | Phase 20 | Pending |
+| ADMN-01 | Phase 21 | Pending |
+| ADMN-02 | Phase 21 | Pending |
+| ADMN-03 | Phase 21 | Pending |
+| MOBL-01 | Phase 22 | Pending |
+| MOBL-02 | Phase 22 | Pending |
+| MOBL-03 | Phase 22 | Pending |
+| MOBL-04 | Phase 22 | Pending |
 
 **Coverage:**
 - v4.0 requirements: 12 total
-- Mapped to phases: 0
-- Unmapped: 12 ⚠️
+- Mapped to phases: 12
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-20*
-*Last updated: 2026-03-20 after initial definition*
+*Last updated: 2026-03-20 after roadmap creation*
