@@ -92,6 +92,12 @@ export const analytics = {
   myActivity: () => api.get('/analytics/me/activity'),
 };
 
+export const adminAnalytics = {
+  overview: () => api.get('/analytics/admin/overview'),
+  contributors: () => api.get('/analytics/admin/contributors'),
+  artists: () => api.get('/analytics/admin/artists'),
+};
+
 export const profile = {
   get: (username) =>
     api.get(`/users/${encodeURIComponent(username)}/profile`),
