@@ -15,9 +15,9 @@
 
 ### Admin Analytics
 
-- [ ] **ADMN-01**: Admin can view site-wide stats: total posts, total likes, total comments, total contributors, total readers
-- [ ] **ADMN-02**: Admin can see top contributors ranked by post count and engagement
-- [ ] **ADMN-03**: Admin can see site-wide top artists across all contributors
+- [x] **ADMN-01**: Admin can view site-wide stats: total posts, total likes, total comments, total contributors, total readers
+- [x] **ADMN-02**: Admin can see top contributors ranked by post count and engagement
+- [x] **ADMN-03**: Admin can see site-wide top artists across all contributors
 
 ### Mobile UX
 
@@ -53,9 +53,9 @@
 | ANLY-03 | Phase 20 | Complete |
 | ANLY-04 | Phase 20 | Complete |
 | ANLY-05 | Phase 20 | Complete |
-| ADMN-01 | Phase 21 | Pending |
-| ADMN-02 | Phase 21 | Pending |
-| ADMN-03 | Phase 21 | Pending |
+| ADMN-01 | Phase 21 | Complete |
+| ADMN-02 | Phase 21 | Complete |
+| ADMN-03 | Phase 21 | Complete |
 | MOBL-01 | Phase 22 | Pending |
 | MOBL-02 | Phase 22 | Pending |
 | MOBL-03 | Phase 22 | Pending |
