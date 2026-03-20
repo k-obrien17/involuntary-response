@@ -111,6 +111,12 @@ export default function Navbar() {
                     My Posts
                   </Link>
                   <Link
+                    to="/stats"
+                    className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    Stats
+                  </Link>
+                  <Link
                     to="/posts/new"
                     className="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
                   >

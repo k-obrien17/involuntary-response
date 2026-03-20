@@ -21,6 +21,7 @@ import Profile from './pages/Profile';
 import Search from './pages/Search';
 import JoinPage from './pages/JoinPage';
 import MyPosts from './pages/MyPosts';
+import Stats from './pages/Stats';
 
 function App() {
   return (
@@ -71,6 +72,14 @@ function App() {
             element={
               <ContributorRoute>
                 <MyPosts />
+              </ContributorRoute>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <ContributorRoute>
+                <Stats />
               </ContributorRoute>
             }
           />
