@@ -1,56 +1,71 @@
-# Requirements: Involuntary Response v3.1 Scheduled Posts
+# Requirements: Involuntary Response v4.0 Analytics & Mobile
 
-**Defined:** 2026-03-19
+**Defined:** 2026-03-20
 **Core Value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music — and the music is right there to listen to.
 
-## v3.1 Requirements
+## v4.0 Requirements
 
-### Scheduling
+### Contributor Analytics
 
-- [x] **SCHED-01**: Contributor can set a future date/time when creating or editing a draft post
-- [x] **SCHED-02**: Date/time picker displays in contributor's local timezone, stored as UTC
-- [x] **SCHED-03**: Scheduled posts have status `scheduled` (distinct from `draft` and `published`)
-- [x] **SCHED-04**: Server automatically publishes scheduled posts within a few minutes of their scheduled time
-- [x] **SCHED-05**: Contributor can cancel a scheduled post (reverts to draft)
-- [x] **SCHED-06**: Contributor can edit a scheduled post's content or reschedule its time
-- [x] **SCHED-07**: My Posts dashboard shows scheduled posts with their scheduled date/time
-- [x] **SCHED-08**: Scheduled posts do not appear in public feed until published
+- [ ] **ANLY-01**: Contributor can view a stats page showing like count and comment count per post
+- [ ] **ANLY-02**: Contributor can see their most-liked and most-commented posts ranked
+- [ ] **ANLY-03**: Contributor can see their top artists (most-written-about) with post counts
+- [ ] **ANLY-04**: Contributor can see activity stats: total posts, posts this month, current posting streak
+- [ ] **ANLY-05**: Stats page is accessible from the navbar (contributor-only)
+
+### Admin Analytics
+
+- [ ] **ADMN-01**: Admin can view site-wide stats: total posts, total likes, total comments, total contributors, total readers
+- [ ] **ADMN-02**: Admin can see top contributors ranked by post count and engagement
+- [ ] **ADMN-03**: Admin can see site-wide top artists across all contributors
+
+### Mobile UX
+
+- [ ] **MOBL-01**: Navbar collapses contributor/admin links into a hamburger menu on mobile screens
+- [ ] **MOBL-02**: Hamburger menu opens/closes with smooth animation and closes on route change
+- [ ] **MOBL-03**: All interactive elements (buttons, links, like/comment actions) meet minimum touch target size (44px)
+- [ ] **MOBL-04**: Post embeds (Spotify/Apple Music iframes) resize responsively on mobile without overflow
 
 ## Future Requirements
 
-- Comment author names linked to profile pages
-- Mobile nav hamburger menu for admin/contributor links
-- Accessibility improvements (aria-labels, keyboard nav)
-- Avatar background color contrast fix
+- Collections/Series (grouping posts into themed sets)
+- Pinned/Featured posts (admin pins a post to top of feed)
+- Related posts ("More from this artist" on post pages)
+- Accessibility pass (aria-labels, keyboard nav, avatar contrast)
 - FTS5 migration (when data volume warrants)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Recurring/repeating schedules | Overkill for a music blog — contributors post when inspired |
-| Queue-based publishing (auto-space posts) | Small contributor pool, no need for content calendars |
-| Email notifications when scheduled post goes live | Email notifications are out of scope for the project |
-| Scheduling for readers | Only contributors create posts |
+| View counts / page analytics | No tracking infrastructure; privacy-first approach |
+| Revenue/monetization metrics | Not a commercial platform |
+| A/B testing | Overkill for a small contributor pool |
+| Native mobile app | Web-first, responsive design is sufficient |
+| Push notifications | Out of scope for the project |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCHED-01 | Phase 19 | Complete |
-| SCHED-02 | Phase 19 | Complete |
-| SCHED-03 | Phase 18 | Complete |
-| SCHED-04 | Phase 18 | Complete |
-| SCHED-05 | Phase 19 | Complete |
-| SCHED-06 | Phase 19 | Complete |
-| SCHED-07 | Phase 19 | Complete |
-| SCHED-08 | Phase 18 | Complete |
+| ANLY-01 | — | Pending |
+| ANLY-02 | — | Pending |
+| ANLY-03 | — | Pending |
+| ANLY-04 | — | Pending |
+| ANLY-05 | — | Pending |
+| ADMN-01 | — | Pending |
+| ADMN-02 | — | Pending |
+| ADMN-03 | — | Pending |
+| MOBL-01 | — | Pending |
+| MOBL-02 | — | Pending |
+| MOBL-03 | — | Pending |
+| MOBL-04 | — | Pending |
 
 **Coverage:**
-- v3.1 requirements: 8 total
-- Mapped to phases: 8
-- Unmapped: 0
+- v4.0 requirements: 12 total
+- Mapped to phases: 0
+- Unmapped: 12 ⚠️
 
 ---
-*Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after roadmap creation*
+*Requirements defined: 2026-03-20*
+*Last updated: 2026-03-20 after initial definition*
