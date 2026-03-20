@@ -64,7 +64,14 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 
 ### Active
 
-(None — planning next milestone)
+#### Current Milestone: v4.1 Launch
+
+**Goal:** Make the site ready for public sharing — hero section on home page, dedicated /about page, deploy latest code.
+
+**Target features:**
+- Home page hero section with one-liner about the site, then straight into the feed
+- Dedicated /about page with mission, who's behind it, how to join as a reader
+- Deploy all v3.0–v4.0 code to production (Vercel + Render)
 
 ### Deferred
 
@@ -154,4 +161,4 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | v4.0 as analytics + mobile milestone | New feature category (analytics) + UX overhaul warrants major bump | ✓ Good — analytics motivates contributors, mobile improves reading experience |
 
 ---
-*Last updated: 2026-03-20 after v4.0 Analytics & Mobile milestone shipped*
+*Last updated: 2026-03-20 after v4.1 Launch milestone initialization*
