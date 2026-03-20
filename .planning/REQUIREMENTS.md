@@ -21,10 +21,10 @@
 
 ### Mobile UX
 
-- [ ] **MOBL-01**: Navbar collapses contributor/admin links into a hamburger menu on mobile screens
-- [ ] **MOBL-02**: Hamburger menu opens/closes with smooth animation and closes on route change
-- [ ] **MOBL-03**: All interactive elements (buttons, links, like/comment actions) meet minimum touch target size (44px)
-- [ ] **MOBL-04**: Post embeds (Spotify/Apple Music iframes) resize responsively on mobile without overflow
+- [x] **MOBL-01**: Navbar collapses contributor/admin links into a hamburger menu on mobile screens
+- [x] **MOBL-02**: Hamburger menu opens/closes with smooth animation and closes on route change
+- [x] **MOBL-03**: All interactive elements (buttons, links, like/comment actions) meet minimum touch target size (44px)
+- [x] **MOBL-04**: Post embeds (Spotify/Apple Music iframes) resize responsively on mobile without overflow
 
 ## Future Requirements
 
@@ -56,10 +56,10 @@
 | ADMN-01 | Phase 21 | Complete |
 | ADMN-02 | Phase 21 | Complete |
 | ADMN-03 | Phase 21 | Complete |
-| MOBL-01 | Phase 22 | Pending |
-| MOBL-02 | Phase 22 | Pending |
-| MOBL-03 | Phase 22 | Pending |
-| MOBL-04 | Phase 22 | Pending |
+| MOBL-01 | Phase 22 | Complete |
+| MOBL-02 | Phase 22 | Complete |
+| MOBL-03 | Phase 22 | Complete |
+| MOBL-04 | Phase 22 | Complete |
 
 **Coverage:**
 - v4.0 requirements: 12 total
