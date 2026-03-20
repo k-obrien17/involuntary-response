@@ -13,6 +13,7 @@ import postsRoutes from './routes/posts.js';
 import embedsRoutes from './routes/embeds.js';
 import feedRoutes from './routes/feed.js';
 import searchRoutes from './routes/search.js';
+import analyticsRoutes from './routes/analytics.js';
 import { initDatabase } from './db/index.js';
 import { startScheduler } from './lib/scheduler.js';
 
@@ -69,6 +70,7 @@ app.use('/api/posts', postsRoutes);
 app.use('/api/embeds', embedsRoutes);
 app.use('/api/feed', feedRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
