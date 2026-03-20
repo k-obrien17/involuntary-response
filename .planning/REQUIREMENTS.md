@@ -7,10 +7,10 @@
 
 ### Contributor Analytics
 
-- [ ] **ANLY-01**: Contributor can view a stats page showing like count and comment count per post
-- [ ] **ANLY-02**: Contributor can see their most-liked and most-commented posts ranked
-- [ ] **ANLY-03**: Contributor can see their top artists (most-written-about) with post counts
-- [ ] **ANLY-04**: Contributor can see activity stats: total posts, posts this month, current posting streak
+- [x] **ANLY-01**: Contributor can view a stats page showing like count and comment count per post
+- [x] **ANLY-02**: Contributor can see their most-liked and most-commented posts ranked
+- [x] **ANLY-03**: Contributor can see their top artists (most-written-about) with post counts
+- [x] **ANLY-04**: Contributor can see activity stats: total posts, posts this month, current posting streak
 - [ ] **ANLY-05**: Stats page is accessible from the navbar (contributor-only)
 
 ### Admin Analytics
@@ -48,10 +48,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ANLY-01 | Phase 20 | Pending |
-| ANLY-02 | Phase 20 | Pending |
-| ANLY-03 | Phase 20 | Pending |
-| ANLY-04 | Phase 20 | Pending |
+| ANLY-01 | Phase 20 | Complete |
+| ANLY-02 | Phase 20 | Complete |
+| ANLY-03 | Phase 20 | Complete |
+| ANLY-04 | Phase 20 | Complete |
 | ANLY-05 | Phase 20 | Pending |
 | ADMN-01 | Phase 21 | Pending |
 | ADMN-02 | Phase 21 | Pending |

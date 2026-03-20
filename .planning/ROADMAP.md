@@ -131,6 +131,6 @@ Phase 20 then 21 (sequential -- admin analytics reuses contributor patterns). Ph
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 20. Contributor Analytics | v4.0 | 0/2 | Not started | - |
+| 20. Contributor Analytics | 1/2 | In Progress|  | - |
 | 21. Admin Analytics | v4.0 | 0/2 | Not started | - |
 | 22. Mobile UX | v4.0 | 0/1 | Not started | - |
