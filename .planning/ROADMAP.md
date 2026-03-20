@@ -75,7 +75,7 @@ Full details: `.planning/milestones/v3.1-ROADMAP.md`
 **Milestone Goal:** Contributor analytics dashboard, admin site-wide stats, and mobile UX polish so contributors understand their impact, admins monitor site health, and everyone gets a good experience on small screens.
 
 - [x] **Phase 20: Contributor Analytics** - Stats API and dashboard for contributor post performance and activity (completed 2026-03-20)
-- [ ] **Phase 21: Admin Analytics** - Site-wide stats API and admin overview page
+- [x] **Phase 21: Admin Analytics** - Site-wide stats API and admin overview page (completed 2026-03-20)
 - [ ] **Phase 22: Mobile UX** - Hamburger nav, responsive embeds, touch-friendly interactions
 
 ## Phase Details
@@ -132,5 +132,5 @@ Phase 20 then 21 (sequential -- admin analytics reuses contributor patterns). Ph
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 20. Contributor Analytics | 2/2 | Complete    | 2026-03-20 | - |
-| 21. Admin Analytics | 1/2 | In Progress|  | - |
+| 21. Admin Analytics | 2/2 | Complete   | 2026-03-20 | - |
 | 22. Mobile UX | v4.0 | 0/1 | Not started | - |
