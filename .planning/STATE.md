@@ -1,69 +1,52 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: Scheduled Posts
-status: unknown
-last_updated: "2026-03-20T00:09:41.868Z"
+milestone: v4.0
+milestone_name: Analytics & Mobile
+status: defining_requirements
+last_updated: "2026-03-20"
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 11
-  completed_plans: 11
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-19)
+See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music — and the music is right there to listen to.
-**Current focus:** v3.1 Scheduled Posts -- Phase 19 complete
+**Current focus:** Defining requirements for v4.0 Analytics & Mobile
 
 ## Current Position
 
-Phase: 19 of 19 (Scheduling UI)
-Plan: 2 of 2 (COMPLETE)
-Status: Phase 19 Complete
-Last activity: 2026-03-19 -- Completed 19-02 (Scheduled Section in My Posts)
-
-Progress: [██████████] 100% (Phase 19)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-20 — Milestone v4.0 started
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 44 (v1.0: 12, v2.0: 7, v2.1: 17, v3.0: 4, v3.1: 4)
 
-| Phase | Plan | Duration | Tasks | Files |
-|-------|------|----------|-------|-------|
-| 18    | 01   | 2min     | 1     | 2     |
-| 18    | 02   | 1min     | 1     | 2     |
-| 19    | 01   | 1min     | 2     | 3     |
-| 19    | 02   | 1min     | 1     | 1     |
-
 ## Accumulated Context
 
 ### Decisions
 
-- v3.1 scoped as single-feature milestone: scheduled posts only
-- Scheduling precision: within a few minutes (not exact-minute)
-- Timezone: local time in UI, stored as UTC
-- Publishing mechanism: Claude's discretion (server-side polling preferred per v2.1 research notes)
-- Two-phase split: server-side (schema + polling + filtering) then client-side (UI + dashboard)
-- No index on scheduled_at -- auto-publisher scans tiny result set
-- published->scheduled rejected -- once published, cannot reschedule
-- scheduled->published clears scheduled_at, sets published_at to CURRENT_TIMESTAMP
-- setInterval over node-cron for auto-publish scheduler -- no new dependency
-- Immediate scheduler run on startup catches posts due while server was down
-- [Phase 19]: Used toLocaleString() for timezone display -- no library needed
-- [Phase 19]: Native datetime-local input for scheduling UI -- zero library overhead, browser handles timezone display
+- v4.0 scoped as two-feature milestone: contributor analytics + mobile UX polish
+- Contributors see their own stats; admin sees site-wide overview
+- Analytics metrics: post performance, top artists, activity stats
+- Mobile: Claude's discretion on specific fixes (audit flagged navbar overflow, reading experience)
 
 ### Blockers/Concerns
 
-- Spotify credentials still missing from server/.env (not blocking v3.1)
+- Spotify credentials still missing from server/.env (not blocking v4.0)
 
 ## Session Continuity
 
-Last session: 2026-03-19
-Stopped at: Completed 19-01-PLAN.md
+Last session: 2026-03-20
+Stopped at: Defining v4.0 requirements
 Resume file: None

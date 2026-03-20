@@ -58,7 +58,14 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 
 ### Active
 
-(None — planning next milestone)
+#### Current Milestone: v4.0 Analytics & Mobile
+
+**Goal:** Contributor analytics dashboard + admin site-wide stats, plus mobile UX polish (hamburger nav, responsive improvements).
+
+**Target features:**
+- Contributor analytics: post performance (likes, comments per post), top artists written about, activity stats (total posts, posting streak, posts this month)
+- Admin analytics: site-wide overview (total posts, total engagement, top contributors, top artists)
+- Mobile UX: hamburger menu for contributor/admin links, responsive layout improvements, touch-friendly interactions
 
 ### Deferred
 
@@ -142,4 +149,7 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | optionalAuth graceful degradation | DB failure on public routes → treat as unauthenticated (feed still loads without personalization) | ✓ Good — availability over correctness for read-only data |
 
 ---
-*Last updated: 2026-03-20 after v3.1 Scheduled Posts milestone shipped*
+| v4.0 as analytics + mobile milestone | New feature category (analytics) + UX overhaul warrants major bump | — Pending |
+
+---
+*Last updated: 2026-03-20 after v4.0 milestone initialization*
