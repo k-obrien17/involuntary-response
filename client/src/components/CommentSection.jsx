@@ -68,7 +68,7 @@ export default function CommentSection({ postSlug, initialComments, postAuthorId
             {comment.canDelete && (
               <button
                 onClick={() => handleDelete(comment.id)}
-                className="mt-1 text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition"
+                className="mt-1 text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition min-h-[44px] min-w-[44px] flex items-center"
               >
                 Delete
               </button>
@@ -98,7 +98,7 @@ export default function CommentSection({ postSlug, initialComments, postAuthorId
             <button
               type="submit"
               disabled={submitting || !body.trim()}
-              className="px-4 py-1.5 text-sm font-medium rounded-md bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-300 disabled:opacity-50 transition"
+              className="px-4 py-1.5 text-sm font-medium rounded-md bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-300 disabled:opacity-50 transition min-h-[44px]"
             >
               Post
             </button>
@@ -108,7 +108,7 @@ export default function CommentSection({ postSlug, initialComments, postAuthorId
         <p className="mt-4 text-sm text-gray-400 dark:text-gray-500">
           <Link
             to="/join"
-            className="underline hover:text-gray-600 dark:hover:text-gray-300"
+            className="underline hover:text-gray-600 dark:hover:text-gray-300 min-h-[44px] inline-flex items-center"
           >
             Log in
           </Link>{' '}

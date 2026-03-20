@@ -16,7 +16,7 @@ export default function EmbedPreview({ embed }) {
 
     return (
       <div
-        className="rounded-lg overflow-hidden [&>iframe]:w-full"
+        className="rounded-lg overflow-hidden max-w-full [&>iframe]:w-full [&>iframe]:max-w-full"
         dangerouslySetInnerHTML={{ __html: safeIframe }}
       />
     );
@@ -25,7 +25,7 @@ export default function EmbedPreview({ embed }) {
   // Legacy fallback for old DB rows without embed_html
   if (embed.provider === 'spotify') {
     return (
-      <div className="rounded-lg overflow-hidden">
+      <div className="rounded-lg overflow-hidden max-w-full [&>iframe]:max-w-full">
         <iframe
           src={embed.embedUrl}
           width="100%"
@@ -41,7 +41,7 @@ export default function EmbedPreview({ embed }) {
 
   if (embed.provider === 'apple') {
     return (
-      <div className="rounded-lg overflow-hidden">
+      <div className="rounded-lg overflow-hidden max-w-full [&>iframe]:max-w-full">
         <iframe
           src={embed.embedUrl}
           width="100%"
@@ -50,6 +50,7 @@ export default function EmbedPreview({ embed }) {
           sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
           allow="autoplay *; encrypted-media *; fullscreen *; picture-in-picture *"
           style={{ maxWidth: '660px' }}
+          className="max-w-full"
           loading="lazy"
           title={embed.title || 'Apple Music embed'}
         />

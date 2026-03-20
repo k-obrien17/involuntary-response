@@ -41,7 +41,7 @@ export default function LikeButton({ postSlug, initialCount, initialLiked }) {
     <button
       onClick={handleToggle}
       aria-label={liked ? 'Unlike' : 'Like'}
-      className="flex items-center gap-1 text-sm transition group"
+      className="flex items-center gap-1 text-sm transition group min-h-[44px] min-w-[44px] px-1"
     >
       {liked ? (
         <svg
