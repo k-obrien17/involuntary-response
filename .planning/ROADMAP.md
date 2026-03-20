@@ -6,7 +6,7 @@
 - ✅ **v2.0 Polish & Gaps** -- Phases 6-9 (shipped 2026-02-28)
 - ✅ **v2.1 Reader Engagement & Editorial** -- Phases 10-14 (shipped 2026-03-01)
 - ✅ **v3.0 Hardening** -- Phases 15-17 (shipped 2026-03-19)
-- **v3.1 Scheduled Posts** -- Phases 18-19 (in progress)
+- ✅ **v3.1 Scheduled Posts** -- Phases 18-19 (shipped 2026-03-20)
 
 ## Phases
 
@@ -59,45 +59,12 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 </details>
 
-### v3.1 Scheduled Posts (In Progress)
+<details>
+<summary>v3.1 Scheduled Posts (Phases 18-19) -- SHIPPED 2026-03-20</summary>
 
-**Milestone Goal:** Contributors can schedule draft posts to publish automatically at a future date/time.
+- [x] Phase 18: Scheduling Backend (2/2 plans) -- completed 2026-03-19
+- [x] Phase 19: Scheduling UI (2/2 plans) -- completed 2026-03-19
 
-- [x] **Phase 18: Scheduling Backend** - Schema, scheduled status, auto-publish mechanism, feed filtering (completed 2026-03-19)
-- [x] **Phase 19: Scheduling UI** - Date/time picker, timezone display, cancel/reschedule, My Posts updates (completed 2026-03-19)
+Full details: `.planning/milestones/v3.1-ROADMAP.md`
 
-## Phase Details
-
-### Phase 18: Scheduling Backend
-**Goal**: Server supports scheduled post status and automatically publishes posts when their scheduled time arrives
-**Depends on**: Phase 17
-**Requirements**: SCHED-03, SCHED-04, SCHED-08
-**Success Criteria** (what must be TRUE):
-  1. Posts can have status `scheduled` with a `scheduled_at` UTC timestamp in the database
-  2. A server-side mechanism checks for due scheduled posts every few minutes and publishes them (sets status to `published`, sets `published_at`)
-  3. Scheduled posts do not appear in any public feed, browse, search, or discovery endpoint -- only `published` posts do
-  4. The scheduling API validates that `scheduled_at` is in the future and rejects past times
-**Plans**: TBD
-
-### Phase 19: Scheduling UI
-**Goal**: Contributors can schedule, reschedule, and cancel posts through the UI, with full visibility in My Posts
-**Depends on**: Phase 18
-**Requirements**: SCHED-01, SCHED-02, SCHED-05, SCHED-06, SCHED-07
-**Success Criteria** (what must be TRUE):
-  1. Contributor can pick a future date and time from the create/edit post form to schedule a draft, and the picker displays times in their local timezone
-  2. Contributor can cancel a scheduled post from My Posts or the edit view, reverting it to draft status
-  3. Contributor can edit a scheduled post's content or change its scheduled time to a different future date/time
-  4. My Posts dashboard shows scheduled posts in a distinct section or with a visible scheduled badge and the scheduled date/time in the contributor's local timezone
-**Plans**: 2 plans
-Plans:
-- [ ] 19-01-PLAN.md — PostForm scheduling controls + CreatePost/EditPost wiring
-- [ ] 19-02-PLAN.md — My Posts scheduled section with date/time display
-
-## Progress
-
-**Execution Order:** Phase 18 then Phase 19.
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 18. Scheduling Backend | 2/2 | Complete    | 2026-03-19 | - |
-| 19. Scheduling UI | 2/2 | Complete    | 2026-03-19 | - |
+</details>

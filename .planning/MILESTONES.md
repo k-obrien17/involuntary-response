@@ -59,3 +59,20 @@
 
 ---
 
+
+## v3.1 Scheduled Posts (Shipped: 2026-03-20)
+
+**Phases completed:** 2 phases, 4 plans
+
+**Key accomplishments:**
+- Schema migration adding `scheduled_at` column; `scheduled` status distinct from draft/published
+- Server-side auto-publisher (setInterval, 2-minute polling) that publishes due posts and handles server-down catchup
+- API extended: create/update accept `scheduled` status with future-time validation; cancel reverts to draft
+- PostForm datetime-local picker for scheduling in contributor's local timezone, stored as UTC
+- CreatePost/EditPost wired with schedule, reschedule, and cancel-schedule flows
+- My Posts dashboard with three-section layout (Drafts → Scheduled → Published) and blue scheduled badge
+
+**Stats:** +921 / -52 LOC | 16 files | 5 feature commits
+
+---
+

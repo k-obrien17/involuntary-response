@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A curated music micro-blogging platform where invite-only contributors write short-form takes on songs, albums, and artists with inline Spotify and Apple Music embeds. Readers can sign up, like posts, and leave comments. Contributors save drafts, preview before publishing, and edit published posts. Text-first design — minimal chrome, large type, the writing carries the experience.
+A curated music micro-blogging platform where invite-only contributors write short-form takes on songs, albums, and artists with inline Spotify and Apple Music embeds. Readers can sign up, like posts, and leave comments. Contributors save drafts, preview before publishing, edit published posts, and schedule posts for future publication. Text-first design — minimal chrome, large type, the writing carries the experience.
 
 ## Core Value
 
@@ -49,17 +49,16 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - ✓ Embed iframe attribute allowlist (src, width, height, allow, sandbox only) — v3.0
 - ✓ ViewPost re-fetches after publish (no reload hack), delete error feedback — v3.0
 
+- ✓ Contributors can schedule draft posts for future publish dates — v3.1
+- ✓ Server auto-publishes scheduled posts within minutes of scheduled time — v3.1
+- ✓ Date/time picker in local timezone, stored as UTC — v3.1
+- ✓ Contributors can cancel scheduled posts (reverts to draft) — v3.1
+- ✓ Contributors can reschedule or edit scheduled post content — v3.1
+- ✓ My Posts dashboard shows scheduled posts with badge and scheduled time — v3.1
+
 ### Active
 
-#### Current Milestone: v3.1 Scheduled Posts
-
-**Goal:** Contributors can schedule draft posts to publish automatically at a future date/time.
-
-**Target features:**
-- Contributor picks a date/time in their local timezone to schedule a draft
-- Server-side polling checks for due posts every few minutes and publishes them
-- Scheduled posts appear in My Posts dashboard with their scheduled time
-- Contributors can edit or cancel a scheduled post before it goes live
+(None — planning next milestone)
 
 ### Deferred
 
@@ -78,6 +77,9 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - Email notifications — contributor pool is small enough to check dashboard
 
 ## Context
+
+**Shipped v3.1 Scheduled Posts** (2026-03-20): `scheduled` status + `scheduled_at` column, setInterval auto-publisher (2-min polling), PostForm datetime-local picker, cancel/reschedule flows, My Posts scheduled section.
+- 16 files changed, +921 / -52 lines
 
 **Shipped v3.0 Hardening** (2026-03-19): Full app audit → 21 fixes across auth, security, client robustness, UX.
 - Auth: DB-sourced roles, /auth/me validation, 401 interceptor, optionalAuth is_active check
@@ -131,11 +133,13 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | Three-way comment delete auth | Comment author, post author, or admin can delete | ✓ Good — server-enforced, canDelete boolean in response |
 | published_at for feed ordering | Drafts use NULL published_at; feed orders by publish time not creation | ✓ Good — drafts don't bury in feed when later published |
 | No unpublish | Once published, post cannot revert to draft (protects engagement data) | ✓ Good — simple mental model, 400 rejection on attempt |
-| Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | — Pending — now active in v3.1 |
+| Scheduling deferred to future | Draft workflow ships first; scheduling adds cron complexity | ✓ Good — shipped in v3.1 with setInterval (simpler than node-cron) |
+| setInterval over node-cron for scheduler | No external dependency needed; 2-min polling is precise enough for a blog | ✓ Good — simple, zero dependencies |
+| Native datetime-local over date picker library | Simplest approach; no extra bundle size; browser-native timezone handling | ✓ Good — works across modern browsers |
 | v3.0 as hardening milestone | Audit found 4 critical + 5 high issues; fix before adding features | ✓ Good — all 21 requirements shipped, 0 gaps |
 | DB-sourced roles over shorter JWT expiry | Reading role from DB on every request eliminates stale-role risk without disrupting UX (365d expiry stays) | ✓ Good — simpler than refresh tokens, equally effective |
 | Permissive CSP with provider allowlist | Strict CSP would break Spotify/Apple Music embeds; allowlist covers all 5 oEmbed providers + Gravatar | ✓ Good — embeds work, clickjacking blocked |
 | optionalAuth graceful degradation | DB failure on public routes → treat as unauthenticated (feed still loads without personalization) | ✓ Good — availability over correctness for read-only data |
 
 ---
-*Last updated: 2026-03-19 after v3.1 milestone initialization*
+*Last updated: 2026-03-20 after v3.1 Scheduled Posts milestone shipped*
