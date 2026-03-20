@@ -119,10 +119,10 @@ Plans:
   2. Hamburger menu opens and closes with animation, and auto-closes when the user navigates to a new page
   3. All buttons, links, and interactive elements (like, comment, share) are at least 44px touch targets on mobile
   4. Spotify and Apple Music embed iframes scale down on narrow screens without horizontal overflow
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 22-01: Mobile navigation and responsive polish
+- [ ] 22-01: Hamburger nav, touch targets, responsive embeds
 
 ## Progress
 
