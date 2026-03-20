@@ -76,3 +76,19 @@
 
 ---
 
+
+## v4.0 Analytics & Mobile (Shipped: 2026-03-20)
+
+**Phases completed:** 3 phases, 5 plans
+
+**Key accomplishments:**
+- Contributor analytics: per-post engagement stats, sortable by likes/comments, top artists, activity cards (total posts, monthly count, posting streak)
+- Admin analytics: site-wide overview (total posts/likes/comments/contributors/readers), top contributors ranked by engagement, top artists across all contributors
+- Analytics API: 6 new endpoints in server/routes/analytics.js with contributor and admin auth middleware
+- Mobile hamburger nav: animated dropdown, auto-close on route change, 44px touch targets on all interactive elements
+- Responsive embeds: Spotify/Apple Music iframes scale on narrow screens without overflow
+
+**Stats:** +1,555 / -50 LOC | 21 files | 10 feature commits
+
+---
+

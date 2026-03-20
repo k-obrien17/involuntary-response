@@ -56,16 +56,15 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - ✓ Contributors can reschedule or edit scheduled post content — v3.1
 - ✓ My Posts dashboard shows scheduled posts with badge and scheduled time — v3.1
 
+- ✓ Contributor analytics: per-post engagement, top artists, activity stats (total/monthly/streak) — v4.0
+- ✓ Admin analytics: site-wide overview, top contributors by engagement, top artists — v4.0
+- ✓ Mobile hamburger nav with animated dropdown and auto-close on route change — v4.0
+- ✓ 44px touch targets on all interactive elements (like, comment, delete, submit) — v4.0
+- ✓ Responsive embed iframes (no overflow on mobile) — v4.0
+
 ### Active
 
-#### Current Milestone: v4.0 Analytics & Mobile
-
-**Goal:** Contributor analytics dashboard + admin site-wide stats, plus mobile UX polish (hamburger nav, responsive improvements).
-
-**Target features:**
-- Contributor analytics: post performance (likes, comments per post), top artists written about, activity stats (total posts, posting streak, posts this month)
-- Admin analytics: site-wide overview (total posts, total engagement, top contributors, top artists)
-- Mobile UX: hamburger menu for contributor/admin links, responsive layout improvements, touch-friendly interactions
+(None — planning next milestone)
 
 ### Deferred
 
@@ -84,6 +83,9 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 - Email notifications — contributor pool is small enough to check dashboard
 
 ## Context
+
+**Shipped v4.0 Analytics & Mobile** (2026-03-20): Contributor + admin analytics dashboards, mobile hamburger nav, touch targets, responsive embeds.
+- 21 files changed, +1,555 / -50 lines
 
 **Shipped v3.1 Scheduled Posts** (2026-03-20): `scheduled` status + `scheduled_at` column, setInterval auto-publisher (2-min polling), PostForm datetime-local picker, cancel/reschedule flows, My Posts scheduled section.
 - 16 files changed, +921 / -52 lines
@@ -149,7 +151,7 @@ Anyone can scroll through and feel the visceral, honest reaction someone had to 
 | optionalAuth graceful degradation | DB failure on public routes → treat as unauthenticated (feed still loads without personalization) | ✓ Good — availability over correctness for read-only data |
 
 ---
-| v4.0 as analytics + mobile milestone | New feature category (analytics) + UX overhaul warrants major bump | — Pending |
+| v4.0 as analytics + mobile milestone | New feature category (analytics) + UX overhaul warrants major bump | ✓ Good — analytics motivates contributors, mobile improves reading experience |
 
 ---
-*Last updated: 2026-03-20 after v4.0 milestone initialization*
+*Last updated: 2026-03-20 after v4.0 Analytics & Mobile milestone shipped*
