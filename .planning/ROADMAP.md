@@ -100,7 +100,9 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   3. /about page exists with a route in the app, explaining the site's purpose in an editorial (not corporate) voice
   4. /about page describes who is behind the site
   5. /about page has clear calls to action: a link to /join (reader signup) and a link to the RSS feed
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 23-01-PLAN.md — Add hero section to Home page, create About page, add /about route
 
 ### Phase 24: Production Deployment
 **Goal**: All code from v3.0 through v4.1 is live in production and working
@@ -119,5 +121,5 @@ Phases execute in numeric order: 23 -> 24
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 23. Hero & About Page | v4.1 | 0/? | Not started | - |
+| 23. Hero & About Page | v4.1 | 0/1 | Planned | - |
 | 24. Production Deployment | v4.1 | 0/? | Not started | - |
