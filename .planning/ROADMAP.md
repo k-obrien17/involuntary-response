@@ -80,3 +80,44 @@ Full details: `.planning/milestones/v3.1-ROADMAP.md`
 Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 </details>
+
+### v4.1 Launch (In Progress)
+
+**Milestone Goal:** Make the site ready for public sharing -- hero section on home page, dedicated /about page, deploy latest code to production.
+
+- [ ] **Phase 23: Hero & About Page** - Hero section on home page and dedicated /about route
+- [ ] **Phase 24: Production Deployment** - Deploy v3.0-v4.1 code to Vercel and Render
+
+## Phase Details
+
+### Phase 23: Hero & About Page
+**Goal**: First-time visitors immediately understand what the site is and can learn more if they want to
+**Depends on**: Phase 22
+**Requirements**: LNCH-01, LNCH-02, LNCH-03, LNCH-04, LNCH-05, LNCH-06
+**Success Criteria** (what must be TRUE):
+  1. Home page opens with a short hero section that communicates what Involuntary Response is, followed immediately by the post feed with no extra clicks
+  2. Hero section contains a visible link to /about for visitors who want to learn more
+  3. /about page exists with a route in the app, explaining the site's purpose in an editorial (not corporate) voice
+  4. /about page describes who is behind the site
+  5. /about page has clear calls to action: a link to /join (reader signup) and a link to the RSS feed
+**Plans**: TBD
+
+### Phase 24: Production Deployment
+**Goal**: All code from v3.0 through v4.1 is live in production and working
+**Depends on**: Phase 23
+**Requirements**: LNCH-07, LNCH-08
+**Success Criteria** (what must be TRUE):
+  1. Vercel frontend build succeeds with no errors and the deployed site loads correctly
+  2. API proxy routes on Vercel correctly forward requests to the Render backend
+  3. Backend on Render is running the latest server code (scheduling, analytics endpoints respond)
+**Plans**: TBD
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 23 -> 24
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 23. Hero & About Page | v4.1 | 0/? | Not started | - |
+| 24. Production Deployment | v4.1 | 0/? | Not started | - |

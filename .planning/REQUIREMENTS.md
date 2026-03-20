@@ -1,7 +1,7 @@
 # Requirements: Involuntary Response v4.1 Launch
 
 **Defined:** 2026-03-20
-**Core Value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music — and the music is right there to listen to.
+**Core Value:** Anyone can scroll through and feel the visceral, honest reaction someone had to a piece of music -- and the music is right there to listen to.
 
 ## v4.1 Requirements
 
@@ -9,7 +9,7 @@
 
 - [ ] **LNCH-01**: Home page has a hero section with a one-liner about the site above the feed
 - [ ] **LNCH-02**: Hero section links to /about for visitors who want to learn more
-- [ ] **LNCH-03**: Feed starts immediately below the hero — no extra clicks to see content
+- [ ] **LNCH-03**: Feed starts immediately below the hero -- no extra clicks to see content
 
 ### About Page
 
@@ -19,7 +19,7 @@
 
 ### Deployment
 
-- [ ] **LNCH-07**: Latest code (v3.0–v4.0) is deployed to Vercel (frontend) and Render (backend)
+- [ ] **LNCH-07**: Latest code (v3.0-v4.0) is deployed to Vercel (frontend) and Render (backend)
 - [ ] **LNCH-08**: Vercel build succeeds with no errors; API proxy routes work correctly
 
 ## Future Requirements
@@ -36,7 +36,7 @@
 | Feature | Reason |
 |---------|--------|
 | SEO optimization | OG meta tags already handled; further SEO is premature |
-| Custom domain setup | Separate from code — can be done anytime via Vercel dashboard |
+| Custom domain setup | Separate from code -- can be done anytime via Vercel dashboard |
 | Analytics/tracking scripts | Privacy-first; no third-party tracking |
 | Marketing copy | The about page is editorial, not a marketing landing page |
 
@@ -44,20 +44,20 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LNCH-01 | — | Pending |
-| LNCH-02 | — | Pending |
-| LNCH-03 | — | Pending |
-| LNCH-04 | — | Pending |
-| LNCH-05 | — | Pending |
-| LNCH-06 | — | Pending |
-| LNCH-07 | — | Pending |
-| LNCH-08 | — | Pending |
+| LNCH-01 | Phase 23 | Pending |
+| LNCH-02 | Phase 23 | Pending |
+| LNCH-03 | Phase 23 | Pending |
+| LNCH-04 | Phase 23 | Pending |
+| LNCH-05 | Phase 23 | Pending |
+| LNCH-06 | Phase 23 | Pending |
+| LNCH-07 | Phase 24 | Pending |
+| LNCH-08 | Phase 24 | Pending |
 
 **Coverage:**
 - v4.1 requirements: 8 total
-- Mapped to phases: 0
-- Unmapped: 8 ⚠️
+- Mapped to phases: 8
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-20*
-*Last updated: 2026-03-20 after initial definition*
+*Last updated: 2026-03-20 after roadmap creation*
