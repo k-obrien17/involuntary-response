@@ -121,5 +121,5 @@ Phases execute in numeric order: 23 -> 24
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 23. Hero & About Page | 1/1 | Complete   | 2026-03-20 | - |
+| 23. Hero & About Page | 1/1 | Complete    | 2026-03-20 | - |
 | 24. Production Deployment | v4.1 | 0/? | Not started | - |
