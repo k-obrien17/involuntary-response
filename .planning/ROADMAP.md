@@ -112,7 +112,9 @@ Plans:
   1. Vercel frontend build succeeds with no errors and the deployed site loads correctly
   2. API proxy routes on Vercel correctly forward requests to the Render backend
   3. Backend on Render is running the latest server code (scheduling, analytics endpoints respond)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 24-01-PLAN.md — Update deployment config placeholders and verify production stack
 
 ## Progress
 
@@ -128,4 +130,4 @@ Phases execute in numeric order: 23 -> 24
 | 18-19 | v3.1 | 4/4 | Complete | 2026-03-20 |
 | 20-22 | v4.0 | 5/5 | Complete | 2026-03-20 |
 | 23. Hero & About Page | v4.1 | 1/1 | Complete | 2026-03-20 |
-| 24. Production Deployment | v4.1 | 0/? | Not started | - |
+| 24. Production Deployment | v4.1 | 0/1 | Not started | - |
