@@ -281,15 +281,17 @@ router.post('/reset-password', resetPasswordLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Reset token has expired' });
     }
 
-    // Hash new password and update user
-    const hash = await bcrypt.hash(password, 10);
-    await db.run('UPDATE users SET password_hash = ? WHERE id = ?', hash, resetToken.user_id);
-
-    // Mark reset token as used
-    await db.run(
-      'UPDATE password_reset_tokens SET used_at = CURRENT_TIMESTAMP WHERE id = ?',
+    // Atomically claim the token — only one concurrent request can succeed
+    const claim = await db.run(
+      'UPDATE password_reset_tokens SET used_at = CURRENT_TIMESTAMP WHERE id = ? AND used_at IS NULL',
       resetToken.id
     );
+    if (claim.changes === 0) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    await db.run('UPDATE users SET password_hash = ? WHERE id = ?', hash, resetToken.user_id);
 
     res.json({ message: 'Password reset successful' });
   } catch (err) {
