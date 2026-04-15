@@ -3,22 +3,30 @@ export default function EmbedPreview({ embed }) {
 
   // Primary path: server-resolved oEmbed HTML (sanitized server-side to iframe-only)
   if (embed.embedHtml) {
-    // Defense-in-depth: strip anything that isn't an iframe tag
     const iframeOnly = embed.embedHtml.match(/<iframe\s[^>]*><\/iframe>/i)?.[0];
     if (!iframeOnly) return null;
 
+    // Extract allowed attributes into an object — render via React, never innerHTML
     const allowed = ['src', 'width', 'height', 'allow', 'sandbox'];
-    const attrs = [...iframeOnly.matchAll(/(\w+)="([^"]*)"/g)]
-      .filter(([, name]) => allowed.includes(name))
-      .map(([, name, value]) => `${name}="${value}"`)
-      .join(' ');
-    const safeIframe = `<iframe ${attrs}></iframe>`;
+    const props = {};
+    for (const [, name, value] of iframeOnly.matchAll(/(\w+)="([^"]*)"/g)) {
+      if (allowed.includes(name)) props[name] = value;
+    }
+    if (!props.src) return null;
 
     return (
-      <div
-        className="rounded-lg overflow-hidden max-w-full [&>iframe]:w-full [&>iframe]:max-w-full"
-        dangerouslySetInnerHTML={{ __html: safeIframe }}
-      />
+      <div className="rounded-lg overflow-hidden max-w-full [&>iframe]:w-full [&>iframe]:max-w-full">
+        <iframe
+          src={props.src}
+          width={props.width || '100%'}
+          height={props.height || 352}
+          allow={props.allow}
+          sandbox={props.sandbox}
+          frameBorder="0"
+          loading="lazy"
+          title={embed.title || `${embed.provider || 'Music'} embed`}
+        />
+      </div>
     );
   }
 
