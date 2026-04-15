@@ -8,6 +8,7 @@
 - ✅ **v3.0 Hardening** -- Phases 15-17 (shipped 2026-03-19)
 - ✅ **v3.1 Scheduled Posts** -- Phases 18-19 (shipped 2026-03-20)
 - ✅ **v4.0 Analytics & Mobile** -- Phases 20-22 (shipped 2026-03-20)
+- ✅ **v4.1 Launch** -- Phases 23-24 (shipped 2026-04-15)
 
 ## Phases
 
@@ -81,12 +82,15 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 </details>
 
-### v4.1 Launch (In Progress)
+<details>
+<summary>v4.1 Launch (Phases 23-24) -- SHIPPED 2026-04-15</summary>
 
 **Milestone Goal:** Make the site ready for public sharing -- hero section on home page, dedicated /about page, deploy latest code to production.
 
 - [x] **Phase 23: Hero & About Page** - Hero section on home page and dedicated /about route (completed 2026-03-20)
-- [ ] **Phase 24: Production Deployment** - Deploy v3.0-v4.1 code to Vercel and Render
+- [x] **Phase 24: Production Deployment** - Deploy v3.0-v4.1 code to Vercel and Render (completed 2026-04-15)
+
+</details>
 
 ## Phase Details
 
@@ -130,4 +134,4 @@ Phases execute in numeric order: 23 -> 24
 | 18-19 | v3.1 | 4/4 | Complete | 2026-03-20 |
 | 20-22 | v4.0 | 5/5 | Complete | 2026-03-20 |
 | 23. Hero & About Page | v4.1 | 1/1 | Complete | 2026-03-20 |
-| 24. Production Deployment | v4.1 | 0/1 | Not started | - |
+| 24. Production Deployment | v4.1 | 1/1 | Complete | 2026-04-15 |
