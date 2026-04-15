@@ -69,6 +69,9 @@ app.use((err, req, res, next) => {
 // Validate required environment variables before startup
 function validateEnv() {
   const required = ['ADMIN_EMAIL', 'ADMIN_PASSWORD', 'ADMIN_DISPLAY_NAME'];
+  if (process.env.NODE_ENV === 'production') {
+    required.push('FRONTEND_URL');
+  }
   const missing = required.filter(v => !process.env[v]);
   if (missing.length > 0) {
     throw new Error(`Missing required env vars: ${missing.join(', ')}. Set these before starting the server.`);
