@@ -34,11 +34,11 @@ export default function EditPost() {
     fetchPost();
   }, [slug, user, loading, navigate]);
 
-  const handleSubmit = async ({ body, embedUrl, tags, artistName }) => {
+  const handleSubmit = async ({ body, embedUrl, tags, artistNames }) => {
     setSubmitting(true);
     setError(null);
     try {
-      const updateData = { body, embedUrl, tags, artistName };
+      const updateData = { body, embedUrl, tags, artistNames };
       if (post.status === 'draft') {
         updateData.status = 'published';
       }
@@ -50,11 +50,11 @@ export default function EditPost() {
     }
   };
 
-  const handleSaveDraft = async ({ body, embedUrl, tags, artistName }) => {
+  const handleSaveDraft = async ({ body, embedUrl, tags, artistNames }) => {
     setSubmitting(true);
     setError(null);
     try {
-      const updateData = { body, embedUrl, tags, artistName };
+      const updateData = { body, embedUrl, tags, artistNames };
       if (post.status === 'scheduled') {
         updateData.status = 'draft';
       }
@@ -66,11 +66,11 @@ export default function EditPost() {
     }
   };
 
-  const handleSchedule = async ({ body, embedUrl, tags, artistName, scheduledAt }) => {
+  const handleSchedule = async ({ body, embedUrl, tags, artistNames, scheduledAt }) => {
     setSubmitting(true);
     setError(null);
     try {
-      await posts.update(slug, { body, embedUrl, tags, artistName, status: 'scheduled', scheduledAt });
+      await posts.update(slug, { body, embedUrl, tags, artistNames, status: 'scheduled', scheduledAt });
       navigate('/my-posts');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to schedule post');
@@ -121,7 +121,7 @@ export default function EditPost() {
           body: post.body,
           embed: post.embed,
           tags: post.tags,
-          artistName: post.artists?.[0]?.name || '',
+          artistNames: (post.artists || []).map((a) => a.name),
         }}
         onSubmit={handleSubmit}
         onSaveDraft={post.status === 'draft' || post.status === 'scheduled' ? handleSaveDraft : undefined}

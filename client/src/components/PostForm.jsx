@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import EmbedInput from './EmbedInput';
 import TagInput from './TagInput';
+import ArtistInput from './ArtistInput';
 
 const SOFT_LIMIT = 800;
 const HARD_LIMIT = 1200;
@@ -22,15 +23,15 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
   const [body, setBody] = useState(initialData?.body || '');
   const [embed, setEmbed] = useState(initialData?.embed || null);
   const [tags, setTags] = useState(initialData?.tags || []);
-  const [artistName, setArtistName] = useState(initialData?.artistName || '');
+  const [artistNames, setArtistNames] = useState(initialData?.artistNames || []);
   const [scheduledAt, setScheduledAt] = useState(
     initialScheduledAt ? toLocalDatetimeValue(initialScheduledAt) : ''
   );
 
-  // Auto-populate artist name from embed when resolved
+  // Auto-populate artists from embed when resolved (max 2)
   useEffect(() => {
-    if (embed?.artists?.length > 0 && !artistName) {
-      setArtistName(embed.artists.map(a => a.name).join(', '));
+    if (embed?.artists?.length > 0 && artistNames.length === 0) {
+      setArtistNames(embed.artists.slice(0, 2).map((a) => a.name));
     }
   }, [embed]);
 
@@ -40,7 +41,7 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
       body: body.trim(),
       embedUrl: embed?.originalUrl || null,
       tags,
-      artistName: artistName.trim() || null,
+      artistNames,
     });
   };
 
@@ -58,7 +59,7 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
     body: body.trim(),
     embedUrl: embed?.originalUrl || null,
     tags,
-    artistName: artistName.trim() || null,
+    artistNames,
   };
 
   const draftButtonLabel = initialScheduledAt
@@ -82,22 +83,7 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
 
       <EmbedInput embed={embed} onChange={setEmbed} />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Artist (optional)
-        </label>
-        <input
-          type="text"
-          value={artistName}
-          onChange={(e) => setArtistName(e.target.value)}
-          placeholder="Auto-detected from embed, or type manually"
-          maxLength={200}
-          className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 mt-1"
-        />
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-          Leave blank if a Spotify or Apple Music link is provided — artist is detected automatically.
-        </p>
-      </div>
+      <ArtistInput artists={artistNames} onChange={setArtistNames} maxArtists={2} />
 
       <TagInput tags={tags} onChange={setTags} maxTags={5} />
 

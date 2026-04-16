@@ -8,11 +8,11 @@ export default function CreatePost() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async ({ body, embedUrl, tags, artistName }) => {
+  const handleSubmit = async ({ body, embedUrl, tags, artistNames }) => {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await posts.create({ body, embedUrl, tags, artistName, status: 'published' });
+      const res = await posts.create({ body, embedUrl, tags, artistNames, status: 'published' });
       navigate(`/posts/${res.data.slug}`);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create post');
@@ -20,11 +20,11 @@ export default function CreatePost() {
     }
   };
 
-  const handleSaveDraft = async ({ body, embedUrl, tags, artistName }) => {
+  const handleSaveDraft = async ({ body, embedUrl, tags, artistNames }) => {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await posts.create({ body, embedUrl, tags, artistName, status: 'draft' });
+      const res = await posts.create({ body, embedUrl, tags, artistNames, status: 'draft' });
       navigate(`/posts/${res.data.slug}/edit`);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to save draft');
@@ -32,11 +32,11 @@ export default function CreatePost() {
     }
   };
 
-  const handleSchedule = async ({ body, embedUrl, tags, artistName, scheduledAt }) => {
+  const handleSchedule = async ({ body, embedUrl, tags, artistNames, scheduledAt }) => {
     setSubmitting(true);
     setError(null);
     try {
-      await posts.create({ body, embedUrl, tags, artistName, status: 'scheduled', scheduledAt });
+      await posts.create({ body, embedUrl, tags, artistNames, status: 'scheduled', scheduledAt });
       navigate('/my-posts');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to schedule post');
