@@ -52,7 +52,7 @@ export default function Home() {
         <img
           src="/og-default.png"
           alt="Involuntary Response"
-          className="w-full max-w-xl mx-auto mb-8"
+          className="w-full max-w-xl mx-auto mb-6 aspect-[5/1] object-cover object-center"
         />
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 text-center">
           Short takes on the world of music, with a prejudice towards highlighting the unheralded and forgotten.
