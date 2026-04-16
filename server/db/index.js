@@ -203,6 +203,29 @@ export async function initDatabase() {
       name: 'add_scheduled_at',
       sql: `ALTER TABLE posts ADD COLUMN scheduled_at DATETIME;`,
     },
+    {
+      id: 7,
+      name: 'create_site_pages',
+      sql: `
+        CREATE TABLE IF NOT EXISTS site_pages (
+          slug TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          body TEXT NOT NULL,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_by INTEGER,
+          FOREIGN KEY (updated_by) REFERENCES users(id)
+        );
+        INSERT OR IGNORE INTO site_pages (slug, title, body) VALUES (
+          'about',
+          'About',
+          'A place for visceral, honest reactions to music. Not reviews. Not ratings. Someone heard a song and needed to write about it. That impulse — the one that hits before you can think of a star count — is what lives here.
+
+Every post has the music embedded right there. You read the reaction, you press play, you decide for yourself. No intermediary telling you what to feel first.
+
+Think of it as a feed of musical moments. Not a recommendation engine, not a playlist generator. Just people and the songs that stopped them in their tracks.'
+        );
+      `,
+    },
   ];
 
   for (const m of migrations) {

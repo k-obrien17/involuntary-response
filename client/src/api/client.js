@@ -98,6 +98,12 @@ export const adminAnalytics = {
   artists: () => api.get('/analytics/admin/artists'),
 };
 
+export const pages = {
+  get: (slug) => api.get(`/pages/${slug}`),
+  list: () => api.get('/pages'),
+  update: (slug, data) => api.put(`/pages/${slug}`, data),
+};
+
 export const profile = {
   get: (username, params) =>
     api.get(`/users/${encodeURIComponent(username)}/profile`, { params }),
