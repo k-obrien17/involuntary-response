@@ -19,7 +19,7 @@ function escapeHtml(str) {
 }
 
 export default async function handler(req, res) {
-  const SITE_URL = process.env.SITE_URL || 'https://involuntary-response.vercel.app';
+  const SITE_URL = process.env.SITE_URL || 'https://www.involuntaryresponse.com';
   const RENDER_API_URL = process.env.RENDER_API_URL;
 
   // Determine route type

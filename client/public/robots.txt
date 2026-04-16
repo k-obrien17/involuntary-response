@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://involuntary-response.vercel.app/sitemap.xml
+Sitemap: https://www.involuntaryresponse.com/sitemap.xml

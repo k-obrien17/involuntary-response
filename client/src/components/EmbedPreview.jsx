@@ -14,12 +14,22 @@ export default function EmbedPreview({ embed }) {
     }
     if (!props.src) return null;
 
+    // Video providers (youtube, vimeo) return small fixed dimensions — use aspect ratio so
+    // the iframe scales with container width without collapsing vertically.
+    const w = parseInt(props.width, 10);
+    const h = parseInt(props.height, 10);
+    const isVideo = embed.provider === 'youtube' || embed.provider === 'vimeo';
+    const useAspect = isVideo && w > 0 && h > 0;
+
     return (
-      <div className="rounded-lg overflow-hidden max-w-full [&>iframe]:w-full [&>iframe]:max-w-full">
+      <div
+        className="rounded-lg overflow-hidden max-w-full [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:max-w-full"
+        style={useAspect ? { aspectRatio: `${w} / ${h}` } : undefined}
+      >
         <iframe
           src={props.src}
-          width={props.width || '100%'}
-          height={props.height || 352}
+          width={useAspect ? undefined : (props.width || '100%')}
+          height={useAspect ? undefined : (props.height || 352)}
           allow={props.allow}
           sandbox={props.sandbox}
           frameBorder="0"

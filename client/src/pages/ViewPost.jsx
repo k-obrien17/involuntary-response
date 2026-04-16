@@ -43,6 +43,17 @@ export default function ViewPost() {
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
+      {post.status === 'published' && user && user.id === post.authorId && (
+        <div className="mb-6 flex justify-end">
+          <Link
+            to={`/edit/${post.slug}`}
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 underline"
+          >
+            Edit
+          </Link>
+        </div>
+      )}
+
       {post.status === 'draft' && user && user.id === post.authorId && (
         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-8 flex items-center justify-between">
           <div>

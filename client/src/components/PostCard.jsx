@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import EmbedPlaceholder from './EmbedPlaceholder';
+import EmbedPreview from './EmbedPreview';
 import RichBody from './RichBody';
 import Avatar from './Avatar';
 import LikeButton from './LikeButton';
@@ -13,7 +13,7 @@ export default function PostCard({ post }) {
 
       {post.embed && (
         <div className="mt-6">
-          <EmbedPlaceholder embed={post.embed} />
+          <EmbedPreview embed={post.embed} />
         </div>
       )}
 
