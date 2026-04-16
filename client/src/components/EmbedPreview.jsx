@@ -1,5 +1,46 @@
+function hostnameOf(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
 export default function EmbedPreview({ embed }) {
   if (!embed) return null;
+
+  // Link card (article / generic URL)
+  if (embed.provider === 'link') {
+    const href = embed.originalUrl || embed.embedUrl;
+    const site = hostnameOf(href);
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:border-gray-400 dark:hover:border-gray-500 transition"
+      >
+        {embed.thumbnailUrl && (
+          <div className="aspect-[1.91/1] bg-gray-100 dark:bg-gray-800 overflow-hidden">
+            <img
+              src={embed.thumbnailUrl}
+              alt=""
+              loading="lazy"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div className="p-4">
+          <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            {site}
+          </div>
+          <div className="mt-1 text-base font-medium text-gray-900 dark:text-gray-100 leading-snug">
+            {embed.title || href}
+          </div>
+        </div>
+      </a>
+    );
+  }
 
   // Primary path: server-resolved oEmbed HTML (sanitized server-side to iframe-only)
   if (embed.embedHtml) {

@@ -1,8 +1,10 @@
 /**
  * Universal oEmbed resolver with provider registry.
  * Fetches embed HTML from provider oEmbed endpoints, with manual
- * fallback for Apple Music (no oEmbed support).
+ * fallback for Apple Music (no oEmbed support) and OG link-card
+ * fallback for arbitrary article URLs.
  */
+import { fetchLinkPreview } from './link-preview.js';
 
 const PROVIDERS = [
   {
@@ -142,6 +144,22 @@ export async function resolveEmbed(url) {
     } catch {
       return null;
     }
+  }
+
+  // Fallback: treat as a generic article/link card via OG meta tags
+  const preview = await fetchLinkPreview(trimmed);
+  if (preview) {
+    return {
+      provider: 'link',
+      embedType: 'article',
+      embedUrl: preview.url,
+      originalUrl: preview.url,
+      title: preview.title,
+      thumbnailUrl: preview.image,
+      embedHtml: null,
+      siteName: preview.siteName,
+      description: preview.description,
+    };
   }
 
   return null;

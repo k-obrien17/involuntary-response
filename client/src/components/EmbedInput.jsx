@@ -58,13 +58,13 @@ export default function EmbedInput({ embed, onChange }) {
   return (
     <div className="space-y-3">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Music or video embed (optional)
+        Embed (optional)
       </label>
       <input
         type="text"
         value={url}
         onChange={handleChange}
-        placeholder="Paste a music or video link"
+        placeholder="Paste a music, video, or article link"
         className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400"
       />
       {loading && (

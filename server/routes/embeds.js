@@ -24,7 +24,7 @@ router.post('/resolve', authenticateToken, requireContributor, resolveLimiter, a
     const result = await resolveEmbed(url.trim());
     if (!result) {
       return res.status(422).json({
-        error: `Unsupported or invalid URL. Supported: ${SUPPORTED_PROVIDERS.join(', ')}`,
+        error: 'Could not load a preview for that URL.',
       });
     }
 
