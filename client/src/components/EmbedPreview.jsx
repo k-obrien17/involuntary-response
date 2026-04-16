@@ -45,7 +45,18 @@ export default function EmbedPreview({ embed }) {
   // Primary path: server-resolved oEmbed HTML (sanitized server-side to iframe-only)
   if (embed.embedHtml) {
     const iframeOnly = embed.embedHtml.match(/<iframe\s[^>]*><\/iframe>/i)?.[0];
-    if (!iframeOnly) return null;
+    if (!iframeOnly) {
+      return (
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-sm text-gray-500 dark:text-gray-400">
+          Embed could not be displayed.{' '}
+          {embed.originalUrl && (
+            <a href={embed.originalUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">
+              Open link
+            </a>
+          )}
+        </div>
+      );
+    }
 
     // Extract allowed attributes into an object — render via React, never innerHTML
     const allowed = ['src', 'width', 'height', 'allow', 'sandbox'];

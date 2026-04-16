@@ -292,19 +292,15 @@ router.post('/:slug/like', authenticateToken, likeLimiter, async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    const existing = await db.get(
-      'SELECT 1 FROM post_likes WHERE post_id = ? AND user_id = ?',
+    const deleted = await db.run(
+      'DELETE FROM post_likes WHERE post_id = ? AND user_id = ?',
       post.id, req.user.id
     );
+    const wasLiked = deleted.rowsAffected > 0;
 
-    if (existing) {
+    if (!wasLiked) {
       await db.run(
-        'DELETE FROM post_likes WHERE post_id = ? AND user_id = ?',
-        post.id, req.user.id
-      );
-    } else {
-      await db.run(
-        'INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)',
+        'INSERT OR IGNORE INTO post_likes (post_id, user_id) VALUES (?, ?)',
         post.id, req.user.id
       );
     }
@@ -314,7 +310,7 @@ router.post('/:slug/like', authenticateToken, likeLimiter, async (req, res) => {
       post.id
     );
 
-    res.json({ liked: !existing, likeCount: countRow.count });
+    res.json({ liked: !wasLiked, likeCount: countRow.count });
   } catch (err) {
     console.error('Toggle like error:', err);
     res.status(500).json({ error: 'Failed to toggle like' });

@@ -10,18 +10,20 @@ export default function CommentSection({ postSlug, initialComments, postAuthorId
   const [comments, setComments] = useState(initialComments || []);
   const [body, setBody] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting || !body.trim()) return;
 
     setSubmitting(true);
+    setError('');
     try {
       const res = await posts.addComment(postSlug, body.trim());
       setComments([...comments, res.data]);
       setBody('');
     } catch {
-      // Keep body so user can retry
+      setError('Failed to post comment. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -87,6 +89,9 @@ export default function CommentSection({ postSlug, initialComments, postAuthorId
             rows={3}
             className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-1 focus:ring-gray-400 dark:focus:ring-gray-500 focus:outline-none resize-none"
           />
+          {error && (
+            <p className="text-sm text-red-600 mt-1">{error}</p>
+          )}
           <div className="flex items-center justify-between mt-2">
             {body.length > 0 ? (
               <span className="text-xs text-gray-400 dark:text-gray-500">
