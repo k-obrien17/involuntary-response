@@ -3,6 +3,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 import EmbedInput from './EmbedInput';
 import TagInput from './TagInput';
 import ArtistInput from './ArtistInput';
+import { categories as categoriesApi } from '../api/client';
 
 const SOFT_LIMIT = 800;
 const HARD_LIMIT = 1200;
@@ -24,9 +25,15 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
   const [embed, setEmbed] = useState(initialData?.embed || null);
   const [tags, setTags] = useState(initialData?.tags || []);
   const [artistNames, setArtistNames] = useState(initialData?.artistNames || []);
+  const [categoryId, setCategoryId] = useState(initialData?.categoryId || '');
+  const [categoryOptions, setCategoryOptions] = useState([]);
   const [scheduledAt, setScheduledAt] = useState(
     initialScheduledAt ? toLocalDatetimeValue(initialScheduledAt) : ''
   );
+
+  useEffect(() => {
+    categoriesApi.list().then((res) => setCategoryOptions(res.data.categories)).catch(() => {});
+  }, []);
 
   // Auto-populate artists from embed when resolved (max 2)
   useEffect(() => {
@@ -42,6 +49,7 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
       embedUrl: embed?.originalUrl || null,
       tags,
       artistNames,
+      categoryId: categoryId || null,
     });
   };
 
@@ -60,6 +68,7 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
     embedUrl: embed?.originalUrl || null,
     tags,
     artistNames,
+    categoryId: categoryId || null,
   };
 
   const draftButtonLabel = initialScheduledAt
@@ -86,6 +95,24 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
       <ArtistInput artists={artistNames} onChange={setArtistNames} maxArtists={2} />
 
       <TagInput tags={tags} onChange={setTags} maxTags={5} />
+
+      {categoryOptions.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Category (optional)
+          </label>
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 mt-1"
+          >
+            <option value="">None</option>
+            {categoryOptions.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {onSchedule && (
         <div>

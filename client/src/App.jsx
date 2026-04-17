@@ -15,6 +15,7 @@ import AdminContributors from './pages/admin/Contributors';
 import AdminStats from './pages/admin/Stats';
 import AdminPages from './pages/admin/Pages';
 import AdminEditPage from './pages/admin/EditPage';
+import AdminCategories from './pages/admin/Categories';
 import CreatePost from './pages/CreatePost';
 import EditPost from './pages/EditPost';
 import ViewPost from './pages/ViewPost';
@@ -80,6 +81,14 @@ function App() {
             element={
               <AdminRoute>
                 <AdminPages />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/categories"
+            element={
+              <AdminRoute>
+                <AdminCategories />
               </AdminRoute>
             }
           />

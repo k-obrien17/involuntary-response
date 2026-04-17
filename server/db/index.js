@@ -226,6 +226,20 @@ Think of it as a feed of musical moments. Not a recommendation engine, not a pla
         );
       `,
     },
+    {
+      id: 8,
+      name: 'create_categories',
+      sql: `
+        CREATE TABLE IF NOT EXISTS categories (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          slug TEXT NOT NULL UNIQUE,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        ALTER TABLE posts ADD COLUMN category_id INTEGER REFERENCES categories(id);
+        INSERT OR IGNORE INTO categories (name, slug) VALUES ('Wake Up With', 'wake-up-with');
+      `,
+    },
   ];
 
   for (const m of migrations) {

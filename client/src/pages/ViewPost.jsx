@@ -112,6 +112,14 @@ export default function ViewPost() {
         </div>
       )}
 
+      {post.category && (
+        <div className="mt-4">
+          <span className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            {post.category.name}
+          </span>
+        </div>
+      )}
+
       {post.tags && post.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-6">
           {post.tags.map((tag) => (

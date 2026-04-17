@@ -34,11 +34,11 @@ export default function EditPost() {
     fetchPost();
   }, [slug, user, loading, navigate]);
 
-  const handleSubmit = async ({ body, embedUrl, tags, artistNames }) => {
+  const handleSubmit = async ({ body, embedUrl, tags, artistNames, categoryId }) => {
     setSubmitting(true);
     setError(null);
     try {
-      const updateData = { body, embedUrl, tags, artistNames };
+      const updateData = { body, embedUrl, tags, artistNames, categoryId };
       if (post.status === 'draft') {
         updateData.status = 'published';
       }
@@ -50,11 +50,11 @@ export default function EditPost() {
     }
   };
 
-  const handleSaveDraft = async ({ body, embedUrl, tags, artistNames }) => {
+  const handleSaveDraft = async ({ body, embedUrl, tags, artistNames, categoryId }) => {
     setSubmitting(true);
     setError(null);
     try {
-      const updateData = { body, embedUrl, tags, artistNames };
+      const updateData = { body, embedUrl, tags, artistNames, categoryId };
       if (post.status === 'scheduled') {
         updateData.status = 'draft';
       }
@@ -66,11 +66,11 @@ export default function EditPost() {
     }
   };
 
-  const handleSchedule = async ({ body, embedUrl, tags, artistNames, scheduledAt }) => {
+  const handleSchedule = async ({ body, embedUrl, tags, artistNames, categoryId, scheduledAt }) => {
     setSubmitting(true);
     setError(null);
     try {
-      await posts.update(slug, { body, embedUrl, tags, artistNames, status: 'scheduled', scheduledAt });
+      await posts.update(slug, { body, embedUrl, tags, artistNames, categoryId, status: 'scheduled', scheduledAt });
       navigate('/my-posts');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to schedule post');
@@ -122,6 +122,7 @@ export default function EditPost() {
           embed: post.embed,
           tags: post.tags,
           artistNames: (post.artists || []).map((a) => a.name),
+          categoryId: post.category?.id || '',
         }}
         onSubmit={handleSubmit}
         onSaveDraft={post.status === 'draft' || post.status === 'scheduled' ? handleSaveDraft : undefined}

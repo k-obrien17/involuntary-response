@@ -98,6 +98,12 @@ export const adminAnalytics = {
   artists: () => api.get('/analytics/admin/artists'),
 };
 
+export const categories = {
+  list: () => api.get('/categories'),
+  create: (name) => api.post('/categories', { name }),
+  remove: (id) => api.delete(`/categories/${id}`),
+};
+
 export const pages = {
   get: (slug) => api.get(`/pages/${slug}`),
   list: () => api.get('/pages'),

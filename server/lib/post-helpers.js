@@ -106,6 +106,7 @@ export function formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap = {}
       username: p.author_username,
       emailHash: emailHash(p.author_email),
     },
+    category: p.category_id ? { id: p.category_id, name: p.category_name, slug: p.category_slug } : null,
     embed: embedMap[p.id] || null,
     tags: tagMap[p.id] || [],
     artists: artistMap[p.id] || [],
