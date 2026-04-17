@@ -73,7 +73,7 @@ export async function fetchLinkPreview(url) {
     resp = await fetch(url, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
-        'User-Agent': 'InvoluntaryResponseBot/1.0 (+https://www.involuntaryresponse.com)',
+        'User-Agent': 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
         'Accept': 'text/html,application/xhtml+xml',
       },
       redirect: 'follow',
