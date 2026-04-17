@@ -28,6 +28,7 @@ import JoinPage from './pages/JoinPage';
 import About from './pages/About';
 import MyPosts from './pages/MyPosts';
 import Stats from './pages/Stats';
+import CategoryBrowse from './pages/CategoryBrowse';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -124,6 +125,7 @@ function App() {
               </ContributorRoute>
             }
           />
+          <Route path="/category/:slug" element={<CategoryBrowse />} />
           <Route path="/tag/:tag" element={<TagBrowse />} />
           <Route path="/artist/:name" element={<ArtistPage />} />
           <Route path="/explore" element={<Explore />} />

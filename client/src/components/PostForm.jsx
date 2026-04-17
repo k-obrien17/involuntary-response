@@ -27,6 +27,7 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
   const [artistNames, setArtistNames] = useState(initialData?.artistNames || []);
   const [categoryId, setCategoryId] = useState(initialData?.categoryId || '');
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const [customSlug, setCustomSlug] = useState('');
   const [scheduledAt, setScheduledAt] = useState(
     initialScheduledAt ? toLocalDatetimeValue(initialScheduledAt) : ''
   );
@@ -50,6 +51,7 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
       tags,
       artistNames,
       categoryId: categoryId || null,
+      customSlug: customSlug.trim() || null,
     });
   };
 
@@ -69,6 +71,7 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
     tags,
     artistNames,
     categoryId: categoryId || null,
+    customSlug: customSlug.trim() || null,
   };
 
   const draftButtonLabel = initialScheduledAt
@@ -111,6 +114,25 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
               <option key={c.id} value={c.id}>{c.icon ? `${c.icon} ` : ''}{c.name}</option>
             ))}
           </select>
+        </div>
+      )}
+
+      {!initialData && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            URL slug (optional)
+          </label>
+          <input
+            type="text"
+            value={customSlug}
+            onChange={(e) => setCustomSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+            placeholder={embed?.title ? embed.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60) : 'auto-generated from embed title'}
+            maxLength={80}
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 mt-1 font-mono"
+          />
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            Leave blank to auto-generate from the embed title.
+          </p>
         </div>
       )}
 

@@ -43,6 +43,34 @@ const commentLimiter = rateLimit({
 
 // --- Helper functions ---
 
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+async function generateSlug(customSlug, embedTitle, artistNames) {
+  let base = '';
+  if (customSlug?.trim()) {
+    base = slugify(customSlug);
+  } else if (embedTitle) {
+    base = slugify(embedTitle);
+  } else if (artistNames?.length > 0) {
+    base = slugify(artistNames.join(' '));
+  }
+
+  if (!base) return nanoid();
+
+  const existing = await db.get('SELECT id FROM posts WHERE slug = ?', base);
+  if (!existing) return base;
+
+  const suffix = nanoid(6);
+  return `${base}-${suffix}`;
+}
+
 function sanitize(str, maxLength) {
   if (str == null) return null;
   return String(str).trim().replace(/<[^>]*>/g, '').slice(0, maxLength);
@@ -212,7 +240,14 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
       scheduledAt = parsed.toISOString();
     }
 
-    const slug = nanoid();
+    // Resolve embed first so we can use its title for slug generation
+    let resolved = null;
+    if (embedUrl) {
+      resolved = await resolveEmbed(embedUrl);
+    }
+
+    const customSlug = sanitize(req.body.customSlug, 100);
+    const slug = await generateSlug(customSlug, resolved?.title, artistNames);
 
     const result = await db.run(
       `INSERT INTO posts (slug, body, author_id, status, published_at, scheduled_at, category_id) VALUES (?, ?, ?, ?, ${status === 'published' ? 'CURRENT_TIMESTAMP' : 'NULL'}, ?, ?)`,
@@ -226,17 +261,13 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
       postId
     );
 
-    // Handle embed
-    let resolved = null;
-    if (embedUrl) {
-      resolved = await resolveEmbed(embedUrl);
-      if (resolved) {
-        await db.run(
-          'INSERT INTO post_embeds (post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-          postId, resolved.provider, resolved.embedType, resolved.embedUrl, resolved.originalUrl,
-          resolved.title || null, resolved.thumbnailUrl || null, resolved.embedHtml || null
-        );
-      }
+    // Store embed
+    if (resolved) {
+      await db.run(
+        'INSERT INTO post_embeds (post_id, provider, embed_type, embed_url, original_url, title, thumbnail_url, embed_html) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        postId, resolved.provider, resolved.embedType, resolved.embedUrl, resolved.originalUrl,
+        resolved.title || null, resolved.thumbnailUrl || null, resolved.embedHtml || null
+      );
     }
 
     // Extract and store artist data (Spotify, Apple Music, or manual — non-fatal)

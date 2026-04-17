@@ -143,6 +143,51 @@ router.get('/contributor/:username', optionalAuth, async (req, res) => {
   }
 });
 
+// GET /category/:slug — Posts filtered by category
+router.get('/category/:slug', optionalAuth, async (req, res) => {
+  try {
+    const category = await db.get(
+      'SELECT id, name, slug, icon FROM categories WHERE slug = ?',
+      req.params.slug
+    );
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
+    const { cursorClause, cursorParams } = parseCursor(req.query.cursor);
+
+    const rows = await db.all(
+      `SELECT p.id, p.slug, p.body, p.created_at, p.updated_at, p.published_at,
+              u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email,
+              c.id AS category_id, c.name AS category_name, c.slug AS category_slug, c.icon AS category_icon
+       FROM posts p
+       JOIN users u ON p.author_id = u.id
+       LEFT JOIN categories c ON p.category_id = c.id
+       WHERE p.category_id = ? AND p.status = 'published' ${cursorClause}
+       ORDER BY p.published_at DESC, p.id DESC
+       LIMIT ?`,
+      category.id, ...cursorParams, limit + 1
+    );
+
+    const hasMore = rows.length > limit;
+    if (hasMore) rows.pop();
+
+    const postIds = rows.map((p) => p.id);
+    const { embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap } = await batchLoadPostData(postIds, req.user?.id);
+    const posts = formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap, likedByUserMap, commentCountMap);
+
+    const lastPost = rows[rows.length - 1];
+    const nextCursor =
+      hasMore && lastPost ? `${lastPost.published_at}|${lastPost.id}` : null;
+
+    res.json({ category, posts, nextCursor });
+  } catch (err) {
+    console.error('Browse category error:', err);
+    res.status(500).json({ error: 'Failed to browse by category' });
+  }
+});
+
 // GET /explore — Discovery hub (popular tags, top artists, active contributors)
 router.get('/explore', async (req, res) => {
   try {

@@ -9,10 +9,13 @@ export default function PostCard({ post }) {
     <article>
       {post.category && (
         <div className="mb-3">
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+          <Link
+            to={`/category/${post.category.slug}`}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide hover:text-gray-900 dark:hover:text-gray-100 transition"
+          >
             {post.category.icon && <span>{post.category.icon}</span>}
             {post.category.name}
-          </span>
+          </Link>
         </div>
       )}
 

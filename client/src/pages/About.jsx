@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { pages } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function About() {
   const { user } = useAuth();
+  useDocumentMeta('About', 'Learn about Involuntary Response — a curated music micro-blogging platform.');
   const [page, setPage] = useState(null);
   const [loading, setLoading] = useState(true);
 

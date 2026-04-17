@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { profile } from '../api/client';
 import Avatar from '../components/Avatar';
 import PostListItem from '../components/PostListItem';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function Profile() {
   const { username } = useParams();
@@ -20,6 +21,7 @@ export default function Profile() {
   const [bio, setBio] = useState('');
   const [saving, setSaving] = useState(false);
 
+  useDocumentMeta(profileData?.displayName || username, profileData?.bio || `Profile of ${username} on Involuntary Response.`);
   const isOwnProfile = user?.username === username;
 
   useEffect(() => {

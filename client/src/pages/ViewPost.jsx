@@ -8,6 +8,7 @@ import Avatar from '../components/Avatar';
 import LikeButton from '../components/LikeButton';
 import CommentSection from '../components/CommentSection';
 import { fullDate } from '../utils/formatDate';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function ViewPost() {
   const { slug } = useParams();
@@ -39,6 +40,13 @@ export default function ViewPost() {
     );
   }
 
+  const postTitle = post?.embed?.title && post?.author?.displayName
+    ? `${post.author.displayName} on ${post.embed.title}`
+    : post?.author?.displayName
+      ? `Post by ${post.author.displayName}`
+      : null;
+  useDocumentMeta(postTitle, post?.body?.slice(0, 160));
+
   if (!post) return null;
 
   return (
@@ -68,7 +76,7 @@ export default function ViewPost() {
                   body: post.body,
                   embedUrl: post.embed?.originalUrl || null,
                   tags: post.tags,
-                  artistName: post.artists?.[0]?.name || null,
+                  artistNames: (post.artists || []).map((a) => a.name),
                   status: 'published',
                 });
                 const res = await posts.getBySlug(post.slug);
@@ -88,10 +96,13 @@ export default function ViewPost() {
 
       {post.category && (
         <div className="mb-4">
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+          <Link
+            to={`/category/${post.category.slug}`}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide hover:text-gray-900 dark:hover:text-gray-100 transition"
+          >
             {post.category.icon && <span>{post.category.icon}</span>}
             {post.category.name}
-          </span>
+          </Link>
         </div>
       )}
 

@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { posts as postsApi } from '../api/client';
 import PostCard from '../components/PostCard';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function Home() {
+  useDocumentMeta(null, 'Short-form music takes from people who care about music.');
   const [posts, setPosts] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);
   const [loading, setLoading] = useState(true);

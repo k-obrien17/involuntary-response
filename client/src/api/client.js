@@ -79,6 +79,8 @@ export const browse = {
     api.get(`/browse/artist/${encodeURIComponent(name)}`, { params }),
   byContributor: (username, params) =>
     api.get(`/browse/contributor/${encodeURIComponent(username)}`, { params }),
+  byCategory: (slug, params) =>
+    api.get(`/browse/category/${encodeURIComponent(slug)}`, { params }),
   explore: () => api.get('/browse/explore'),
 };
 

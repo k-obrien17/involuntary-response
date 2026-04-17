@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { browse } from '../api/client';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function Explore() {
+  useDocumentMeta('Explore', 'Discover music through tags, artists, and contributors on Involuntary Response.');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

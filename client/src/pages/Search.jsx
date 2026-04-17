@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { search as searchApi } from '../api/client';
 import PostCard from '../components/PostCard';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function Search() {
   const [searchParams] = useSearchParams();
   const q = searchParams.get('q') || '';
+  useDocumentMeta(q ? `Search: ${q}` : 'Search');
 
   const [posts, setPosts] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);

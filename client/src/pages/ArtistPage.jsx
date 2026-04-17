@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { browse } from '../api/client';
 import PostListItem from '../components/PostListItem';
+import useDocumentMeta from '../hooks/useDocumentMeta';
 
 export default function ArtistPage() {
   const { name } = useParams();
+  useDocumentMeta(name, `Music takes about ${name} on Involuntary Response.`);
   const [artist, setArtist] = useState(null);
   const [posts, setPosts] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);

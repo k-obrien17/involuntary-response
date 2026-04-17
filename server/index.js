@@ -15,6 +15,7 @@ import searchRoutes from './routes/search.js';
 import analyticsRoutes from './routes/analytics.js';
 import pagesRoutes from './routes/pages.js';
 import categoriesRoutes from './routes/categories.js';
+import sitemapRoutes from './routes/sitemap.js';
 import { initDatabase } from './db/index.js';
 import { startScheduler } from './lib/scheduler.js';
 import { securityHeaders, validateOrigin } from './middleware/security.js';
@@ -58,6 +59,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/pages', pagesRoutes);
 app.use('/api/categories', categoriesRoutes);
+app.use('/api/sitemap.xml', sitemapRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
