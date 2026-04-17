@@ -4,6 +4,7 @@ import { categories as categoriesApi } from '../../api/client';
 export default function Categories() {
   const [items, setItems] = useState([]);
   const [name, setName] = useState('');
+  const [icon, setIcon] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -19,9 +20,10 @@ export default function Categories() {
     if (!name.trim()) return;
     setError('');
     try {
-      const res = await categoriesApi.create(name.trim());
+      const res = await categoriesApi.create(name.trim(), icon.trim());
       setItems([...items, res.data].sort((a, b) => a.name.localeCompare(b.name)));
       setName('');
+      setIcon('');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create category');
     }
@@ -58,9 +60,17 @@ export default function Categories() {
       <form onSubmit={handleAdd} className="flex gap-3 mb-8">
         <input
           type="text"
+          value={icon}
+          onChange={(e) => setIcon(e.target.value)}
+          placeholder="Icon"
+          maxLength={4}
+          className="w-16 text-center border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-2 text-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400"
+        />
+        <input
+          type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="New category name"
+          placeholder="Category name"
           maxLength={100}
           className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400"
         />
@@ -78,7 +88,10 @@ export default function Categories() {
         <ul className="space-y-3">
           {items.map((cat) => (
             <li key={cat.id} className="flex items-center justify-between border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3">
-              <span className="text-gray-900 dark:text-gray-100 font-medium">{cat.name}</span>
+              <span className="text-gray-900 dark:text-gray-100 font-medium">
+                {cat.icon && <span className="mr-2">{cat.icon}</span>}
+                {cat.name}
+              </span>
               <button
                 onClick={() => handleDelete(cat.id)}
                 className="text-sm text-red-600 hover:text-red-800"

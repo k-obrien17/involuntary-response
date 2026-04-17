@@ -108,7 +108,7 @@ export default function PostForm({ initialData, onSubmit, onSaveDraft, onSchedul
           >
             <option value="">None</option>
             {categoryOptions.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+              <option key={c.id} value={c.id}>{c.icon ? `${c.icon} ` : ''}{c.name}</option>
             ))}
           </select>
         </div>

@@ -86,6 +86,15 @@ export default function ViewPost() {
         </div>
       )}
 
+      {post.category && (
+        <div className="mb-4">
+          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+            {post.category.icon && <span>{post.category.icon}</span>}
+            {post.category.name}
+          </span>
+        </div>
+      )}
+
       <article className="prose prose-lg md:prose-xl lg:prose-2xl prose-gray dark:prose-invert max-w-none">
         <RichBody text={post.body} className="leading-relaxed" />
       </article>
@@ -109,14 +118,6 @@ export default function ViewPost() {
               </Link>
             </span>
           ))}
-        </div>
-      )}
-
-      {post.category && (
-        <div className="mt-4">
-          <span className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            {post.category.name}
-          </span>
         </div>
       )}
 

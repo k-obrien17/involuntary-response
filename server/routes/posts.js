@@ -150,7 +150,7 @@ router.get('/', optionalAuth, async (req, res) => {
     const rows = await db.all(
       `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email,
-              c.id AS category_id, c.name AS category_name, c.slug AS category_slug
+              c.id AS category_id, c.name AS category_name, c.slug AS category_slug, c.icon AS category_icon
        FROM posts p
        JOIN users u ON p.author_id = u.id
        LEFT JOIN categories c ON p.category_id = c.id
@@ -260,7 +260,7 @@ router.get('/mine', authenticateToken, requireContributor, async (req, res) => {
     const rows = await db.all(
       `SELECT p.id, p.slug, p.body, p.status, p.scheduled_at, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email,
-              c.id AS category_id, c.name AS category_name, c.slug AS category_slug
+              c.id AS category_id, c.name AS category_name, c.slug AS category_slug, c.icon AS category_icon
        FROM posts p
        JOIN users u ON p.author_id = u.id
        LEFT JOIN categories c ON p.category_id = c.id
@@ -413,7 +413,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
     const post = await db.get(
       `SELECT p.id, p.slug, p.body, p.author_id, p.status, p.scheduled_at, p.created_at, p.updated_at, p.published_at,
               u.display_name as author_display_name, u.username as author_username, u.email as author_email,
-              c.id AS category_id, c.name AS category_name, c.slug AS category_slug
+              c.id AS category_id, c.name AS category_name, c.slug AS category_slug, c.icon AS category_icon
        FROM posts p
        JOIN users u ON p.author_id = u.id
        LEFT JOIN categories c ON p.category_id = c.id
@@ -475,7 +475,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
         username: post.author_username,
         emailHash: emailHash(post.author_email),
       },
-      category: post.category_id ? { id: post.category_id, name: post.category_name, slug: post.category_slug } : null,
+      category: post.category_id ? { id: post.category_id, name: post.category_name, slug: post.category_slug, icon: post.category_icon || '' } : null,
       embed: embedMap[post.id] || null,
       tags: tagMap[post.id] || [],
       artists: artistMap[post.id] || [],

@@ -240,6 +240,14 @@ Think of it as a feed of musical moments. Not a recommendation engine, not a pla
         INSERT OR IGNORE INTO categories (name, slug) VALUES ('Wake Up With', 'wake-up-with');
       `,
     },
+    {
+      id: 9,
+      name: 'add_category_icon',
+      sql: `
+        ALTER TABLE categories ADD COLUMN icon TEXT DEFAULT '';
+        UPDATE categories SET icon = '☀️' WHERE slug = 'wake-up-with';
+      `,
+    },
   ];
 
   for (const m of migrations) {

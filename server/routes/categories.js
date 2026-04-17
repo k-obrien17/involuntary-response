@@ -12,7 +12,7 @@ function toSlug(name) {
 // GET / — public list of all categories
 router.get('/', async (req, res) => {
   try {
-    const rows = await db.all('SELECT id, name, slug FROM categories ORDER BY name');
+    const rows = await db.all('SELECT id, name, slug, icon FROM categories ORDER BY name');
     res.json({ categories: rows });
   } catch (err) {
     console.error('List categories error:', err);
@@ -24,6 +24,7 @@ router.get('/', async (req, res) => {
 router.post('/', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const name = (req.body.name || '').trim().slice(0, 100);
+    const icon = (req.body.icon || '').trim().slice(0, 10);
     if (!name) return res.status(400).json({ error: 'Name is required' });
 
     const slug = toSlug(name);
@@ -33,10 +34,10 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
     if (existing) return res.status(409).json({ error: 'Category already exists' });
 
     const result = await db.run(
-      'INSERT INTO categories (name, slug) VALUES (?, ?)',
-      name, slug
+      'INSERT INTO categories (name, slug, icon) VALUES (?, ?, ?)',
+      name, slug, icon
     );
-    res.status(201).json({ id: result.lastInsertRowid, name, slug });
+    res.status(201).json({ id: result.lastInsertRowid, name, slug, icon });
   } catch (err) {
     console.error('Create category error:', err);
     res.status(500).json({ error: 'Failed to create category' });

@@ -7,6 +7,15 @@ import { relativeTime } from '../utils/formatDate';
 export default function PostCard({ post }) {
   return (
     <article>
+      {post.category && (
+        <div className="mb-3">
+          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+            {post.category.icon && <span>{post.category.icon}</span>}
+            {post.category.name}
+          </span>
+        </div>
+      )}
+
       <div className="prose prose-lg lg:prose-xl prose-gray dark:prose-invert max-w-none">
         <RichBody text={post.body} />
       </div>
@@ -30,14 +39,6 @@ export default function PostCard({ post }) {
               </Link>
             </span>
           ))}
-        </div>
-      )}
-
-      {post.category && (
-        <div className="mt-3">
-          <span className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            {post.category.name}
-          </span>
         </div>
       )}
 

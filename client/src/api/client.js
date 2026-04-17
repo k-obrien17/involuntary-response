@@ -100,7 +100,7 @@ export const adminAnalytics = {
 
 export const categories = {
   list: () => api.get('/categories'),
-  create: (name) => api.post('/categories', { name }),
+  create: (name, icon) => api.post('/categories', { name, icon }),
   remove: (id) => api.delete(`/categories/${id}`),
 };
 
