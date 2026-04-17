@@ -32,6 +32,13 @@ export default function ViewPost() {
     fetchPost();
   }, [slug, navigate]);
 
+  const postTitle = post?.embed?.title && post?.author?.displayName
+    ? `${post.author.displayName} on ${post.embed.title}`
+    : post?.author?.displayName
+      ? `Post by ${post.author.displayName}`
+      : null;
+  useDocumentMeta(postTitle, post?.body?.slice(0, 160));
+
   if (loading) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-12">
@@ -39,13 +46,6 @@ export default function ViewPost() {
       </main>
     );
   }
-
-  const postTitle = post?.embed?.title && post?.author?.displayName
-    ? `${post.author.displayName} on ${post.embed.title}`
-    : post?.author?.displayName
-      ? `Post by ${post.author.displayName}`
-      : null;
-  useDocumentMeta(postTitle, post?.body?.slice(0, 160));
 
   if (!post) return null;
 
