@@ -58,7 +58,7 @@ export default function ArtistPage() {
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-2">
         {artist?.image ? (
           <img
             src={artist.image}
@@ -68,8 +68,27 @@ export default function ArtistPage() {
         ) : (
           <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700" />
         )}
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{name}</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{name}</h1>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+            {artist?.postCount || posts.length} {(artist?.postCount || posts.length) === 1 ? 'post' : 'posts'}
+            {artist?.spotifyUrl && (
+              <>
+                {' '}&middot;{' '}
+                <a
+                  href={artist.spotifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-600 dark:hover:text-gray-300 transition"
+                >
+                  Spotify
+                </a>
+              </>
+            )}
+          </p>
+        </div>
       </div>
+      <div className="mb-6" />
 
       {posts.length === 0 ? (
         <p className="text-gray-400 dark:text-gray-500">No posts about {name} yet.</p>

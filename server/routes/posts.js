@@ -491,6 +491,58 @@ router.get('/:slug', optionalAuth, async (req, res) => {
         (req.user && req.user.role === 'admin'),
     }));
 
+    // Related posts: same artists, tags, or category (max 4, excluding current post)
+    let relatedPosts = [];
+    if (post.status === 'published') {
+      const artistNames = (artistMap[post.id] || []).map((a) => a.name);
+      const postTags = tagMap[post.id] || [];
+      const conditions = [];
+      const params = [];
+
+      if (artistNames.length > 0) {
+        const ph = artistNames.map(() => '?').join(',');
+        conditions.push(`pa.artist_name IN (${ph})`);
+        params.push(...artistNames);
+      }
+      if (postTags.length > 0) {
+        const ph = postTags.map(() => '?').join(',');
+        conditions.push(`pt.tag IN (${ph})`);
+        params.push(...postTags);
+      }
+      if (post.category_id) {
+        conditions.push('p.category_id = ?');
+        params.push(post.category_id);
+      }
+
+      if (conditions.length > 0) {
+        const relatedRows = await db.all(
+          `SELECT DISTINCT p.id, p.slug, p.body, p.published_at,
+                  u.display_name AS author_display_name, u.username AS author_username
+           FROM posts p
+           JOIN users u ON p.author_id = u.id
+           LEFT JOIN post_artists pa ON pa.post_id = p.id
+           LEFT JOIN post_tags pt ON pt.post_id = p.id
+           WHERE p.id != ? AND p.status = 'published' AND (${conditions.join(' OR ')})
+           ORDER BY p.published_at DESC
+           LIMIT 4`,
+          post.id, ...params
+        );
+
+        if (relatedRows.length > 0) {
+          const relatedIds = relatedRows.map((r) => r.id);
+          const { embedMap: rEmbedMap, artistMap: rArtistMap } = await batchLoadPostData(relatedIds);
+          relatedPosts = relatedRows.map((r) => ({
+            slug: r.slug,
+            body: r.body.slice(0, 120),
+            publishedAt: r.published_at,
+            author: { displayName: r.author_display_name, username: r.author_username },
+            embed: rEmbedMap[r.id] || null,
+            artists: rArtistMap[r.id] || [],
+          }));
+        }
+      }
+    }
+
     res.json({
       id: post.id,
       slug: post.slug,
@@ -513,6 +565,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
       likeCount: likeCountMap[post.id] || 0,
       likedByUser: !!likedByUserMap[post.id],
       comments,
+      relatedPosts,
     });
   } catch (err) {
     console.error('Get post error:', err);

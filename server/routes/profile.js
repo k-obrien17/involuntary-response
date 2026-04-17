@@ -49,6 +49,11 @@ router.get('/:username/profile', optionalAuth, async (req, res) => {
     const lastPost = rows[rows.length - 1];
     const nextCursor = hasMore && lastPost ? `${lastPost.published_at}|${lastPost.id}` : null;
 
+    const postCount = await db.get(
+      "SELECT COUNT(*) as count FROM posts WHERE author_id = ? AND status = 'published'",
+      user.id
+    );
+
     res.json({
       user: {
         displayName: user.display_name,
@@ -56,6 +61,7 @@ router.get('/:username/profile', optionalAuth, async (req, res) => {
         bio: user.bio || null,
         createdAt: user.created_at,
         emailHash: emailHash(user.email),
+        postCount: postCount?.count || 0,
       },
       posts,
       nextCursor,

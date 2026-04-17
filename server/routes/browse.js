@@ -49,11 +49,17 @@ router.get('/artist/:name', optionalAuth, async (req, res) => {
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
     const { cursorClause, cursorParams } = parseCursor(req.query.cursor);
 
-    // Get artist header image from most recent post
     const artistInfo = await db.get(
-      `SELECT artist_image FROM post_artists
+      `SELECT artist_image, spotify_id FROM post_artists
        WHERE artist_name = ? COLLATE NOCASE AND artist_image IS NOT NULL
        ORDER BY post_id DESC LIMIT 1`,
+      artistName
+    );
+
+    const postCount = await db.get(
+      `SELECT COUNT(DISTINCT p.id) as count FROM posts p
+       JOIN post_artists pa ON pa.post_id = p.id
+       WHERE pa.artist_name = ? COLLATE NOCASE AND p.status = 'published'`,
       artistName
     );
 
@@ -80,8 +86,14 @@ router.get('/artist/:name', optionalAuth, async (req, res) => {
     const nextCursor =
       hasMore && lastPost ? `${lastPost.published_at}|${lastPost.id}` : null;
 
+    const spotifyId = artistInfo?.spotify_id;
     res.json({
-      artist: { name: artistName, image: artistInfo?.artist_image || null },
+      artist: {
+        name: artistName,
+        image: artistInfo?.artist_image || null,
+        postCount: postCount?.count || 0,
+        spotifyUrl: spotifyId ? `https://open.spotify.com/artist/${spotifyId}` : null,
+      },
       posts,
       nextCursor,
     });

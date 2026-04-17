@@ -109,6 +109,14 @@ export default function Profile() {
               {profileData.displayName}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">@{profileData.username}</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+              {profileData.postCount != null && (
+                <>{profileData.postCount} {profileData.postCount === 1 ? 'post' : 'posts'}</>
+              )}
+              {profileData.createdAt && (
+                <> &middot; Member since {new Date(profileData.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</>
+              )}
+            </p>
           </div>
         </div>
 

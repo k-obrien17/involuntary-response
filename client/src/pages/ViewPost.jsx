@@ -188,6 +188,31 @@ export default function ViewPost() {
           Edit
         </Link>
       )}
+
+      {post.relatedPosts?.length > 0 && (
+        <section className="mt-16 pt-10 border-t border-gray-200 dark:border-gray-800">
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-6">
+            More like this
+          </h2>
+          <div className="space-y-6">
+            {post.relatedPosts.map((rp) => (
+              <Link
+                key={rp.slug}
+                to={`/posts/${rp.slug}`}
+                className="block group"
+              >
+                <p className="text-base text-gray-800 dark:text-gray-200 group-hover:text-gray-600 dark:group-hover:text-gray-400 transition line-clamp-2">
+                  {rp.body}
+                </p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                  {rp.author.displayName}
+                  {rp.embed?.title && <> &middot; {rp.embed.title}</>}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
