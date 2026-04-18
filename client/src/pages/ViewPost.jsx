@@ -77,6 +77,7 @@ export default function ViewPost() {
                   embedUrl: post.embed?.originalUrl || null,
                   tags: post.tags,
                   artistNames: (post.artists || []).map((a) => a.name),
+                  format: post.format || 'standard',
                   status: 'published',
                 });
                 const res = await posts.getBySlug(post.slug);
@@ -106,9 +107,17 @@ export default function ViewPost() {
         </div>
       )}
 
-      <article className="prose prose-lg md:prose-xl lg:prose-2xl prose-gray dark:prose-invert max-w-none">
-        <RichBody text={post.body} className="leading-relaxed" />
-      </article>
+      {post.format === 'lyrics' ? (
+        <blockquote className="border-l-2 border-gray-300 dark:border-gray-600 pl-6 md:pl-8 italic text-gray-700 dark:text-gray-300">
+          <article className="prose prose-lg md:prose-xl lg:prose-2xl prose-gray dark:prose-invert max-w-none">
+            <RichBody text={post.body} className="leading-relaxed italic" />
+          </article>
+        </blockquote>
+      ) : (
+        <article className="prose prose-lg md:prose-xl lg:prose-2xl prose-gray dark:prose-invert max-w-none">
+          <RichBody text={post.body} className="leading-relaxed" />
+        </article>
+      )}
 
       {post.embed && (
         <div className="mt-8">

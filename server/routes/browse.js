@@ -13,7 +13,7 @@ router.get('/tag/:tag', optionalAuth, async (req, res) => {
     const { cursorClause, cursorParams } = parseCursor(req.query.cursor);
 
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.created_at, p.updated_at, p.published_at,
+      `SELECT p.id, p.slug, p.body, p.format, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
@@ -64,7 +64,7 @@ router.get('/artist/:name', optionalAuth, async (req, res) => {
     );
 
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.created_at, p.updated_at, p.published_at,
+      `SELECT p.id, p.slug, p.body, p.format, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
@@ -120,7 +120,7 @@ router.get('/contributor/:username', optionalAuth, async (req, res) => {
     }
 
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.created_at, p.updated_at, p.published_at,
+      `SELECT p.id, p.slug, p.body, p.format, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email
        FROM posts p
        JOIN users u ON p.author_id = u.id
@@ -170,7 +170,7 @@ router.get('/category/:slug', optionalAuth, async (req, res) => {
     const { cursorClause, cursorParams } = parseCursor(req.query.cursor);
 
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.created_at, p.updated_at, p.published_at,
+      `SELECT p.id, p.slug, p.body, p.format, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email,
               c.id AS category_id, c.name AS category_name, c.slug AS category_slug, c.icon AS category_icon
        FROM posts p

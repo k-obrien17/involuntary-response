@@ -176,7 +176,7 @@ router.get('/', optionalAuth, async (req, res) => {
     const { cursorClause, cursorParams } = parseCursor(req.query.cursor);
 
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.author_id, p.created_at, p.updated_at, p.published_at,
+      `SELECT p.id, p.slug, p.body, p.format, p.author_id, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email,
               c.id AS category_id, c.name AS category_name, c.slug AS category_slug, c.icon AS category_icon
        FROM posts p
@@ -213,6 +213,7 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
     const body = sanitize(req.body.body, 1200);
     const artistNames = normalizeArtistNames(req);
     const categoryId = req.body.categoryId ? parseInt(req.body.categoryId) : null;
+    const format = req.body.format === 'lyrics' ? 'lyrics' : 'standard';
     let status;
     if (req.body.status === 'draft') {
       status = 'draft';
@@ -250,8 +251,8 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
     const slug = await generateSlug(customSlug, resolved?.title, artistNames);
 
     const result = await db.run(
-      `INSERT INTO posts (slug, body, author_id, status, published_at, scheduled_at, category_id) VALUES (?, ?, ?, ?, ${status === 'published' ? 'CURRENT_TIMESTAMP' : 'NULL'}, ?, ?)`,
-      slug, body, req.user.id, status, scheduledAt, categoryId
+      `INSERT INTO posts (slug, body, author_id, status, published_at, scheduled_at, category_id, format) VALUES (?, ?, ?, ?, ${status === 'published' ? 'CURRENT_TIMESTAMP' : 'NULL'}, ?, ?, ?)`,
+      slug, body, req.user.id, status, scheduledAt, categoryId, format
     );
     const postId = result.lastInsertRowid;
 
@@ -289,7 +290,7 @@ router.post('/', authenticateToken, requireContributor, createLimiter, async (re
 router.get('/mine', authenticateToken, requireContributor, async (req, res) => {
   try {
     const rows = await db.all(
-      `SELECT p.id, p.slug, p.body, p.status, p.scheduled_at, p.created_at, p.updated_at, p.published_at,
+      `SELECT p.id, p.slug, p.body, p.format, p.status, p.scheduled_at, p.created_at, p.updated_at, p.published_at,
               u.display_name AS author_display_name, u.username AS author_username, u.email AS author_email,
               c.id AS category_id, c.name AS category_name, c.slug AS category_slug, c.icon AS category_icon
        FROM posts p
@@ -442,7 +443,7 @@ router.delete('/:slug/comments/:commentId', authenticateToken, async (req, res) 
 router.get('/:slug', optionalAuth, async (req, res) => {
   try {
     const post = await db.get(
-      `SELECT p.id, p.slug, p.body, p.author_id, p.status, p.scheduled_at, p.created_at, p.updated_at, p.published_at,
+      `SELECT p.id, p.slug, p.body, p.format, p.author_id, p.status, p.scheduled_at, p.created_at, p.updated_at, p.published_at,
               u.display_name as author_display_name, u.username as author_username, u.email as author_email,
               c.id AS category_id, c.name AS category_name, c.slug AS category_slug, c.icon AS category_icon
        FROM posts p
@@ -547,6 +548,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
       id: post.id,
       slug: post.slug,
       body: post.body,
+      format: post.format || 'standard',
       authorId: post.author_id,
       status: post.status,
       createdAt: post.created_at,
@@ -613,6 +615,7 @@ router.put('/:slug', authenticateToken, requireContributor, updateLimiter, async
     const body = sanitize(req.body.body, 1200);
     const artistNames = normalizeArtistNames(req);
     const categoryId = req.body.categoryId !== undefined ? (req.body.categoryId ? parseInt(req.body.categoryId) : null) : undefined;
+    const format = req.body.format === 'lyrics' ? 'lyrics' : 'standard';
 
     if (!body) {
       return res.status(400).json({ error: 'Post body is required' });
@@ -627,23 +630,23 @@ router.put('/:slug', authenticateToken, requireContributor, updateLimiter, async
 
     if (isPublishing) {
       await db.run(
-        `UPDATE posts SET body = ?, status = 'published', published_at = CURRENT_TIMESTAMP, scheduled_at = NULL, updated_at = CURRENT_TIMESTAMP${catClause} WHERE id = ?`,
-        body, ...catParam, post.id
+        `UPDATE posts SET body = ?, format = ?, status = 'published', published_at = CURRENT_TIMESTAMP, scheduled_at = NULL, updated_at = CURRENT_TIMESTAMP${catClause} WHERE id = ?`,
+        body, format, ...catParam, post.id
       );
     } else if (isScheduling) {
       await db.run(
-        `UPDATE posts SET body = ?, status = 'scheduled', scheduled_at = ?, updated_at = CURRENT_TIMESTAMP${catClause} WHERE id = ?`,
-        body, scheduledAt, ...catParam, post.id
+        `UPDATE posts SET body = ?, format = ?, status = 'scheduled', scheduled_at = ?, updated_at = CURRENT_TIMESTAMP${catClause} WHERE id = ?`,
+        body, format, scheduledAt, ...catParam, post.id
       );
     } else if (isCancellingSchedule) {
       await db.run(
-        `UPDATE posts SET body = ?, status = 'draft', scheduled_at = NULL, updated_at = CURRENT_TIMESTAMP${catClause} WHERE id = ?`,
-        body, ...catParam, post.id
+        `UPDATE posts SET body = ?, format = ?, status = 'draft', scheduled_at = NULL, updated_at = CURRENT_TIMESTAMP${catClause} WHERE id = ?`,
+        body, format, ...catParam, post.id
       );
     } else {
       await db.run(
-        `UPDATE posts SET body = ?, updated_at = CURRENT_TIMESTAMP${catClause} WHERE id = ?`,
-        body, ...catParam, post.id
+        `UPDATE posts SET body = ?, format = ?, updated_at = CURRENT_TIMESTAMP${catClause} WHERE id = ?`,
+        body, format, ...catParam, post.id
       );
     }
 

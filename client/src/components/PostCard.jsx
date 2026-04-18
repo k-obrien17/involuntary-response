@@ -19,9 +19,17 @@ export default function PostCard({ post }) {
         </div>
       )}
 
-      <div className="prose prose-lg lg:prose-xl prose-gray dark:prose-invert max-w-none">
-        <RichBody text={post.body} />
-      </div>
+      {post.format === 'lyrics' ? (
+        <blockquote className="border-l-2 border-gray-300 dark:border-gray-600 pl-6 italic text-gray-700 dark:text-gray-300">
+          <div className="prose prose-lg lg:prose-xl prose-gray dark:prose-invert max-w-none">
+            <RichBody text={post.body} className="italic" />
+          </div>
+        </blockquote>
+      ) : (
+        <div className="prose prose-lg lg:prose-xl prose-gray dark:prose-invert max-w-none">
+          <RichBody text={post.body} />
+        </div>
+      )}
 
       {post.embed && (
         <div className="mt-6">

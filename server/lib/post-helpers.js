@@ -98,6 +98,7 @@ export function formatPosts(rows, embedMap, tagMap, artistMap, likeCountMap = {}
     id: p.id,
     slug: p.slug,
     body: p.body,
+    format: p.format || 'standard',
     createdAt: p.created_at,
     updatedAt: p.updated_at,
     publishedAt: p.published_at,

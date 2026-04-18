@@ -248,6 +248,11 @@ Think of it as a feed of musical moments. Not a recommendation engine, not a pla
         UPDATE categories SET icon = '☀️' WHERE slug = 'wake-up-with';
       `,
     },
+    {
+      id: 10,
+      name: 'add_post_format',
+      sql: `ALTER TABLE posts ADD COLUMN format TEXT NOT NULL DEFAULT 'standard';`,
+    },
   ];
 
   for (const m of migrations) {
