@@ -19,11 +19,18 @@ function escapeHtml(str) {
 }
 
 async function fetchApi(renderApiUrl, endpoint) {
-  const response = await fetch(`${renderApiUrl}${endpoint}`, {
-    signal: AbortSignal.timeout(3000),
-  });
-  if (!response.ok) return null;
-  return response.json();
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    const response = await fetch(`${renderApiUrl}${endpoint}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
 }
 
 function buildResponse(res, { title, description, image, url, ogType, bodyContent, jsonLd }) {
@@ -243,17 +250,23 @@ export default async function handler(req, res) {
     const profileMatch = path.match(/^\/u\/([^/]+)$/);
     const categoryMatch = path.match(/^\/category\/([^/]+)$/);
 
-    if (postMatch && postMatch[1] !== 'new' && RENDER_API_URL) {
-      meta = await handlePost(postMatch[1], SITE_URL, RENDER_API_URL);
-    } else if (artistMatch && RENDER_API_URL) {
-      meta = await handleArtist(decodeURIComponent(artistMatch[1]), SITE_URL, RENDER_API_URL);
-    } else if (tagMatch && RENDER_API_URL) {
-      meta = await handleTag(decodeURIComponent(tagMatch[1]), SITE_URL, RENDER_API_URL);
-    } else if (profileMatch && RENDER_API_URL) {
-      meta = await handleProfile(decodeURIComponent(profileMatch[1]), SITE_URL, RENDER_API_URL);
-    } else if (categoryMatch && RENDER_API_URL) {
-      meta = await handleCategory(decodeURIComponent(categoryMatch[1]), SITE_URL, RENDER_API_URL);
-    } else if (path === '/about') {
+    try {
+      if (postMatch && postMatch[1] !== 'new' && RENDER_API_URL) {
+        meta = await handlePost(postMatch[1], SITE_URL, RENDER_API_URL);
+      } else if (artistMatch && RENDER_API_URL) {
+        meta = await handleArtist(decodeURIComponent(artistMatch[1]), SITE_URL, RENDER_API_URL);
+      } else if (tagMatch && RENDER_API_URL) {
+        meta = await handleTag(decodeURIComponent(tagMatch[1]), SITE_URL, RENDER_API_URL);
+      } else if (profileMatch && RENDER_API_URL) {
+        meta = await handleProfile(decodeURIComponent(profileMatch[1]), SITE_URL, RENDER_API_URL);
+      } else if (categoryMatch && RENDER_API_URL) {
+        meta = await handleCategory(decodeURIComponent(categoryMatch[1]), SITE_URL, RENDER_API_URL);
+      }
+    } catch {
+      // API handler failed — fall through to static meta or defaults
+    }
+
+    if (!meta && path === '/about') {
       meta = {
         title: 'About — Involuntary Response',
         description: 'A place for visceral, honest reactions to music. Not reviews. Not ratings. Someone heard a song and needed to write about it.',
@@ -262,7 +275,7 @@ export default async function handler(req, res) {
         bodyContent: '<h1>About Involuntary Response</h1><p>A place for visceral, honest reactions to music. Not reviews. Not ratings. Someone heard a song and needed to write about it.</p>',
         jsonLd: '',
       };
-    } else if (path === '/explore') {
+    } else if (!meta && path === '/explore') {
       meta = {
         title: 'Explore — Involuntary Response',
         description: 'Discover artists, tags, and contributors. Short-form music takes from people who care about music.',
