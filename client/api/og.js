@@ -180,7 +180,7 @@ async function handleTag(tag, siteUrl, renderApiUrl) {
 }
 
 async function handleProfile(username, siteUrl, renderApiUrl) {
-  const data = await fetchApi(renderApiUrl, `/api/profile/${encodeURIComponent(username)}/profile`);
+  const data = await fetchApi(renderApiUrl, `/api/users/${encodeURIComponent(username)}/profile`);
   if (!data) return null;
 
   const title = `${data.user.displayName} — Involuntary Response`;
