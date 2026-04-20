@@ -82,6 +82,7 @@ export const browse = {
   byCategory: (slug, params) =>
     api.get(`/browse/category/${encodeURIComponent(slug)}`, { params }),
   explore: () => api.get('/browse/explore'),
+  tags: () => api.get('/browse/tags'),
 };
 
 export const search = {

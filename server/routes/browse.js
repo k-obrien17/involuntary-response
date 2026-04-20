@@ -253,4 +253,23 @@ router.get('/explore', async (req, res) => {
   }
 });
 
+// GET /tags — All tags (for autocomplete)
+router.get('/tags', async (req, res) => {
+  try {
+    const rows = await db.all(
+      `SELECT pt.tag, COUNT(*) as count
+       FROM post_tags pt
+       JOIN posts p ON pt.post_id = p.id
+       WHERE p.status = 'published'
+       GROUP BY pt.tag
+       ORDER BY count DESC`
+    );
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.json({ tags: rows.map((r) => r.tag) });
+  } catch (err) {
+    console.error('Tags list error:', err);
+    res.status(500).json({ error: 'Failed to load tags' });
+  }
+});
+
 export default router;
