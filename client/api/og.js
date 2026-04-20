@@ -237,7 +237,7 @@ async function handleCategory(slug, siteUrl, renderApiUrl) {
 export default async function handler(req, res) {
   try {
     const SITE_URL = process.env.SITE_URL || 'https://www.involuntaryresponse.com';
-    const RENDER_API_URL = process.env.RENDER_API_URL;
+    const RENDER_API_URL = process.env.RENDER_API_URL || 'https://involuntary-response-api.onrender.com';
 
     const path = req.url.split('?')[0];
     const url = `${SITE_URL}${path}`;
