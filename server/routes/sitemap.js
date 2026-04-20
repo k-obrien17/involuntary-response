@@ -16,7 +16,6 @@ router.get('/', async (req, res) => {
     urls.push({ loc: '/', changefreq: 'daily', priority: '1.0' });
     urls.push({ loc: '/explore', changefreq: 'daily', priority: '0.8' });
     urls.push({ loc: '/about', changefreq: 'monthly', priority: '0.6' });
-    urls.push({ loc: '/join', changefreq: 'monthly', priority: '0.4' });
 
     const posts = await db.all(
       `SELECT slug, updated_at, published_at FROM posts
