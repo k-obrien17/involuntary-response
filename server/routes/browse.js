@@ -253,6 +253,25 @@ router.get('/explore', async (req, res) => {
   }
 });
 
+// GET /artists — All artist names (for autocomplete)
+router.get('/artists', async (req, res) => {
+  try {
+    const rows = await db.all(
+      `SELECT pa.artist_name, COUNT(*) as count
+       FROM post_artists pa
+       JOIN posts p ON pa.post_id = p.id
+       WHERE p.status = 'published'
+       GROUP BY pa.artist_name COLLATE NOCASE
+       ORDER BY count DESC`
+    );
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.json({ artists: rows.map((r) => r.artist_name) });
+  } catch (err) {
+    console.error('Artists list error:', err);
+    res.status(500).json({ error: 'Failed to load artists' });
+  }
+});
+
 // GET /tags — All tags (for autocomplete)
 router.get('/tags', async (req, res) => {
   try {
