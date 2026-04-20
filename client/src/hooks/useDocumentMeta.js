@@ -12,9 +12,36 @@ export default function useDocumentMeta(title, description) {
       metaDesc.setAttribute('content', description);
     }
 
+    const pageUrl = window.location.origin + window.location.pathname;
+
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) {
-      canonical.setAttribute('href', window.location.origin + window.location.pathname);
+      canonical.setAttribute('href', pageUrl);
+    }
+
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) {
+      ogUrl.setAttribute('content', pageUrl);
+    }
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute('content', fullTitle);
+    }
+
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc && description) {
+      ogDesc.setAttribute('content', description);
+    }
+
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) {
+      twTitle.setAttribute('content', fullTitle);
+    }
+
+    const twDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twDesc && description) {
+      twDesc.setAttribute('content', description);
     }
 
     return () => {

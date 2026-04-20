@@ -17,6 +17,15 @@
     <meta name="twitter:title" content="Involuntary Response" />
     <meta name="twitter:description" content="Short-form music takes from people who care about music." />
     <meta name="twitter:image" content="https://www.involuntaryresponse.com/og-default.png" />
+    <script>
+      (function() {
+        var u = location.origin + location.pathname;
+        var c = document.querySelector('link[rel="canonical"]');
+        if (c) c.href = u;
+        var o = document.querySelector('meta[property="og:url"]');
+        if (o) o.content = u;
+      })();
+    </script>
     <link rel="alternate" type="application/rss+xml" title="Involuntary Response" href="/api/feed" />
     <title>Involuntary Response</title>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-BGMNG1VLT2"></script>
